@@ -394,3 +394,144 @@ def stream_and_bounce(
         f_next[:, solid_mask] = 0.0
 
     return f_next
+
+
+# ============================================================================
+# Moment Space Analysis & Non-Equilibrium Diagnostics (Phase 5)
+# ============================================================================
+
+# Standard orthogonal moment transformation matrix M (Lallemand & Luo 2000, D'Humières 2002)
+# Moments:
+#   m[0] = rho       (density, conserved)
+#   m[1] = e         (energy)
+#   m[2] = epsilon   (energy squared)
+#   m[3] = j_x       (x-momentum, conserved)
+#   m[4] = q_x       (heat flux x)
+#   m[5] = j_y       (y-momentum, conserved)
+#   m[6] = q_y       (heat flux y)
+#   m[7] = p_xx      (normal stress difference: c_x^2 - c_y^2)
+#   m[8] = p_xy      (shear stress: c_x * c_y)
+M_MATRIX: np.ndarray = np.array(
+    [
+        [ 1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0],
+        [-4.0, -1.0, -1.0, -1.0, -1.0,  2.0,  2.0,  2.0,  2.0],
+        [ 4.0, -2.0, -2.0, -2.0, -2.0,  1.0,  1.0,  1.0,  1.0],
+        [ 0.0,  1.0,  0.0, -1.0,  0.0,  1.0, -1.0, -1.0,  1.0],
+        [ 0.0, -2.0,  0.0,  2.0,  0.0,  1.0, -1.0, -1.0,  1.0],
+        [ 0.0,  0.0,  1.0,  0.0, -1.0,  1.0,  1.0, -1.0, -1.0],
+        [ 0.0,  0.0, -2.0,  0.0,  2.0,  1.0,  1.0, -1.0, -1.0],
+        [ 0.0,  1.0, -1.0,  1.0, -1.0,  0.0,  0.0,  0.0,  0.0],
+        [ 0.0,  0.0,  0.0,  0.0,  0.0,  1.0, -1.0,  1.0, -1.0],
+    ],
+    dtype=np.float64,
+)
+
+# Analytical inverse: M_inv = M.T / sum(M^2, axis=1)[:, None].T
+M_INV: np.ndarray = (
+    M_MATRIX.T / np.sum(M_MATRIX**2, axis=1)[:, None].T
+)
+
+
+def compute_moments(f: np.ndarray) -> np.ndarray:
+    r"""Transform distribution functions f into orthogonal moment space m = M f.
+
+    Parameters
+    ----------
+    f : np.ndarray
+        Distribution functions of shape `(9, ...)` or `(9,)`.
+
+    Returns
+    -------
+    np.ndarray
+        Moments array of shape `(9, ...)`.
+    """
+    f_arr = np.asarray(f, dtype=np.float64)
+    if f_arr.ndim == 1:
+        return M_MATRIX @ f_arr
+    return np.tensordot(M_MATRIX, f_arr, axes=([1], [0]))
+
+
+def compute_distributions_from_moments(m: np.ndarray) -> np.ndarray:
+    r"""Transform orthogonal moments m back to distribution space f = M^{-1} m.
+
+    Parameters
+    ----------
+    m : np.ndarray
+        Moments array of shape `(9, ...)` or `(9,)`.
+
+    Returns
+    -------
+    np.ndarray
+        Distribution functions `f` of shape `(9, ...)`.
+    """
+    m_arr = np.asarray(m, dtype=np.float64)
+    if m_arr.ndim == 1:
+        return M_INV @ m_arr
+    return np.tensordot(M_INV, m_arr, axes=([1], [0]))
+
+
+def compute_nonequilibrium_stress(
+    f: np.ndarray,
+    f_eq: Optional[np.ndarray] = None,
+) -> np.ndarray:
+    r"""Compute non-equilibrium momentum flux / stress tensor \Pi_{ab}^{(neq)}.
+
+    .. math::
+        \Pi_{\alpha \beta}^{(neq)} = \sum_{i=0}^8 (f_i - f_i^{(eq)}) c_{i\alpha} c_{i\beta}
+
+    Parameters
+    ----------
+    f : np.ndarray
+        Distribution functions of shape `(9, ny, nx)`.
+    f_eq : np.ndarray, optional
+        Equilibrium distribution functions. If None, computed from f moments.
+
+    Returns
+    -------
+    np.ndarray
+        Stress tensor field of shape `(2, 2, ny, nx)`.
+        `pi_neq[0, 0]` is Pi_xx, `pi_neq[0, 1]` is Pi_xy, etc.
+    """
+    if f_eq is None:
+        rho, u = compute_macroscopic(f)
+        f_eq = compute_equilibrium(rho, u)
+
+    f_neq = f - f_eq
+    pi_neq = np.empty((2, 2, *f.shape[1:]), dtype=np.float64)
+
+    for a in range(2):
+        for b in range(2):
+            pi_neq[a, b] = np.sum(
+                (C[:, a] * C[:, b])[:, None, None] * f_neq,
+                axis=0,
+            )
+
+    return pi_neq
+
+
+def compute_entropy_h(f: np.ndarray, mask: Optional[np.ndarray] = None) -> float:
+    r"""Compute Boltzmann's H-function H = \sum_{x, i} f_i \ln(f_i / w_i).
+
+    Parameters
+    ----------
+    f : np.ndarray
+        Distribution functions of shape `(9, ...)`.
+    mask : np.ndarray of bool, optional
+        Spatial mask of active nodes, default None.
+
+    Returns
+    -------
+    float
+        Total entropy H.
+    """
+    f_arr = np.asarray(f, dtype=np.float64)
+    w_expanded = WEIGHTS.reshape((9,) + (1,) * (f_arr.ndim - 1))
+
+    # Protect against non-positive values
+    positive = f_arr > 1e-30
+    h_local = np.where(positive, f_arr * np.log(f_arr / w_expanded), 0.0)
+
+    if mask is not None:
+        return float(np.sum(h_local[:, mask]))
+    return float(np.sum(h_local))
+

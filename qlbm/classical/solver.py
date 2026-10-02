@@ -11,8 +11,10 @@ import numpy as np
 
 from qlbm.classical.d2q9 import (
     bgk_collision,
+    compute_entropy_h,
     compute_equilibrium,
     compute_macroscopic,
+    compute_nonequilibrium_stress,
     stream_and_bounce,
     viscosity_from_relaxation_time,
 )
@@ -218,3 +220,12 @@ class D2Q9BGKSolver:
         # Central difference in y (axis 0): (u_x[y+1, :] - u_x[y-1, :]) / 2
         dux_dy = (np.roll(self.u[0], -1, axis=0) - np.roll(self.u[0], 1, axis=0)) / 2.0
         return duy_dx - dux_dy
+
+    def get_nonequilibrium_stress(self) -> np.ndarray:
+        r"""Compute non-equilibrium momentum flux tensor \Pi_{ab}^{(neq)}."""
+        f_eq = compute_equilibrium(self.rho, self.u)
+        return compute_nonequilibrium_stress(self.f, f_eq=f_eq)
+
+    def get_entropy_h(self) -> float:
+        r"""Compute Boltzmann's H-function H = \sum_{x \in fluid, i} f_i \ln(f_i / w_i)."""
+        return compute_entropy_h(self.f, mask=self.fluid_mask)

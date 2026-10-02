@@ -374,11 +374,71 @@ The repository now possesses a fully verified, high-performance classical hydrod
 None. All numerical benchmarks converge with high precision.
 
 ### Next Step
-Proceed to **PHASE 5 — D2Q9 BGK OPERATOR DEEP VERIFICATION & COLLISION DYNAMICS**:
-1. Perform detailed relaxation spectrum and eigenvalue analysis of the D2Q9 BGK collision matrix.
-2. Characterize non-equilibrium moments, stress tensor $\Pi_{\alpha \beta}^{(neq)}$, and entropy production ($H$-theorem).
-3. Author `docs/research/05_d2q9_bgk.md`.
-4. Validate with relaxation tests in `tests/research/test_d2q9_bgk_relaxation.py`.
+Proceed to **PHASE 5 — D2Q9 BGK OPERATOR DEEP VERIFICATION & COLLISION DYNAMICS** (Completed).
+
+---
+
+## Phase 5: D2Q9 BGK Operator Deep Verification & Collision Dynamics
+
+### Date
+2026-10-02
+
+### Objective
+Perform detailed mathematical and numerical analysis of the D2Q9 BGK collision operator; construct the 9x9 Gram-Schmidt orthogonal moment basis matrix $M$; derive the collision matrix spectrum ($\lambda_k \in \{1.0, 1 - \omega\}$) and stability boundaries ($\tau > 0.5$); analyze the non-equilibrium stress tensor $\Pi_{\alpha \beta}^{(neq)}$ in Couette flow; evaluate discrete entropy and prove the quadratic Lyapunov functional $\Phi(f) = \sum \frac{(f_i - f_i^{(eq)})^2}{w_i}$; author `docs/research/05_d2q9_bgk.md`; implement and validate in `tests/research/test_d2q9_bgk_relaxation.py`.
+
+### Files Modified / Created
+- `qlbm/classical/d2q9.py`: added `M_MATRIX`, `M_INV`, `compute_moments`, `compute_distributions_from_moments`, `compute_nonequilibrium_stress`, `compute_entropy_h`.
+- `qlbm/classical/solver.py`: added `get_nonequilibrium_stress()`, `get_entropy_h()`.
+- `qlbm/classical/__init__.py`: updated exports.
+- `docs/research/05_d2q9_bgk.md`: authored theoretical and benchmark report.
+- `tests/research/test_d2q9_bgk_relaxation.py`: 18 validation tests.
+
+### Commands Executed
+- `.venv/bin/pytest tests/research/test_d2q9_bgk_relaxation.py -v`
+- `.venv/bin/pytest tests/research/ -v`
+
+### Tests Executed
+1. `tests/research/test_d2q9_bgk_relaxation.py`:
+   - `TestMomentMatrixProperties`: $M M^T$ diagonal orthogonality, analytical $M^{-1}$ inversion, roundtrip conservation ($\mathbf{f} \to \mathbf{m} \to \mathbf{f}$ within $10^{-14}$), conserved moment mapping ($m_0, m_3, m_5$): **4 passed**.
+   - `TestBGKEigenvaluesAndStability`: exact eigenvalue spectrum across 5 relaxation rates ($\tau \in \{0.6, 0.8, 1.0, 1.5, 2.0\}$), exponential decay for $\tau > 0.5$, exponential instability for $\tau < 0.5$: **7 passed**.
+   - `TestNonEquilibriumStressAndCouette`: zero stress at equilibrium, analytical Couette shear stress recovery $\Pi_{xy}^{(neq)} = -\frac{\tau}{3}\rho\dot{\gamma}$ and $\sigma_{xy} = -(1 - \frac{1}{2\tau})\Pi_{xy}^{(neq)} = \rho \nu \dot{\gamma}$ ($< 1.5\%$ error): **2 passed**.
+   - `TestDiscreteHTheoremAndLyapunov`: monotonic quadratic Lyapunov decay $\Phi(f^*) = (1 - \omega)^2 \Phi(f)$ across multiple relaxation rates, logarithmic $H$-convergence to $H_{eq}$: **5 passed**.
+   - Summary: **18 passed in 3.81s**.
+
+### Mathematical Findings
+1. **Spectral Structure:**
+   The linearized post-collision operator $C = (1 - \omega)I + \omega P_{eq}$ projects onto the 3 conserved hydrodynamic moments ($\lambda = 1.0$) and contracts all 6 non-conserved kinetic modes by $\lambda = 1 - \omega = 1 - 1/\tau$.
+2. **Stability Criterion:**
+   Numerical stability requires $|\lambda| < 1 \implies |1 - \omega| < 1 \implies 0 < \omega < 2 \implies \tau > 0.5$. Over-relaxation ($0.5 < \tau < 1.0$) exhibits oscillatory damping, while under-relaxation ($\tau > 1.0$) is strictly monotonic.
+3. **Discrete Stress Factor:**
+   Kinetic non-equilibrium flux $\Pi_{xy}^{(neq)}$ differs from Navier-Stokes viscous stress $\sigma_{xy}$ by the factor $-(1 - \frac{1}{2\tau})$, which directly yields $\nu = \frac{2\tau - 1}{6}$.
+4. **Quadratic Lyapunov Functional vs $H$-Theorem:**
+   Standard polynomial LBM does NOT strictly satisfy Boltzmann's logarithmic $H$-theorem at every discrete step due to polynomial truncation of the exponential Maxwellian. However, it strictly satisfies a discrete quadratic Lyapunov theorem: $\Phi(f^*) = (1 - \omega)^2 \Phi(f) < \Phi(f)$ for all stable $\tau > 0.5$.
+
+### Scientific Interpretation
+Understanding the non-unitary, dissipative projection mechanics of the classical BGK operator provides the exact scientific boundary condition for designing quantum collision operators: quantum computing requires either linear embedding (Carleman linearization / block encoding) or hybrid classical-quantum execution.
+
+### What is Validated
+- Full orthogonal moment basis and analytical transformations.
+- Complete eigenvalue spectrum and stability limits.
+- Kinetic-to-macroscopic shear stress connection.
+- Exact quadratic Lyapunov monotonic decay.
+
+### What is Not Validated
+- Low-Mach density fluctuation scaling and incompressible limit — scheduled for Phase 6.
+- External gravity forcing in stratified/two-phase flow — scheduled for Phase 7.
+- Multiphase interface mechanics — scheduled for Phase 8-10.
+
+### Problems
+None. All 18 tests pass with machine precision.
+
+### Next Step
+Proceed to **PHASE 6 — MACROSCOPIC MOMENTS & INCOMPRESSIBLE LIMIT**:
+1. Formally document density fluctuation scaling $\delta \rho / \rho_0 \sim O(\text{Ma}^2)$ and Mach number constraints ($\text{Ma} < 0.1$).
+2. Analyze compressibility error and pressure recovery in isothermal LBM.
+3. Author `docs/research/06_moments_and_incompressible_limit.md`.
+4. Implement Mach number and compressibility scaling tests in `tests/research/test_incompressible_limit.py`.
+
 
 
 
