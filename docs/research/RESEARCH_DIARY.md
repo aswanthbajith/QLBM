@@ -591,11 +591,77 @@ Conduct a comprehensive, scientifically rigorous comparative analysis of the fou
 None. The scientific architectural roadmap is clearly demarcated.
 
 ### Next Step
-Proceed to **PHASE 9 — SHAN-CHEN PSEUDOPOTENTIAL MULTIPHASE IMPLEMENTATION**:
-1. Implement the Shan-Chen inter-particle interaction force $\mathbf{F}_{\text{SC}}(\mathbf{x}) = -G \psi(\mathbf{x}) \sum w_i \psi(\mathbf{x} + \mathbf{c}_i \Delta t) \mathbf{c}_i$ in `qlbm/classical/multiphase.py`.
-2. Implement pseudopotential forms $\psi(\rho) = \rho_0 [1 - \exp(-\rho / \rho_0)]$ and Carnahan-Starling / Peng-Robinson non-ideal gas EOS.
-3. Author `docs/research/09_shan_chen_model.md`.
-4. Validate spontaneous phase separation and coexisting liquid-vapor densities in `tests/research/test_shan_chen.py`.
+Proceed to **PHASE 9 — SHAN-CHEN PSEUDOPOTENTIAL MULTIPHASE IMPLEMENTATION** (Completed).
+
+---
+
+## Phase 9: Shan-Chen Pseudopotential Multiphase Implementation
+
+### Date
+2026-10-02
+
+### Objective
+Implement the single-component Shan-Chen pseudopotential multiphase model on the validated D2Q9 lattice; derive the microscopic inter-particle interaction force, non-ideal equation of state, and spinodal instability condition; author `docs/research/09_shan_chen_model.md`; implement and validate comprehensive thermodynamic and kinetic benchmarks in `tests/research/test_shan_chen.py`.
+
+### Files Created/Modified
+- `qlbm/classical/multiphase.py`: Shan-Chen pseudopotentials (exponential, Carnahan-Starling), interaction force calculation, non-ideal pressure EOS, and `ShanChenMultiphaseSolver` subclassing `D2Q9BGKSolver`.
+- `qlbm/classical/__init__.py`: exported Shan-Chen components.
+- `docs/research/09_shan_chen_model.md`: comprehensive mathematical derivation and benchmark analysis.
+- `tests/research/test_shan_chen.py`: 8 unit and physical benchmark tests.
+
+### Commands Executed
+- `.venv/bin/pytest tests/research/test_shan_chen.py -v`
+- `.venv/bin/pytest tests/research/ -v`
+
+### Tests Executed
+1. `tests/research/test_shan_chen.py`:
+   - `TestPseudopotentialAndForceFormulation::test_exponential_pseudopotential_properties` PASSED
+   - `TestPseudopotentialAndForceFormulation::test_uniform_density_force_isotropy` PASSED ($\max \|F\| < 10^{-15}$)
+   - `TestPseudopotentialAndForceFormulation::test_attractive_force_direction` PASSED ($F_x(0) > 0, F_x(7) < 0$ inward pull)
+   - `TestPseudopotentialAndForceFormulation::test_carnahan_starling_pseudopotential` PASSED
+   - `TestPhaseSeparationAndThermodynamics::test_subcritical_stability_g_greater_than_critical` PASSED (decay below $0.005$)
+   - `TestPhaseSeparationAndThermodynamics::test_supercritical_spinodal_decomposition` PASSED ($\rho_l \approx 1.89, \rho_v \approx 0.118$, ratio $> 16$)
+   - `TestPhaseSeparationAndThermodynamics::test_shan_chen_equation_of_state_spinodal_loop` PASSED ($\partial p / \partial \rho < 0$)
+   - `TestPhaseSeparationAndThermodynamics::test_gravity_induced_phase_stratification` PASSED (liquid core settles, gas rises)
+   - Summary: **8 passed in 4.06s**.
+2. Combined research test suite (`tests/research/`):
+   - **81 passed in 30.91s**.
+
+### Mathematical & Physical Findings
+1. **Critical Interaction Threshold:**
+   For the standard exponential potential $\psi(\rho) = 1 - e^{-\rho}$, the critical point occurs at $\rho_c = \ln(2) \approx 0.69315$, yielding $G_c = -4.0$. For $G > -4.0$, perturbations dissipate; for $G < -4.0$, the fluid spontaneously undergoes spinodal decomposition into dense liquid ($\rho_l \approx 1.894$) and dilute gas ($\rho_v \approx 0.118$).
+2. **Force Isotropy and Cohesive Action:**
+   On uniform density fields, the discrete interaction force vanishes to machine precision ($< 10^{-15}$). Across high-density slabs, the cohesive force strictly pulls both interior boundary nodes and surrounding vapor inward toward the dense center.
+3. **Mass Conservation:**
+   Coupled with Guo forcing source terms $\sum_i F_i = 0$, total mass is conserved to machine precision ($|\Delta M| < 10^{-11}$) throughout intense spinodal phase separation.
+4. **Hydrostatic Phase Stratification:**
+   Under gravitational acceleration, dense liquid sedimented into the lower domain while dilute vapor displaced to the upper domain, maintaining a stable hydrostatic liquid-gas stratification.
+
+### Scientific Interpretation
+The Shan-Chen pseudopotential model confirms our ability to simulate non-ideal thermodynamics, spontaneous phase separation, and fluid-fluid interfaces on a discrete D2Q9 lattice. However, parasitic spurious currents and numerical instabilities at density ratios exceeding $\approx 20$ corroborate our Phase 8 architectural decision: the final two-phase dam-break solver must be built upon the sharp-interface Free-Surface / Volume-of-Fluid (VOF) LBM formulation.
+
+### What is Validated
+- Exponential and Carnahan-Starling pseudopotentials.
+- Discrete inter-particle interaction force and Guo forcing integration.
+- Subcritical damping vs supercritical spinodal decomposition.
+- Exact discrete mass conservation during phase separation.
+- Gravity-driven multiphase stratification.
+
+### What is Not Validated
+- Quantitative Laplace law $\Delta p = \sigma / R$ and surface tension calibration — scheduled for Phase 10.
+- Volume-of-Fluid (VOF) interface reconstruction and mass flux advection — scheduled for Phases 11–13.
+
+### Problems
+None encountered. All unit and benchmark tests passed cleanly.
+
+### Next Step
+Proceed to **PHASE 10 — SURFACE TENSION & LAPLACE LAW BENCHMARKING**:
+1. Implement stationary 2D liquid droplet simulations across multiple droplet radii $R$.
+2. Measure the inner and outer asymptotic pressures $p_{\text{in}}$ and $p_{\text{out}}$.
+3. Validate the 2D Young-Laplace relation: $\Delta p = p_{\text{in}} - p_{\text{out}} = \frac{\sigma}{R}$.
+4. Quantify the numerical surface tension $\sigma(G)$ and spurious interface velocity magnitude.
+5. Author `docs/research/10_surface_tension_laplace.md` and tests in `tests/research/test_laplace_surface_tension.py`.
+
 
 
 

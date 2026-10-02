@@ -20,6 +20,12 @@ from qlbm.classical.d2q9 import (
     stream_and_bounce,
     viscosity_from_relaxation_time,
 )
+from qlbm.classical.multiphase import (
+    ShanChenMultiphaseSolver,
+    compute_pseudopotential,
+    compute_shan_chen_force,
+    shan_chen_pressure,
+)
 from qlbm.classical.solver import D2Q9BGKSolver
 
 __all__ = [
@@ -42,4 +48,8 @@ __all__ = [
     "compute_nonequilibrium_stress",
     "compute_entropy_h",
     "D2Q9BGKSolver",
+    "compute_pseudopotential",
+    "compute_shan_chen_force",
+    "shan_chen_pressure",
+    "ShanChenMultiphaseSolver",
 ]
