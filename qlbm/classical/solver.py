@@ -10,6 +10,7 @@ from typing import Optional, Union
 import numpy as np
 
 from qlbm.classical.d2q9 import (
+    CS_SQ,
     bgk_collision,
     compute_entropy_h,
     compute_equilibrium,
@@ -229,3 +230,31 @@ class D2Q9BGKSolver:
     def get_entropy_h(self) -> float:
         r"""Compute Boltzmann's H-function H = \sum_{x \in fluid, i} f_i \ln(f_i / w_i)."""
         return compute_entropy_h(self.f, mask=self.fluid_mask)
+
+    def get_pressure(self, reference_density: Optional[float] = None) -> np.ndarray:
+        r"""Compute pressure field :math:`p = c_s^2 \rho` or gauge pressure :math:`c_s^2 (\rho - \rho_0)`.
+
+        Parameters
+        ----------
+        reference_density : float, optional
+            If given, returns gauge pressure relative to this reference density.
+
+        Returns
+        -------
+        np.ndarray
+            Pressure field of shape `(ny, nx)`.
+        """
+        if reference_density is not None:
+            return CS_SQ * (self.rho - reference_density)
+        return CS_SQ * self.rho
+
+    def get_divergence(self) -> np.ndarray:
+        r"""Compute velocity divergence :math:`\nabla \cdot \mathbf{u} = \frac{\partial u_x}{\partial x} + \frac{\partial u_y}{\partial y}`.
+
+        Uses second-order central differences on the periodic grid.
+        """
+        # Central difference in x (axis 1) for u_x
+        dux_dx = (np.roll(self.u[0], -1, axis=1) - np.roll(self.u[0], 1, axis=1)) / 2.0
+        # Central difference in y (axis 0) for u_y
+        duy_dy = (np.roll(self.u[1], -1, axis=0) - np.roll(self.u[1], 1, axis=0)) / 2.0
+        return dux_dx + duy_dy

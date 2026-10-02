@@ -433,11 +433,68 @@ Understanding the non-unitary, dissipative projection mechanics of the classical
 None. All 18 tests pass with machine precision.
 
 ### Next Step
-Proceed to **PHASE 6 — MACROSCOPIC MOMENTS & INCOMPRESSIBLE LIMIT**:
-1. Formally document density fluctuation scaling $\delta \rho / \rho_0 \sim O(\text{Ma}^2)$ and Mach number constraints ($\text{Ma} < 0.1$).
-2. Analyze compressibility error and pressure recovery in isothermal LBM.
-3. Author `docs/research/06_moments_and_incompressible_limit.md`.
-4. Implement Mach number and compressibility scaling tests in `tests/research/test_incompressible_limit.py`.
+Proceed to **PHASE 6 — MACROSCOPIC MOMENTS & INCOMPRESSIBLE LIMIT** (Completed).
+
+---
+
+## Phase 6: Macroscopic Moments & Incompressible Limit
+
+### Date
+2026-10-02
+
+### Objective
+Mathematically characterize and numerically validate the athermal equation of state $p = c_s^2 \rho$, the artificial compressibility mechanism of LBM, the quadratic scaling of density variations and velocity divergence errors with Mach number ($\delta \rho / \rho_0 \sim O(\text{Ma}^2)$, $||\nabla \cdot \mathbf{u}|| \sim O(\text{Ma}^2)$), physical acoustic wave speed $c_s = 1/\sqrt{3}$, and the Torricelli low-Mach constraint ($g H \le 1.667 \times 10^{-3}$) for two-phase dam-break simulations; author `docs/research/06_moments_and_incompressible_limit.md`; implement and validate in `tests/research/test_incompressible_limit.py`.
+
+### Files Modified / Created
+- `qlbm/classical/solver.py`: added `get_pressure(reference_density=None)` and `get_divergence()`.
+- `docs/research/06_moments_and_incompressible_limit.md`: authored technical report.
+- `tests/research/test_incompressible_limit.py`: 6 validation tests.
+
+### Commands Executed
+- `.venv/bin/pytest tests/research/test_incompressible_limit.py -v`
+- `.venv/bin/pytest tests/research/ -v`
+
+### Tests Executed
+1. `tests/research/test_incompressible_limit.py`:
+   - `TestEquationOfState`: absolute pressure ($p = c_s^2 \rho$) and gauge pressure ($p_{gauge} = c_s^2 (\rho - \rho_0)$) exactness: **2 passed**.
+   - `TestIncompressibleScaling`:
+     - Density fluctuation scaling $\Delta \rho / u_0^2 = \text{const}$ to within $0.3\%$ across 4 Mach numbers: **passed**.
+     - Velocity divergence error scaling $||\nabla \cdot \mathbf{u}||_{L_2} / u_0^2 = \text{const}$ to within $0.1\%$: **passed**.
+   - `TestAcousticWavePropagation`: sound pulse propagation speed matches $c_s = 1/\sqrt{3} \approx 0.57735$ to within $0.4\%$ error: **passed**.
+   - `TestDamBreakLowMachCriterion`: Torricelli bound $\text{Ma}_{torr} \le 0.1 \implies g \le 0.01 / (6 H)$: **passed**.
+   - Summary: **6 passed in 2.60s**.
+
+### Mathematical Findings
+1. **Artificial Compressibility Mechanism:**
+   The Lattice Boltzmann Method does not solve strictly incompressible Navier-Stokes directly; rather, it solves weakly compressible Navier-Stokes with an isothermal equation of state $p = c_s^2 \rho$. Continuity satisfies $\nabla \cdot \mathbf{u} = -\frac{1}{\rho_0} \frac{D\rho}{Dt} \sim O(\text{Ma}^2)$.
+2. **Quadratic Scaling Invariance:**
+   Both density fluctuations and divergence error scale strictly as $O(\text{Ma}^2)$. Keeping $\text{Ma} \le 0.1$ guarantees density variations remain below $1\%$, achieving hydrodynamic incompressibility.
+3. **Dam-Break Gravity Parameter Bound:**
+   Liquid column collapse from height $H$ under gravity $g$ induces maximum ejection velocity $U_{\text{peak}} \approx \sqrt{2 g H}$. Enforcing $\text{Ma}_{\text{peak}} \le 0.1$ requires $g H \le 1.667 \times 10^{-3}$. For $H=20$ lattice nodes, gravity must satisfy $g \le 8.3 \times 10^{-5}$ lattice units.
+
+### Scientific Interpretation
+The low-Mach operational constraint is the foundational design rule for simulating two-phase gravity flows and dam breaks in LBM. Exceeding this limit corrupts the free surface with unphysical acoustic compressions and leads to Volume-of-Fluid volume loss.
+
+### What is Validated
+- Absolute and gauge pressure recovery.
+- Exact quadratic Mach number scaling of density and divergence.
+- Numerical sound speed $c_s = 1/\sqrt{3}$.
+- Dam-break gravity scaling bound.
+
+### What is Not Validated
+- Stratified two-phase gravity forcing — scheduled for Phase 7.
+- Interfacial surface tension and Shan-Chen / phase-field coupling — scheduled for Phase 8-10.
+
+### Problems
+None. All 6 tests passed cleanly.
+
+### Next Step
+Proceed to **PHASE 7 — GRAVITY & EXTERNAL FORCING IN D2Q9**:
+1. Formulate vertical gravitational body force $\mathbf{F} = (0, -\rho g)$ within the Guo forcing scheme.
+2. Verify hydrostatic pressure equilibrium in a column of fluid: $\partial p / \partial y = -\rho g \implies p(y) = p_0 + \rho g (H - y)$.
+3. Author `docs/research/07_gravity_and_forcing.md`.
+4. Validate hydrostatic equilibrium and forcing accuracy in `tests/research/test_d2q9_gravity_forcing.py`.
+
 
 
 
