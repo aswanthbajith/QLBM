@@ -5,6 +5,7 @@ pseudopotential functions (exponential and Carnahan-Starling), non-ideal
 equations of state, and the specialized `ShanChenMultiphaseSolver` class.
 """
 
+from dataclasses import dataclass
 from typing import Optional, Tuple, Union
 
 import numpy as np
@@ -230,3 +231,199 @@ class ShanChenMultiphaseSolver(D2Q9BGKSolver):
         if vap < 1e-12:
             return float("inf")
         return self.liquid_density / vap
+
+    def initialize_droplet(
+        self,
+        radius: float,
+        xc: Optional[float] = None,
+        yc: Optional[float] = None,
+        rho_liquid: float = 1.9,
+        rho_vapor: float = 0.12,
+        interface_width: float = 1.5,
+    ) -> None:
+        r"""Initialize a 2D circular droplet centered in the domain."""
+        initialize_circular_droplet(
+            self,
+            radius=radius,
+            xc=xc,
+            yc=yc,
+            rho_liquid=rho_liquid,
+            rho_vapor=rho_vapor,
+            interface_width=interface_width,
+        )
+
+    def measure_droplet(
+        self,
+        xc: Optional[float] = None,
+        yc: Optional[float] = None,
+    ) -> dict:
+        r"""Measure geometric, thermodynamic, and spurious velocity properties of the droplet."""
+        return measure_droplet_properties(self, xc=xc, yc=yc)
+
+
+@dataclass
+class LaplaceFitResult:
+    r"""Results of linear regression for the 2D Young-Laplace law :math:`\Delta p = \sigma / R + c_0`."""
+
+    sigma: float
+    intercept: float
+    r_squared: float
+    radii: np.ndarray
+    delta_pressures: np.ndarray
+
+
+def initialize_circular_droplet(
+    solver: ShanChenMultiphaseSolver,
+    radius: float,
+    xc: Optional[float] = None,
+    yc: Optional[float] = None,
+    rho_liquid: float = 1.9,
+    rho_vapor: float = 0.12,
+    interface_width: float = 1.5,
+) -> None:
+    r"""Initialize a 2D circular liquid droplet in a surrounding vapor phase.
+
+    Parameters
+    ----------
+    solver : ShanChenMultiphaseSolver
+        Target multiphase solver instance.
+    radius : float
+        Nominal droplet radius in lattice units.
+    xc : float, optional
+        Center x-coordinate. Default: domain midpoint `nx / 2.0`.
+    yc : float, optional
+        Center y-coordinate. Default: domain midpoint `ny / 2.0`.
+    rho_liquid : float, optional
+        Initial dense phase density, default 1.9.
+    rho_vapor : float, optional
+        Initial dilute phase density, default 0.12.
+    interface_width : float, optional
+        Diffuse interface transition thickness, default 1.5.
+    """
+    nx, ny = solver.nx, solver.ny
+    if xc is None:
+        xc = nx / 2.0
+    if yc is None:
+        yc = ny / 2.0
+
+    y, x = np.mgrid[0:ny, 0:nx]
+    # Periodic distance to center
+    dx = np.minimum(np.abs(x - xc), nx - np.abs(x - xc))
+    dy = np.minimum(np.abs(y - yc), ny - np.abs(y - yc))
+    r = np.sqrt(dx**2 + dy**2)
+
+    # Smooth hyperbolic tangent profile
+    rho_init = rho_vapor + 0.5 * (rho_liquid - rho_vapor) * (
+        1.0 - np.tanh((r - radius) / max(interface_width, 1e-6))
+    )
+    solver.initialize(rho=rho_init)
+
+
+def measure_droplet_properties(
+    solver: ShanChenMultiphaseSolver,
+    xc: Optional[float] = None,
+    yc: Optional[float] = None,
+) -> dict:
+    r"""Measure geometric and thermodynamic properties of a relaxed stationary droplet.
+
+    Parameters
+    ----------
+    solver : ShanChenMultiphaseSolver
+        Solver instance containing relaxed droplet state.
+    xc : float, optional
+        Center x-coordinate. Default `nx / 2.0`.
+    yc : float, optional
+        Center y-coordinate. Default `ny / 2.0`.
+
+    Returns
+    -------
+    dict
+        Dictionary containing:
+        - 'rho_in': density at droplet center
+        - 'rho_out': density in far-field vapor (corner)
+        - 'p_in': thermodynamic pressure at center
+        - 'p_out': thermodynamic pressure in vapor
+        - 'delta_p': Laplace pressure jump p_in - p_out
+        - 'effective_radius': R_eff = sqrt(Area / pi)
+        - 'u_max': maximum spurious velocity magnitude
+        - 'u_bulk_in': velocity magnitude at droplet center
+        - 'u_bulk_out': velocity magnitude at domain corner
+    """
+    nx, ny = solver.nx, solver.ny
+    if xc is None:
+        xc = nx / 2.0
+    if yc is None:
+        yc = ny / 2.0
+
+    ix = int(round(xc)) % nx
+    iy = int(round(yc)) % ny
+
+    rho_in = float(solver.rho[iy, ix])
+    rho_out = float(solver.rho[0, 0])
+
+    p_in = float(shan_chen_pressure(rho_in, G=solver.G, rho_0=solver.rho_0))
+    p_out = float(shan_chen_pressure(rho_out, G=solver.G, rho_0=solver.rho_0))
+    delta_p = p_in - p_out
+
+    # Effective radius from area of nodes above midpoint density
+    rho_mid = 0.5 * (rho_in + rho_out)
+    droplet_mask = solver.rho > rho_mid
+    area = float(np.sum(droplet_mask))
+    effective_radius = float(np.sqrt(area / np.pi))
+
+    u_mag = np.sqrt(solver.u[0] ** 2 + solver.u[1] ** 2)
+    u_max = float(np.max(u_mag))
+    u_bulk_in = float(u_mag[iy, ix])
+    u_bulk_out = float(u_mag[0, 0])
+
+    return {
+        "rho_in": rho_in,
+        "rho_out": rho_out,
+        "p_in": p_in,
+        "p_out": p_out,
+        "delta_p": delta_p,
+        "effective_radius": effective_radius,
+        "u_max": u_max,
+        "u_bulk_in": u_bulk_in,
+        "u_bulk_out": u_bulk_out,
+    }
+
+
+def fit_laplace_law(
+    radii: Union[list, np.ndarray],
+    delta_pressures: Union[list, np.ndarray],
+) -> LaplaceFitResult:
+    r"""Perform linear regression on 2D Young-Laplace relation :math:`\Delta p = \sigma \cdot (1/R) + c_0`.
+
+    Parameters
+    ----------
+    radii : list or np.ndarray
+        List of droplet effective radii :math:`R`.
+    delta_pressures : list or np.ndarray
+        Corresponding pressure differences :math:`\Delta p = p_{\text{in}} - p_{\text{out}}`.
+
+    Returns
+    -------
+    LaplaceFitResult
+        Fitted surface tension :math:`\sigma`, intercept, and :math:`R^2`.
+    """
+    r_arr = np.asarray(radii, dtype=np.float64)
+    dp_arr = np.asarray(delta_pressures, dtype=np.float64)
+
+    if len(r_arr) < 2:
+        raise ValueError("At least 2 data points required for Laplace linear fit.")
+
+    inv_r = 1.0 / r_arr
+    slope, intercept = np.polyfit(inv_r, dp_arr, 1)
+
+    corr = np.corrcoef(inv_r, dp_arr)[0, 1]
+    r_squared = float(corr**2)
+
+    return LaplaceFitResult(
+        sigma=float(slope),
+        intercept=float(intercept),
+        r_squared=r_squared,
+        radii=r_arr,
+        delta_pressures=dp_arr,
+    )
+

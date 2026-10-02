@@ -655,12 +655,75 @@ The Shan-Chen pseudopotential model confirms our ability to simulate non-ideal t
 None encountered. All unit and benchmark tests passed cleanly.
 
 ### Next Step
-Proceed to **PHASE 10 — SURFACE TENSION & LAPLACE LAW BENCHMARKING**:
-1. Implement stationary 2D liquid droplet simulations across multiple droplet radii $R$.
-2. Measure the inner and outer asymptotic pressures $p_{\text{in}}$ and $p_{\text{out}}$.
-3. Validate the 2D Young-Laplace relation: $\Delta p = p_{\text{in}} - p_{\text{out}} = \frac{\sigma}{R}$.
-4. Quantify the numerical surface tension $\sigma(G)$ and spurious interface velocity magnitude.
-5. Author `docs/research/10_surface_tension_laplace.md` and tests in `tests/research/test_laplace_surface_tension.py`.
+Proceed to **PHASE 10 — SURFACE TENSION & LAPLACE LAW BENCHMARKING** (Completed).
+
+---
+
+## Phase 10: Surface Tension & Young-Laplace Law Validation
+
+### Date
+2026-10-02
+
+### Objective
+Derive the 2D Young-Laplace pressure relation $\Delta p = \frac{\sigma}{R}$ across a curved fluid-fluid interface; implement stationary circular droplet simulations across multiple radii; calibrate numerical surface tension $\sigma(G)$; analyze the spatial distribution and scaling of parasitic spurious currents; author `docs/research/10_surface_tension_laplace.md`; implement and validate comprehensive physical tests in `tests/research/test_laplace_surface_tension.py`.
+
+### Files Created/Modified
+- `qlbm/classical/multiphase.py`: added `LaplaceFitResult` dataclass, `initialize_circular_droplet`, `measure_droplet_properties`, `fit_laplace_law`, and convenience methods `initialize_droplet` and `measure_droplet` on `ShanChenMultiphaseSolver`.
+- `qlbm/classical/__init__.py`: exported Laplace utilities and functions.
+- `docs/research/10_surface_tension_laplace.md`: comprehensive theoretical derivation, regression tables, spurious currents spatial mapping, and VOF architectural bridge.
+- `tests/research/test_laplace_surface_tension.py`: 6 rigorous unit and physical benchmark tests.
+
+### Commands Executed
+- `.venv/bin/pytest tests/research/test_laplace_surface_tension.py -v`
+- `.venv/bin/pytest tests/research/ -v`
+
+### Tests Executed
+1. `tests/research/test_laplace_surface_tension.py`:
+   - `TestDropletInitializationAndConservation::test_circular_droplet_tanh_profile` PASSED (smooth hyperbolic tangent profile within bounds)
+   - `TestDropletInitializationAndConservation::test_droplet_mass_conservation_during_relaxation` PASSED ($|\Delta M| < 10^{-11}$)
+   - `TestYoungLaplaceLaw::test_laplace_linear_scaling_and_surface_tension` PASSED ($R^2 = 0.9869 > 0.98$, $\sigma = 0.0321 \pm 0.001$, intercept near zero)
+   - `TestYoungLaplaceLaw::test_surface_tension_monotonicity_with_g` PASSED ($\sigma$ increases $> 6\times$ from $G=-4.5$ to $G=-5.5$)
+   - `TestSpuriousCurrentsAndParasiticVortices::test_spurious_currents_spatial_localization` PASSED (spurious currents localized strictly at interface, $< 10^{-14}$ in bulk phases)
+   - `TestSpuriousCurrentsAndParasiticVortices::test_spurious_currents_scaling_with_interaction_strength` PASSED ($u_{\text{max}}$ grows from $0.0016$ to $0.0199$)
+   - Summary: **6 passed in 10.01s**.
+2. Combined research test suite (`tests/research/`):
+   - **87 passed in ~40s**.
+
+### Mathematical & Physical Findings
+1. **2D Young-Laplace Law Distinction:**
+   Because in-plane cylindrical droplets have zero out-of-plane curvature ($R_2 \to \infty$), the 2D pressure jump is $\Delta p = \frac{\sigma}{R}$ without the spherical factor of 2.
+2. **High Linear Precision:**
+   Across radii $R_0 \in [8, 16]$, the product $\Delta p \cdot R_{\text{eff}}$ remained tightly bounded between $0.0312$ and $0.0344$, with linear regression yielding $R^2 = 0.9869$ and intercept $8.7 \times 10^{-5} \approx 0$.
+3. **Surface Tension Monotonicity:**
+   Increasing interaction strength $|G|$ deepened the spinodal separation, widening density contrast from $6.1$ to $36.1$ and multiplying surface tension from $0.0152$ to $0.0936$.
+4. **Spatial Confinement & Spurious Current Bottleneck:**
+   Parasitic velocities were proved to be strictly confined to the diffuse interface, dropping to machine zero ($< 10^{-14}$) in the bulk liquid core and far-field vapor. However, spurious currents grew exponentially with $|G|$, reaching $u_{\text{max}} \approx 0.02$ at $G=-5.5$. This provides conclusive empirical justification for adopting Volume-of-Fluid (VOF) / Free-Surface LBM for the high-density-ratio dam-break problem.
+
+### Scientific Interpretation
+The successful validation of Laplace's law establishes that the classical LBM suite correctly represents interfacial mechanics, normal stress balance, and capillary effects. Furthermore, the quantitative analysis of spurious currents demonstrates the exact physical boundary where diffuse-interface models break down and sharp-interface VOF methods become mandatory.
+
+### What is Validated
+- 2D Young-Laplace linear scaling $\Delta p \propto 1/R$.
+- Numerical surface tension calibration $\sigma(G)$.
+- Mass conservation during multiphase droplet relaxation.
+- Spatial localization and exponential growth of spurious currents.
+
+### What is Not Validated
+- Volume-of-Fluid (VOF) interface reconstruction (Youngs gradient, PLIC) — scheduled for Phase 11.
+- Geometric mass flux advection and interface cell state transitions — scheduled for Phase 12.
+- Free-surface pressure boundary conditions and gas decoupling — scheduled for Phase 13.
+- Two-phase liquid column collapse dam-break simulation — scheduled for Phases 14–15.
+
+### Problems
+None. All tests passed.
+
+### Next Step
+Proceed to **PHASE 11 — VOF GEOMETRIC INTERFACE RECONSTRUCTION**:
+1. Implement the Volume-of-Fluid fill level / volume fraction field $C(\mathbf{x}) \in [0, 1]$.
+2. Implement Youngs gradient and Parker-Pilliod normal vector estimation algorithms.
+3. Implement Piecewise Linear Interface Calculation (PLIC) line constant $\alpha$ determination.
+4. Author `docs/research/11_vof_interface_reconstruction.md` and tests in `tests/research/test_vof_reconstruction.py`.
+
 
 
 

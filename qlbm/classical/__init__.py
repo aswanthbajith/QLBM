@@ -21,9 +21,13 @@ from qlbm.classical.d2q9 import (
     viscosity_from_relaxation_time,
 )
 from qlbm.classical.multiphase import (
+    LaplaceFitResult,
     ShanChenMultiphaseSolver,
     compute_pseudopotential,
     compute_shan_chen_force,
+    fit_laplace_law,
+    initialize_circular_droplet,
+    measure_droplet_properties,
     shan_chen_pressure,
 )
 from qlbm.classical.solver import D2Q9BGKSolver
@@ -52,4 +56,8 @@ __all__ = [
     "compute_shan_chen_force",
     "shan_chen_pressure",
     "ShanChenMultiphaseSolver",
+    "LaplaceFitResult",
+    "initialize_circular_droplet",
+    "measure_droplet_properties",
+    "fit_laplace_law",
 ]
