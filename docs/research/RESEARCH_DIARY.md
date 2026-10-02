@@ -549,15 +549,54 @@ This sets the stage for introducing multiphase physics and Volume-of-Fluid coupl
 None. All 7 tests passed with extreme precision.
 
 ### Next Step
-Proceed to **PHASE 8 — MULTIPHASE LBM MODEL SURVEY & ARCHITECTURAL SELECTION**:
-1. Conduct a rigorous scientific comparison of the four major multiphase LBM paradigms:
-   - Pseudopotential (Shan-Chen)
-   - Free Energy (Swift et al.)
-   - Color-Gradient (Gunstensen / Rothman-Keller)
-   - Phase-Field (He-Chen-Zhang / Cahn-Hilliard)
-2. Evaluate thermodynamic consistency, maximum density ratio ($\rho_L / \rho_G$), spurious interface currents, and suitability for Volume-of-Fluid (VOF) coupling.
-3. Author `docs/research/08_multiphase_lbm_survey.md`.
-4. Establish the architectural selection for the two-phase gas-liquid dam-break solver.
+Proceed to **PHASE 8 — MULTIPHASE LBM MODEL SURVEY & ARCHITECTURAL SELECTION** (Completed).
+
+---
+
+## Phase 8: Multiphase LBM Model Survey & Architectural Selection
+
+### Date
+2026-10-02
+
+### Objective
+Conduct a comprehensive, scientifically rigorous comparative analysis of the four primary multiphase LBM paradigms (Pseudopotential / Shan-Chen, Free Energy / Swift, Color-Gradient / Gunstensen, Phase-Field / He-Chen-Zhang) and the Volume-of-Fluid (VOF) interface tracking method; evaluate maximum density ratio, spurious currents, thermodynamic consistency, mass conservation under violent splashing, and quantum compatibility; author `docs/research/08_multiphase_lbm_survey.md`; formalize the architectural selection for the Master's thesis two-phase dam-break solver.
+
+### Files Created
+- `docs/research/08_multiphase_lbm_survey.md`: comprehensive 5-model comparative survey and architectural manifesto.
+
+### Key Comparative Findings
+1. **Pseudopotential (Shan-Chen):** Excellent algorithmic simplicity and natural phase separation, but suffers from high spurious interfacial currents ($O(10^{-2})$) and numerical instability at air-water density ratios ($\rho_L / \rho_G \approx 1000$). Best utilized as a kinetic reference benchmark.
+2. **Free Energy (Swift et al.):** Thermodynamically rigorous Ginzburg-Landau derivation, but unstable for density ratios $\rho_L / \rho_G > 20$ and requires wide numerical gradient stencils near solid walls.
+3. **Color-Gradient:** Sharp interfaces (2–3 nodes) and low spurious currents, but the non-kinetic recoloring step breaks Galilean invariance and induces lattice-pinning artifacts.
+4. **Phase-Field (Conservative Allen-Cahn / Cahn-Hilliard):** Robust at $\rho_L / \rho_G = 1000$ with minimal spurious currents, but requires dual distribution function sets ($2 \times 9 = 18$ populations) and non-local chemical potential stencils.
+5. **Hybrid VOF-LBM (Körner / Free-Surface formulation):**
+   - Treats the gas phase as a physical pressure boundary condition, achieving an **infinite effective density ratio** ($\rho_L / \rho_G = \infty$).
+   - Strict discrete mass/volume flux conservation prevents droplet evaporation and numerical mass drift during violent wave impact and splashing.
+   - Significant memory reduction ($> 50\%$) by deactivating pure gas nodes.
+
+### Architectural Decision
+**Primary Physics Solver:** Hybrid Volume-of-Fluid + Lattice Boltzmann Method (FS-VOF-LBM).
+**Kinetic Benchmark:** Conservative Pseudopotential (Shan-Chen) implemented in Phase 9 to validate thermodynamic phase separation and Laplace surface tension against classical benchmarks.
+
+### What is Validated
+- Full survey and mathematical classification of multiphase LBM models.
+- Formal justification for selecting the Hybrid VOF-LBM architecture for high-density-ratio dam-break flows.
+
+### What is Not Validated
+- Numerical implementation of Shan-Chen pseudo-potential — scheduled for Phase 9.
+- Laplace surface tension validation — scheduled for Phase 10.
+- VOF geometric advection and interface reconstruction — scheduled for Phase 11-13.
+
+### Problems
+None. The scientific architectural roadmap is clearly demarcated.
+
+### Next Step
+Proceed to **PHASE 9 — SHAN-CHEN PSEUDOPOTENTIAL MULTIPHASE IMPLEMENTATION**:
+1. Implement the Shan-Chen inter-particle interaction force $\mathbf{F}_{\text{SC}}(\mathbf{x}) = -G \psi(\mathbf{x}) \sum w_i \psi(\mathbf{x} + \mathbf{c}_i \Delta t) \mathbf{c}_i$ in `qlbm/classical/multiphase.py`.
+2. Implement pseudopotential forms $\psi(\rho) = \rho_0 [1 - \exp(-\rho / \rho_0)]$ and Carnahan-Starling / Peng-Robinson non-ideal gas EOS.
+3. Author `docs/research/09_shan_chen_model.md`.
+4. Validate spontaneous phase separation and coexisting liquid-vapor densities in `tests/research/test_shan_chen.py`.
+
 
 
 
