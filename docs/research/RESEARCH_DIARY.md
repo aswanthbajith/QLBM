@@ -167,9 +167,76 @@ Deeply inspect `MSLattice` register structure, define the exact qubit layout, en
 None. Diagnostic suite runs in ~3 seconds with zero failures.
 
 ### Next Step
-Proceed to **PHASE 2 — MSQLBM STREAMING MATHEMATICS**:
-1. Deeply study `qlbm/components/ms/streaming.py` (`StreamingAncillaPreparation`, `ControlledIncrementer`, `MSStreamingOperator`).
-2. Derive mathematical formulation of QFT-based position shifts and CFL velocity scheduling.
-3. Author `docs/research/02_ms_streaming_mathematics.md`.
-4. Implement deterministic validation tests for 2D streaming directions $(\pm 1, \pm 1)$ and velocity tiers.
+Proceed to **PHASE 2 — MSQLBM STREAMING MATHEMATICS** (Completed).
+
+---
+
+## Phase 2: MSQLBM Streaming Mathematics & QFT Advection Validation
+
+### Date
+2026-10-02
+
+### Objective
+Derive mathematically the QFT-based position translation $x' = (x \pm v_x) \bmod N_x$, analyze the directional control logic ($vd$) and CFL ancilla preparation ($a_v$), author `docs/research/02_ms_streaming_mathematics.md`, and implement/validate deterministic test cases across all quadrants and velocity tiers in `tests/research/test_ms_streaming_mathematics.py`.
+
+### Files Inspected
+- `qlbm/components/ms/streaming.py`
+- `qlbm/components/common/adders.py`
+- `qlbm/tools/utils.py`
+- `test/e2e/test_ms_e2e.py`
+
+### Files Created
+- `docs/research/02_ms_streaming_mathematics.md`
+- `tests/research/test_ms_streaming_mathematics.py`
+
+### Commands Executed
+- `.venv/bin/pytest tests/research/test_ms_streaming_mathematics.py -v`
+- `.venv/bin/pytest tests/research/ -v`
+- `.venv/bin/pytest test/e2e/test_ms_e2e.py test/unit/lattice/ms_lattice_test.py -q`
+
+### Tests Executed
+1. `tests/research/test_ms_streaming_mathematics.py`:
+   - Single substep positive/negative streaming: PASSED
+   - Slow tier (+1) macro-step across all 4 quadrants $((+1,+1), (+1,-1), (-1,+1), (-1,-1))$: PASSED
+   - Fast tier (+3) macro-step across all 4 quadrants: PASSED
+   - Mixed speed tiers ($x$ fast, $y$ slow): PASSED
+   - Modular boundary wraparound (lower/upper limits): PASSED
+   - Multi-step evolution (3 consecutive timesteps): PASSED
+   - Summary: **14 passed in 4.93s**.
+2. Combined research test suite (`tests/research/`):
+   - **21 passed in 5.47s**.
+3. Regression suite (`test/e2e/test_ms_e2e.py` + `test/unit/lattice/ms_lattice_test.py`):
+   - **40 passed in 2.21s**.
+
+### Mathematical Findings
+1. Spatial advection by $\Delta x = \pm 1$ diagonalizes in Fourier space as a phase shift operator:
+   $$\hat{P}(\pm 1) = \sum_{y=0}^{2^n-1} \exp\left( \pm \frac{2\pi i y}{2^n} \right) |y\rangle \langle y|$$
+   Synthesized via single-qubit phase gates $P(\phi_j)$ with angles $\phi_j = \pm \frac{\pi}{2^{n-1-j}}$ on Fourier-transformed grid qubits.
+2. Controlled direction logic:
+   Controlled phase shifts conditioned on $(a_v, vd)$, followed by $X(vd)$, controlled negative phase shift, and $X(vd)$ uncomputation executes signed addition without destructively measuring the velocity direction.
+3. Multi-speed CFL scheduling:
+   For $N_v = 4$, macroscopic time steps are partitioned into 3 substeps $\mathcal{V}_1 = [1], \mathcal{V}_2 = [1], \mathcal{V}_3 = [0, 1]$. Fast particles cover $\Delta x = 3$, slow particles cover $\Delta x = 1$. Periodic boundaries $\mathbb{Z}_{N}$ wrap automatically via integer phase modularity $e^{2\pi i (x \pm \Delta x) y / 2^n}$.
+
+### Scientific Interpretation
+MS streaming is an exact, unitary, collisionless spatial permutation operator. It provides deterministic transport without dissipation. However, it lacks isotropic lattice weights ($w_i$) and rest particles ($c=0$), which will necessitate a distinct classical D2Q9 formulation for hydrodynamic modeling.
+
+### What is Validated
+- Analytic advection $x' = (x \pm v_x) \bmod N_x$ on quantum circuits.
+- 100% state fidelity on statevector simulation across all velocity tiers and quadrants.
+- Exact modular boundary wraparound.
+
+### What is Not Validated
+- Collision mechanisms (streaming is non-interacting).
+- Non-periodic boundary walls (deferred to Phase 3).
+
+### Problems
+None. No bugs found in `streaming.py`.
+
+### Next Step
+Proceed to **PHASE 3 — MSQLBM BOUNDARY CONDITIONS**:
+1. Inspect `qlbm/components/ms/bounceback_reflection.py`, `specular_reflection.py`, and `primitives.py`.
+2. Mathematically document wall comparator logic, obstacle ancilla flipping, velocity reversal, and corner handling.
+3. Author `docs/research/03_ms_boundary_conditions.md`.
+4. Implement deterministic tests in `tests/research/test_ms_boundary_conditions.py`.
+
 
