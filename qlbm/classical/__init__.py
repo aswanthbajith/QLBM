@@ -31,6 +31,15 @@ from qlbm.classical.multiphase import (
     shan_chen_pressure,
 )
 from qlbm.classical.solver import D2Q9BGKSolver
+from qlbm.classical.vof import (
+    CellType,
+    VOFInterface,
+    classify_cells,
+    compute_normal_central,
+    compute_normal_youngs,
+    plic_forward_area,
+    plic_inverse_alpha,
+)
 
 __all__ = [
     "C",
@@ -60,4 +69,11 @@ __all__ = [
     "initialize_circular_droplet",
     "measure_droplet_properties",
     "fit_laplace_law",
+    "CellType",
+    "classify_cells",
+    "compute_normal_youngs",
+    "compute_normal_central",
+    "plic_forward_area",
+    "plic_inverse_alpha",
+    "VOFInterface",
 ]
