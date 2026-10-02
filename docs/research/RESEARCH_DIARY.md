@@ -233,10 +233,83 @@ MS streaming is an exact, unitary, collisionless spatial permutation operator. I
 None. No bugs found in `streaming.py`.
 
 ### Next Step
-Proceed to **PHASE 3 — MSQLBM BOUNDARY CONDITIONS**:
-1. Inspect `qlbm/components/ms/bounceback_reflection.py`, `specular_reflection.py`, and `primitives.py`.
-2. Mathematically document wall comparator logic, obstacle ancilla flipping, velocity reversal, and corner handling.
-3. Author `docs/research/03_ms_boundary_conditions.md`.
-4. Implement deterministic tests in `tests/research/test_ms_boundary_conditions.py`.
+Proceed to **PHASE 3 — MSQLBM BOUNDARY CONDITIONS** (Completed).
+
+---
+
+## Phase 3: MSQLBM Boundary Conditions & Quantum Reflection Operators
+
+### Date
+2026-10-02
+
+### Objective
+Deeply inspect `MSBounceBackReflectionOperator`, `MSSpecularReflectionOperator`, and `primitives.py`; derive the mathematical mechanics of the 4-stage quantum reflection cycle (interior comparator intrusion $\to$ direction reversal $\to$ outward streaming $\to$ exterior uncomputation $\to$ corner/point cleanup); author `docs/research/03_ms_boundary_conditions.md`; implement and validate deterministic boundary tests in `tests/research/test_ms_boundary_conditions.py`.
+
+### Files Inspected
+- `qlbm/components/ms/bounceback_reflection.py`
+- `qlbm/components/ms/specular_reflection.py`
+- `qlbm/components/ms/primitives.py`
+- `qlbm/lattice/geometry/encodings/ms.py`
+- `qlbm/lattice/geometry/shapes/block.py`
+- `test/e2e/test_ms_e2e.py`
+
+### Files Created
+- `docs/research/03_ms_boundary_conditions.md`
+- `tests/research/test_ms_boundary_conditions.py`
+
+### Commands Executed
+- `.venv/bin/pytest tests/research/test_ms_boundary_conditions.py -v`
+- `.venv/bin/pytest tests/research/ -v`
+- `.venv/bin/pytest test/unit/lattice/ms_lattice_test.py test/e2e/test_ms_e2e.py -q`
+
+### Tests Executed
+1. `tests/research/test_ms_boundary_conditions.py`:
+   - `TestMS2DBounceBack::test_bounceback_collision` PASSED
+   - `TestMS2DBounceBack::test_free_streaming_away_from_bounceback` PASSED
+   - `TestMS2DSpecular::test_specular_wall_collision` PASSED
+   - `TestMS2DSpecular::test_specular_corner_collision` PASSED
+   - `TestMS3DBounceBack::test_3d_bounceback_collision` PASSED
+   - Summary: **5 passed in 19.96s**.
+2. Combined research test suite (`tests/research/`):
+   - **26 passed in 23.78s**.
+3. Regression suite (`test/unit/lattice/ms_lattice_test.py test/e2e/test_ms_e2e.py`):
+   - **40 passed in 2.21s**.
+
+### Mathematical & Algorithmic Findings
+1. **Four-Stage Quantum Reflection Cycle:**
+   - **Stage 1 (Collision Detection):** Geometry comparator checks if grid registers lie within obstacle bounds, marking obstacle ancilla $|a_o\rangle \to |1\rangle$.
+   - **Stage 2 (Direction Inversion):**
+     - Bounce-Back (full momentum inversion): Controlled $X$ conditioned on $a_o$ flips all direction qubits $(vd_0, \dots, vd_{d-1})$.
+     - Specular (free-slip wall reflection): Component-wise detection marks $a_{o,k}$, inverting only the normal velocity component $vd_k \to 1 - vd_k$ while keeping tangential components unaffected.
+   - **Stage 3 (Outward Stepping):** Controlled Draper advection steps the particle backward out of the obstacle into the adjacent fluid cell.
+   - **Stage 4 (Exterior Detection & Restoration):** Exterior comparator or corner cleanup restores ancillae to $|0\rangle$.
+2. **Ancilla Lifecycle Differences:**
+   - In `MSBounceBackReflectionOperator`, $a_o$ stays at $|1\rangle$ after reflection and is re-initialized to $|0\rangle$ between macroscopic steps by `MSQLBM.reset_step()`.
+   - In `MSSpecularReflectionOperator`, $a_o$ is strictly restored to $|0\rangle$ within the circuit via edge and corner uncomputation operators.
+3. **Conservation & Reversibility:**
+   - The entire reflection sequence is composed of unitary permutations, adders, and multi-controlled NOTs. Reflection preserves statevector norm exactly ($||\psi||=1$) and particle speed tier.
+
+### Scientific Interpretation
+Quantum reflection in MSQLBM is a discrete particle mechanics operator. It mirrors hard-sphere specular and bounce-back collision dynamics on Cartesian grids. Unlike classical LBM, where boundary conditions are applied to continuous distribution functions ($f_i$) using halfway bounce-back schemes or interpolated boundary rules, MSQLBM reflects individual basis states. This provides a clear contrast with the classical D2Q9 LBM solver required for macroscopic hydrodynamics.
+
+### What is Validated
+- Full 2D and 3D bounce-back and specular reflection circuits.
+- Obstacle non-interference: fluid particles moving away from obstacles pass freely without state perturbation.
+- 100% state fidelity in statevector simulation.
+
+### What is Not Validated
+- Wet-node or half-way bounceback for distribution functions (classical LBM).
+- Curved or complex boundary interpolations (Filippova-Hänel or Bouzidi).
+
+### Problems
+None. Reflection operators operate exactly as mathematically derived.
+
+### Next Step
+Proceed to **PHASE 4 — CLASSICAL LBM REFERENCE MODEL (D2Q9 BGK)**:
+1. Define classical D2Q9 lattice parameters (lattice vectors $\mathbf{c}_i$, lattice weights $w_i$, speed of sound $c_s$).
+2. Implement classical D2Q9 BGK solver with equilibrium calculation, BGK relaxation, streaming, and half-way/full-way bounceback boundary conditions in `qlbm/classical/` (or `qlbm/research/classical_lbm/`).
+3. Author `docs/research/04_classical_lbm_reference.md`.
+4. Validate with unit tests in `tests/research/test_classical_d2q9.py` (mass conservation, uniform advection, Poiseuille flow).
+
 
 
