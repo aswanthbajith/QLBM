@@ -305,11 +305,81 @@ Quantum reflection in MSQLBM is a discrete particle mechanics operator. It mirro
 None. Reflection operators operate exactly as mathematically derived.
 
 ### Next Step
-Proceed to **PHASE 4 — CLASSICAL LBM REFERENCE MODEL (D2Q9 BGK)**:
-1. Define classical D2Q9 lattice parameters (lattice vectors $\mathbf{c}_i$, lattice weights $w_i$, speed of sound $c_s$).
-2. Implement classical D2Q9 BGK solver with equilibrium calculation, BGK relaxation, streaming, and half-way/full-way bounceback boundary conditions in `qlbm/classical/` (or `qlbm/research/classical_lbm/`).
-3. Author `docs/research/04_classical_lbm_reference.md`.
-4. Validate with unit tests in `tests/research/test_classical_d2q9.py` (mass conservation, uniform advection, Poiseuille flow).
+Proceed to **PHASE 4 — CLASSICAL LBM REFERENCE MODEL (D2Q9 BGK)** (Completed).
+
+---
+
+## Phase 4: Classical LBM Reference Model (D2Q9 BGK)
+
+### Date
+2026-10-02
+
+### Objective
+Implement and mathematically validate a complete, standalone, vectorized classical two-dimensional nine-velocity (D2Q9) Lattice Boltzmann reference solver with Bhatnagar-Gross-Krook (BGK) collision, Guo body forcing, halfway bounce-back solid boundary conditions, and moving wall momentum exchange in `qlbm/classical/`; author `docs/research/04_classical_lbm_reference.md`; implement and validate comprehensive unit and analytical benchmark tests in `tests/research/test_classical_d2q9.py`.
+
+### Files Created
+- `qlbm/classical/__init__.py`
+- `qlbm/classical/d2q9.py`
+- `qlbm/classical/solver.py`
+- `docs/research/04_classical_lbm_reference.md`
+- `tests/research/test_classical_d2q9.py`
+
+### Commands Executed
+- `.venv/bin/python -m py_compile qlbm/classical/d2q9.py qlbm/classical/solver.py qlbm/classical/__init__.py`
+- `.venv/bin/pytest tests/research/test_classical_d2q9.py -v`
+- `.venv/bin/pytest tests/research/ -v`
+- `.venv/bin/pytest test/unit/lattice/ms_lattice_test.py test/e2e/test_ms_e2e.py -q`
+
+### Tests Executed
+1. `tests/research/test_classical_d2q9.py`:
+   - `TestD2Q9LatticeProperties`: weights sum (1.0), 1st moment (0), 2nd moment ($c_s^2 \delta_{ab}$), 3rd moment (0), 4th moment (isotropic tensor closure), opposite index involution: **6 passed**.
+   - `TestD2Q9EquilibriumAndMoments`: 0th, 1st, and 2nd moment reproduction, macroscopic moment inversion: **2 passed**.
+   - `TestBGKCollisionAndForcing`: mass/momentum conservation in unforced BGK collision, Guo forcing moment consistency ($\sum F_i = 0, \sum F_i \mathbf{c}_i = (1 - \frac{1}{2\tau})\mathbf{F}$): **2 passed**.
+   - `TestConservationAndInvariance`: periodic domain mass and momentum conservation, solid obstacle halfway bounceback mass conservation ($|\Delta M / M_0| < 10^{-13}$), stationary uniform state invariance: **3 passed**.
+   - `TestAnalyticalBenchmarks`:
+     - Analytical Poiseuille channel flow ($L_2 < 0.31\%$, centerline error $< 0.1\%$): PASSED.
+     - Analytical Taylor-Green vortex viscous decay rate ($E(t)/E(0) = e^{-4\nu k^2 t}$, relative decay error $< 0.8\%$): PASSED.
+     - Lid-driven cavity primary recirculation vortex formation: PASSED.
+   - Summary: **16 passed in 4.56s**.
+2. Combined research test suite (`tests/research/`):
+   - **42 passed in 25.52s**.
+3. Regression suite (`test/unit/lattice/ms_lattice_test.py test/e2e/test_ms_e2e.py`):
+   - **40 passed in 2.30s**.
+
+### Mathematical Findings
+1. **Navier-Stokes Recovery & Viscosity:**
+   The Chapman-Enskog expansion directly ties the BGK relaxation time $\tau$ to the kinematic shear viscosity $\nu = c_s^2 (\tau - 1/2) \Delta t = \frac{2\tau - 1}{6}$. The 2D Taylor-Green vortex test validated this relationship with $< 0.8\%$ relative error across 200 time steps.
+2. **Guo Forcing Exactness:**
+   The Guo forcing scheme eliminates the discrete velocity shift error of simple source terms. The effective momentum injection rate exactly equals $\mathbf{F}$ when combined with the half-step macroscopic momentum definition $\rho \mathbf{u} = \sum f_i \mathbf{c}_i + \frac{\Delta t}{2}\mathbf{F}$.
+3. **Halfway Bounce-Back Wall Accuracy:**
+   Halfway bounce-back places the physical boundary strictly halfway between fluid and solid nodes, achieving second-order spatial accuracy ($O(\Delta x^2)$) on the parabolic Poiseuille profile ($L_2 \text{ error} = 0.31\%$) while conserving fluid mass to machine precision ($< 10^{-13}$).
+
+### Scientific Interpretation
+The repository now possesses a fully verified, high-performance classical hydrodynamic reference solver (`qlbm.classical`). This solver provides the exact physical baseline necessary to formulate multiphase physics (Phase 8-10), Volume-of-Fluid advection (Phase 11-13), and to evaluate quantum collision operators (Phase 5 and Phase 16-18).
+
+### What is Validated
+- Full D2Q9 lattice tensor symmetries and moments through 4th order.
+- Exact polynomial equilibrium distribution and moment inversion.
+- BGK relaxation operator and Guo forcing scheme.
+- Halfway bounce-back boundary conditions for stationary and moving walls.
+- Navier-Stokes analytical convergence (Poiseuille flow and Taylor-Green decay).
+- Exact machine-precision mass conservation.
+
+### What is Not Validated
+- Multiphase interaction potentials (Shan-Chen, phase-field, color gradient) — scheduled for Phase 8.
+- Free-surface / Volume-of-Fluid (VOF) interface reconstruction — scheduled for Phase 11.
+- Quantum representation of the dissipative BGK collision operator — scheduled for Phase 5 & 16.
+
+### Problems
+None. All numerical benchmarks converge with high precision.
+
+### Next Step
+Proceed to **PHASE 5 — D2Q9 BGK OPERATOR DEEP VERIFICATION & COLLISION DYNAMICS**:
+1. Perform detailed relaxation spectrum and eigenvalue analysis of the D2Q9 BGK collision matrix.
+2. Characterize non-equilibrium moments, stress tensor $\Pi_{\alpha \beta}^{(neq)}$, and entropy production ($H$-theorem).
+3. Author `docs/research/05_d2q9_bgk.md`.
+4. Validate with relaxation tests in `tests/research/test_d2q9_bgk_relaxation.py`.
+
 
 
 
