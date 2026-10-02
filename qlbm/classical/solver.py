@@ -5,7 +5,7 @@ macroscopic moment evaluation, equilibrium computation, BGK collision with optio
 body forcing (Guo scheme), streaming with halfway bounce-back, and diagnostic tracking.
 """
 
-from typing import Optional, Union
+from typing import Callable, Optional, Tuple, Union
 
 import numpy as np
 
@@ -34,8 +34,11 @@ class D2Q9BGKSolver:
         Non-dimensional relaxation time :math:`\tau > 0.5`, default 1.0.
     solid_mask : np.ndarray of bool, optional
         Boolean mask of shape `(ny, nx)` where `True` indicates a solid obstacle.
-    force : np.ndarray, optional
-        External body force of shape `(2, ny, nx)` or `(2,)`, default None.
+    force : np.ndarray or callable, optional
+        External body force field, constant vector, or dynamic function `force(rho, u)`.
+    gravity : float or tuple of (float, float), optional
+        Gravitational acceleration. If float :math:`g`, acts downwards as :math:`(0, -g)`.
+        Force is computed dynamically as :math:`\mathbf{F}_{grav} = \rho \mathbf{g}`.
     wall_velocity : np.ndarray, optional
         Velocity vector or field at solid walls, default None.
     dt : float, optional
@@ -48,7 +51,8 @@ class D2Q9BGKSolver:
         ny: int,
         tau: float = 1.0,
         solid_mask: Optional[np.ndarray] = None,
-        force: Optional[np.ndarray] = None,
+        force: Optional[Union[np.ndarray, Callable[[np.ndarray, np.ndarray], np.ndarray]]] = None,
+        gravity: Optional[Union[float, Tuple[float, float]]] = None,
         wall_velocity: Optional[np.ndarray] = None,
         dt: float = 1.0,
     ) -> None:
@@ -75,6 +79,14 @@ class D2Q9BGKSolver:
             self.solid_mask = None
 
         self.force = force
+        if gravity is not None:
+            if isinstance(gravity, (int, float)):
+                self.gravity: Optional[Tuple[float, float]] = (0.0, -float(gravity))
+            else:
+                self.gravity = (float(gravity[0]), float(gravity[1]))
+        else:
+            self.gravity = None
+
         self.wall_velocity = wall_velocity
 
         # State fields
@@ -82,6 +94,35 @@ class D2Q9BGKSolver:
         self.rho: np.ndarray = np.ones((ny, nx), dtype=np.float64)
         self.u: np.ndarray = np.zeros((2, ny, nx), dtype=np.float64)
         self.time_step: int = 0
+
+    def _get_effective_force(self) -> Optional[np.ndarray]:
+        r"""Compute the total effective force field acting on the fluid."""
+        total_f: Optional[np.ndarray] = None
+
+        if self.gravity is not None:
+            gx, gy = self.gravity
+            f_grav = np.empty((2, self.ny, self.nx), dtype=np.float64)
+            f_grav[0] = self.rho * gx
+            f_grav[1] = self.rho * gy
+            total_f = f_grav
+
+        if self.force is not None:
+            if callable(self.force):
+                f_ext = np.asarray(self.force(self.rho, self.u), dtype=np.float64)
+            else:
+                f_ext = np.asarray(self.force, dtype=np.float64)
+
+            if total_f is None:
+                total_f = f_ext
+            else:
+                if f_ext.ndim == 1:
+                    total_f = total_f.copy()
+                    total_f[0] += f_ext[0]
+                    total_f[1] += f_ext[1]
+                else:
+                    total_f = total_f + f_ext
+
+        return total_f
 
     @property
     def viscosity(self) -> float:
@@ -153,8 +194,9 @@ class D2Q9BGKSolver:
         if self.solid_mask is not None:
             self.f[:, self.solid_mask] = 0.0
 
+        eff_force = self._get_effective_force()
         self.rho, self.u = compute_macroscopic(
-            self.f, force=self.force, dt=self.dt
+            self.f, force=eff_force, dt=self.dt
         )
         self.time_step = 0
 
@@ -163,19 +205,20 @@ class D2Q9BGKSolver:
 
         Step sequence:
         1. Compute equilibrium distribution :math:`f^{(eq)}(\rho, \mathbf{u})`.
-        2. Perform BGK collision with optional Guo body forcing :math:`f^*`.
+        2. Perform BGK collision with effective body forcing :math:`f^*`.
         3. Perform streaming and halfway bounce-back boundary reflections.
         4. Recompute macroscopic moments :math:`\rho, \mathbf{u}`.
         """
         # 1. Equilibrium
         f_eq = compute_equilibrium(self.rho, self.u)
 
-        # 2. Collision
+        # 2. Collision with total effective force (gravity + external/interactive)
+        eff_force = self._get_effective_force()
         f_post = bgk_collision(
             self.f,
             f_eq,
             self.tau,
-            force=self.force,
+            force=eff_force,
             u=self.u,
             dt=self.dt,
         )
@@ -188,9 +231,10 @@ class D2Q9BGKSolver:
         )
 
         # 4. Macroscopic moments
+        eff_force = self._get_effective_force()
         self.rho, self.u = compute_macroscopic(
             self.f,
-            force=self.force,
+            force=eff_force,
             dt=self.dt,
         )
 

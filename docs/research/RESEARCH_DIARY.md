@@ -489,11 +489,76 @@ The low-Mach operational constraint is the foundational design rule for simulati
 None. All 6 tests passed cleanly.
 
 ### Next Step
-Proceed to **PHASE 7 — GRAVITY & EXTERNAL FORCING IN D2Q9**:
-1. Formulate vertical gravitational body force $\mathbf{F} = (0, -\rho g)$ within the Guo forcing scheme.
-2. Verify hydrostatic pressure equilibrium in a column of fluid: $\partial p / \partial y = -\rho g \implies p(y) = p_0 + \rho g (H - y)$.
-3. Author `docs/research/07_gravity_and_forcing.md`.
-4. Validate hydrostatic equilibrium and forcing accuracy in `tests/research/test_d2q9_gravity_forcing.py`.
+Proceed to **PHASE 7 — GRAVITY & EXTERNAL FORCING IN D2Q9** (Completed).
+
+---
+
+## Phase 7: Gravity & External Forcing in D2Q9
+
+### Date
+2026-10-02
+
+### Objective
+Incorporate vertical gravitational body forcing $\mathbf{F}(\mathbf{x}, t) = \rho(\mathbf{x}, t) \mathbf{g}$ into the classical D2Q9 solver using the discrete Guo forcing scheme; verify hydrostatic balance $\partial p / \partial y = -\rho g$ and the analytical barometric density distribution $\rho(y) = \rho(0) \exp\left( -3 g y \right)$ in an enclosed fluid column; validate uniform free-fall acceleration at exact rate $g$; support dynamic callable force callbacks; author `docs/research/07_gravity_and_forcing.md`; validate in `tests/research/test_d2q9_gravity_forcing.py`.
+
+### Files Modified / Created
+- `qlbm/classical/solver.py`: added `gravity` support, `_get_effective_force()`, callable dynamic forcing, and half-step momentum update with gravity.
+- `docs/research/07_gravity_and_forcing.md`: authored technical report.
+- `tests/research/test_d2q9_gravity_forcing.py`: 7 validation tests.
+
+### Commands Executed
+- `.venv/bin/pytest tests/research/test_d2q9_gravity_forcing.py -v`
+- `.venv/bin/pytest tests/research/ -v`
+
+### Tests Executed
+1. `tests/research/test_d2q9_gravity_forcing.py`:
+   - `TestGravityConfiguration`: scalar downward gravity, 2D vector gravity, dynamic callable force callback: **3 passed**.
+   - `TestHydrostaticEquilibrium`:
+     - Analytical exponential density profile $\rho(y) = \rho_{\text{mid}} e^{-3 g (y - y_{\text{mid}})}$: relative $L_2 \text{ error} = 7.34 \times 10^{-6}$ ($< 0.01\%$), spurious velocity $||\mathbf{u}||_\infty < 3.2 \times 10^{-6}$: **passed**.
+     - Hydrostatic pressure gradient $\frac{dp}{dy} = -\rho g$ verified to $< 0.03\%$ error: **passed**.
+     - Closed domain mass conservation under gravity ($|\Delta M / M_0| < 10^{-13}$): **passed**.
+   - `TestGravityDynamicAcceleration`: uniform free-fall acceleration $u_y(t) = -(t + 0.5) g$ matching theoretical prediction within $< 10^{-12}$: **passed**.
+   - Summary: **7 passed in 5.73s**.
+
+### Mathematical Findings
+1. **Guo Forcing with Spatially Variable Density:**
+   Evaluating $\mathbf{F}(\mathbf{x}) = \rho(\mathbf{x}) \mathbf{g}$ locally and coupling to Guo forcing yields exact hydrostatic pressure head $\Delta p = \rho g h$ and cancels spurious discrete velocity shifts.
+2. **Barometric Density Profile:**
+   Because pressure follows the isothermal equation of state $p = c_s^2 \rho = \frac{1}{3}\rho$, the hydrostatic equation $\frac{dp}{dy} = -\rho g$ yields an exact exponential barometric distribution $\rho(y) = \rho_0 e^{-3 g y}$.
+3. **Acoustic Ringing & Settling:**
+   Gravitational sudden onset excites acoustic standing waves with fundamental frequency $\omega = \pi c_s / H$. Critical relaxation ($\tau = 1.0$) damps these acoustic oscillations exponentially, achieving steady equilibrium to $10^{-8}$ accuracy.
+
+### Scientific Interpretation
+The single-phase hydrodynamic reference engine is now complete. It supports:
+- Navier-Stokes laminar and sheared viscous flow (Phases 4–5).
+- Weakly compressible low-Mach limits (Phase 6).
+- Body forcing, gravity, and hydrostatic columns (Phase 7).
+This sets the stage for introducing multiphase physics and Volume-of-Fluid coupling.
+
+### What is Validated
+- Full gravity configuration and dynamic callable forcing.
+- Analytical barometric density profile and hydrostatic pressure gradient.
+- Machine-precision mass conservation and uniform free-fall acceleration.
+
+### What is Not Validated
+- Multiphase interface mechanics (Shan-Chen, phase-field, color gradient) — scheduled for Phase 8-10.
+- Volume-of-Fluid advection and interface reconstruction — scheduled for Phase 11-13.
+- Two-phase dam-break simulation — scheduled for Phase 14-15.
+
+### Problems
+None. All 7 tests passed with extreme precision.
+
+### Next Step
+Proceed to **PHASE 8 — MULTIPHASE LBM MODEL SURVEY & ARCHITECTURAL SELECTION**:
+1. Conduct a rigorous scientific comparison of the four major multiphase LBM paradigms:
+   - Pseudopotential (Shan-Chen)
+   - Free Energy (Swift et al.)
+   - Color-Gradient (Gunstensen / Rothman-Keller)
+   - Phase-Field (He-Chen-Zhang / Cahn-Hilliard)
+2. Evaluate thermodynamic consistency, maximum density ratio ($\rho_L / \rho_G$), spurious interface currents, and suitability for Volume-of-Fluid (VOF) coupling.
+3. Author `docs/research/08_multiphase_lbm_survey.md`.
+4. Establish the architectural selection for the two-phase gas-liquid dam-break solver.
+
 
 
 
