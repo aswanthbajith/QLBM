@@ -52,9 +52,21 @@ from .ms.streaming import (
     ControlledIncrementer,
     StreamingAncillaPreparation,
 )
+from .vof import (
+    HybridVOFStep,
+    QuantumCollisionOperator,
+    QuantumD2Q9BounceBackOperator,
+    QuantumD2Q9StreamingOperator,
+    QuantumVOFComponent,
+)
 
 __all__ = [
     "QuantumComponent",
+    "QuantumVOFComponent",
+    "QuantumCollisionOperator",
+    "QuantumD2Q9BounceBackOperator",
+    "QuantumD2Q9StreamingOperator",
+    "HybridVOFStep",
     "LBMPrimitive",
     "GenericLQLGACollisionOperator",
     "LBMOperator",

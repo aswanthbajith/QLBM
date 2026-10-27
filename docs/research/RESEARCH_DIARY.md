@@ -818,3 +818,56 @@ Complete and validate the full classical reference solver for two-phase gas-liqu
   - Result: **8 passed in 6.07s**.
 
 ---
+
+---
+## Phase 13: OpenLB Dam-Break Transfer & Hybrid Quantum VOF Architecture
+
+### Date
+2026-10-23
+
+### Objective
+Transfer the physical problem and numerical architecture from OpenLB's `FreeSurfaceBreakingDam2D` into QLBM:
+1. Deconstruct and map every OpenLB component (`SmagorinskyForcedBGKdynamics`, `boundary::BounceBack`, `FreeSurface2DSetup`, `GRAVITY`) to QLBM classical and quantum equivalents.
+2. Establish a reproducible classical dam-break experiment (`demos/simulation/vof_dam_break.py`) tracking Martin & Moyce column collapse phenomenology (dimensionless front advancement  = x_{\text{front}} / L$, center of mass descent {\text{cm}}(t)$, kinetic energy, and strict mass conservation).
+3. Design and implement the modular quantum VOF subpackage (`qlbm/components/vof/`):
+   - `QuantumVOFComponent`: base class for free-surface quantum components.
+   - `QuantumCollisionOperator`: abstract research interface for candidate quantum collision models.
+   - `QuantumD2Q9BounceBackOperator`: unitary opposite-velocity reflection circuit for solid walls.
+   - `QuantumD2Q9StreamingOperator`: QFT Draper adder streaming circuit for D2Q9 spatial registers.
+   - `HybridVOFStep`: hybrid classical-quantum orchestrator delegating streaming and wall reflections to quantum circuit simulation while preserving classical geometric VOF tracking.
+4. Implement rigorous tests in `tests/research/test_quantum_vof.py` verifying exact numerical equivalence between quantum circuit evolution and classical LBM arrays.
+
+### Files Created/Modified
+- `demos/simulation/vof_dam_break.py`: CLI and programmatic reproducible dam-break benchmark.
+- `qlbm/components/vof/__init__.py`: exported quantum VOF components and hybrid stepper.
+- `qlbm/components/vof/base.py`: base classes and `QuantumCollisionOperator` interface.
+- `qlbm/components/vof/boundary.py`: `QuantumD2Q9BounceBackOperator`.
+- `qlbm/components/vof/streaming.py`: `QuantumD2Q9StreamingOperator`.
+- `qlbm/components/vof/hybrid_stepper.py`: `HybridVOFStep`.
+- `qlbm/components/__init__.py`: updated package exports.
+- `tests/research/test_quantum_vof.py`: 8 unit and integration tests.
+
+### Tests Executed
+1. `demos/simulation/vof_dam_break.py --steps 100 --nx 64 --ny 32`:
+   - {\text{cm}}$ descent: 2.50 \to 11.59$ (PASS)
+   - Surge front advancement: 6.00 \to 17.00$ (PASS)
+   - Global mass error: bash.00 \times 10^0 < 10^{-12}$ (PASS)
+   - Low-Mach stability: max $\\|\mathbf{u}\\| = 0.0557 < 0.25$ (PASS)
+   - Execution rate: 135 steps/s.
+2. `pytest tests/research/test_quantum_vof.py -v`:
+   - All 8 unit and integration tests PASSED in 7.02s.
+3. Combined suite (`test_vof_lbm_hybrid.py` and `test_quantum_vof.py`):
+   - **16 passed in 10.02s**.
+
+### Scientific & Architectural Findings
+1. **Option A Hybrid Feasibility**:
+   Unitary streaming and solid wall reflection can be executed directly on quantum registers using  = \log_2 N_x + \log_2 N_y + 4 + 1$ qubits with Draper QFT adders. Statevector simulation reproduces classical array streaming to machine precision ($< 1.37 \times 10^{-13}$).
+2. **Preservation of Interface Conservation**:
+   By retaining geometric VOF operations (pairwise anti-symmetric fluxes and neighborhood consistency) on the classical processor, the hybrid solver preserves strict mass conservation ($< 10^{-12}$) during quantum hydrodynamic stepping.
+3. **Collision Interface Formulation**:
+   The `QuantumCollisionOperator` abstract base class provides the formal boundary for future research into non-unitary dissipative collision realizations (linearized approximations, Carleman embedding, or block encoding).
+
+### Next Step
+Proceed to **PHASE 14 — QUANTUM COLLISION APPROXIMATION & REDUCED-SCALE HYBRID DAM BREAK**:
+1. Investigate linearized D2Q9 BGK collision around hydrostatic equilibrium.
+2. Benchmark hybrid quantum-streaming dam-break column collapse against the classical baseline at matching resolutions.
