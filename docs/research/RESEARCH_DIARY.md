@@ -783,21 +783,38 @@ Phase 11 establishes the geometric backbone of the sharp-interface VOF framework
 None. All 10 tests passed cleanly.
 
 ### Next Step
-Proceed to **PHASE 12 — MASS FLUX ADVECTION & INTERFACE CELL TRANSITIONS**:
-1. Implement mass exchange between adjacent lattice cells: $\Delta M_i(\mathbf{x}) = \frac{1}{2} (C(\mathbf{x}) + C(\mathbf{x} + \mathbf{c}_i)) [f_{\bar{i}}(\mathbf{x} + \mathbf{c}_i) - f_i(\mathbf{x})]$.
-2. Update local liquid mass: $M(\mathbf{x}, t+1) = M(\mathbf{x}, t) + \sum_{i=1}^8 \Delta M_i(\mathbf{x})$.
-3. Implement cell state conversion rules:
-   - When $M > \rho \Delta x^2$: cell converts to LIQUID, excess mass distributed to neighbors.
-   - When $M < 0$: cell converts to GAS, mass deficit distributed to neighbors.
-4. Author `docs/research/12_vof_flux_advection.md` and tests in `tests/research/test_vof_advection.py`.
+Proceed to **PHASE 12 — HYBRID VOF-LBM FREE-SURFACE SOLVER (COMPLETED)**.
 
+---
 
+## Phase 12: Hybrid VOF-LBM Free-Surface Solver (`VOFHydroSolver`)
 
+### Date
+2026-10-23
 
+### Objective
+Complete and validate the full classical reference solver for two-phase gas-liquid flows (`VOFHydroSolver`):
+1. Pairwise anti-symmetric mass flux advection: $\Delta M_i(\mathbf{x}) = -\Delta M_{\bar{i}}(\mathbf{x}+\mathbf{c}_i)$.
+2. Decoupled ambient gas phase with boundary reconstruction: $f_{\bar{i}} = f_i^{\text{eq}} + f_{\bar{i}}^{\text{eq}} - f_i^*$.
+3. Topological neighborhood completeness: $\mathcal{N}(\text{LIQUID}) \cap \text{GAS} = \emptyset$.
+4. Free-surface capillary pressure jump: $p_{\text{iface}} = p_{\text{gas}} + \sigma \kappa$.
+5. Validate mass conservation, droplet stability, Young-Laplace scaling, and column collapse.
 
+### Files Validated
+- `qlbm/classical/hybrid_vof_lbm.py`: `VOFHydroSolver` implementation.
+- `docs/research/12_vof_lbm_hybrid.md`: theoretical formulation and benchmarks.
+- `tests/research/test_vof_lbm_hybrid.py`: 8 comprehensive benchmark tests.
 
+### Tests Executed
+- `pytest tests/research/test_vof_lbm_hybrid.py -v`:
+  - `TestPairwiseAntiSymmetryAndConservation::test_local_flux_anti_symmetry` PASSED ($< 10^{-14}$)
+  - `TestPairwiseAntiSymmetryAndConservation::test_global_mass_conservation_over_time` PASSED ($< 10^{-12}$)
+  - `TestInterfaceAdvection::test_translating_droplet_advection_x` PASSED
+  - `TestInterfaceAdvection::test_volume_conservation_under_shear` PASSED
+  - `TestStaticDropletEquilibrium::test_static_droplet_stability` PASSED
+  - `TestYoungLaplacePressureScaling::test_young_laplace_scaling_across_radii` PASSED
+  - `TestDamBreakColumnCollapse::test_dam_break_collapse_dynamics` PASSED
+  - `TestDamBreakColumnCollapse::test_dam_break_mass_conservation_strict` PASSED
+  - Result: **8 passed in 6.07s**.
 
-
-
-
-
+---

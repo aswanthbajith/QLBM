@@ -20,6 +20,10 @@ from qlbm.classical.d2q9 import (
     stream_and_bounce,
     viscosity_from_relaxation_time,
 )
+from qlbm.classical.hybrid_vof_lbm import (
+    VOFHydroSolver,
+    enforce_neighborhood_consistency,
+)
 from qlbm.classical.multiphase import (
     LaplaceFitResult,
     ShanChenMultiphaseSolver,
@@ -76,4 +80,6 @@ __all__ = [
     "plic_forward_area",
     "plic_inverse_alpha",
     "VOFInterface",
+    "VOFHydroSolver",
+    "enforce_neighborhood_consistency",
 ]
