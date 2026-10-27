@@ -28,6 +28,7 @@ import numpy as np
 
 from qlbm.classical.d2q9 import stream_and_bounce
 from qlbm.classical.hybrid_vof_lbm import VOFHydroSolver
+from qlbm.components.vof.collision import LinearizedQuantumCollisionOperator
 from qlbm.components.vof.hybrid_stepper import HybridVOFStep
 from qlbm.components.vof.streaming import QuantumD2Q9StreamingOperator
 from qlbm.tools.utils import is_two_pow
@@ -77,12 +78,12 @@ def run_dam_break_simulation(
     dict
         Comprehensive run metrics, physical history, and validation status.
     """
-    valid_modes = ("classical", "streaming_test", "hybrid")
+    valid_modes = ("classical", "streaming_test", "hybrid", "full_quantum")
     if mode not in valid_modes:
         raise ValueError(f"Invalid mode '{mode}'. Choose from {valid_modes}.")
 
     # Validate quantum compatibility
-    if mode in ("streaming_test", "hybrid"):
+    if mode in ("streaming_test", "hybrid", "full_quantum"):
         if not is_two_pow(nx) or not is_two_pow(ny):
             raise ValueError(
                 f"Mode '{mode}' requires grid dimensions to be powers of two for "
@@ -116,6 +117,11 @@ def run_dam_break_simulation(
 
     if mode == "hybrid":
         hybrid_stepper = HybridVOFStep(solver, use_quantum_streaming=True)
+    elif mode == "full_quantum":
+        collision_op = LinearizedQuantumCollisionOperator(tau=tau)
+        hybrid_stepper = HybridVOFStep(
+            solver, use_quantum_streaming=True, quantum_collision_op=collision_op
+        )
     elif mode == "streaming_test":
         quantum_streamer = QuantumD2Q9StreamingOperator(nx=nx, ny=ny)
 
@@ -141,10 +147,13 @@ def run_dam_break_simulation(
         print(f"Domain: {nx} x {ny} | Column: {column_width} x {column_height} (aspect ratio H0/L0 = {h0/l0:.2f})")
         print(f"Relaxation tau: {tau:.3f} | Gravity g: {gravity:.6f} | Surface Tension sigma: {surface_tension:.4f}")
         print(f"Initial Mass: {init_mass:.6f} | Initial Front x: {init_front:.2f} | Initial CM: ({init_cm[0]:.2f}, {init_cm[1]:.2f})")
-        if mode == "hybrid":
+        if mode in ("hybrid", "full_quantum") and hybrid_stepper._quantum_streamer is not None:
             q_metrics = hybrid_stepper._quantum_streamer.resource_metrics()
             print(f"Quantum Registers: {q_metrics['num_qubits']} qubits ({q_metrics['num_x_qubits']} x, {q_metrics['num_y_qubits']} y, 4 vel, 1 anc)")
             print(f"Circuit Complexity: Depth {q_metrics['depth']}, Gates {q_metrics['size']}, 2-qubit {q_metrics['two_qubit_gates']}")
+            if mode == "full_quantum":
+                coll_metrics = hybrid_stepper.quantum_collision_op.resource_estimate()
+                print(f"Quantum Collision Circuit: {coll_metrics['total_qubits']} qubits, Depth {coll_metrics['circuit_depth']}, Block Matrix {coll_metrics['matrix_dimension']}x{coll_metrics['matrix_dimension']}")
         print("-" * 88)
         header = f"{'Step':>5} | {'T (dimless)':>11} | {'Z = x/L0':>9} | {'H/H0':>7} | {'x_cm':>6} | {'y_cm':>6} | {'Max |u|':>8} | {'Mass Error':>11}"
         print(header)
@@ -193,7 +202,7 @@ def run_dam_break_simulation(
     for current_step in range(1, steps + 1):
         if mode == "classical":
             solver.step()
-        elif mode == "hybrid":
+        elif mode in ("hybrid", "full_quantum"):
             hybrid_stepper.step()
         elif mode == "streaming_test":
             # Advance classically but verify quantum streaming at every step
@@ -347,8 +356,8 @@ def main() -> int:
         "--mode",
         type=str,
         default="classical",
-        choices=["classical", "streaming_test", "hybrid"],
-        help="Operating mode: 'classical' (Mode A), 'streaming_test' (Mode B), 'hybrid' (Mode C)",
+        choices=["classical", "streaming_test", "hybrid", "full_quantum"],
+        help="Operating mode: 'classical' (Mode A), 'streaming_test' (Mode B), 'hybrid' (Mode C), 'full_quantum' (Mode Q)",
     )
     parser.add_argument("--nx", type=int, default=64, help="Domain width (default: 64)")
     parser.add_argument("--ny", type=int, default=32, help="Domain height (default: 32)")

@@ -119,17 +119,27 @@ class HybridVOFStep:
         # Substep 2: Collision step on active cells
         # -------------------------------------------------------------
         t0 = time.perf_counter()
-        if self.quantum_collision_op is not None:
-            pass  # Research hook for quantum collision models
-        f_eq = compute_equilibrium(s.rho, s.u)
-        f_post = bgk_collision(
-            s.f,
-            f_eq,
-            s.tau,
-            force=s.force,
-            u=s.u,
-            dt=s.dt,
-        )
+        if self.quantum_collision_op is not None and hasattr(
+            self.quantum_collision_op, "collide_distribution_array"
+        ):
+            f_post = self.quantum_collision_op.collide_distribution_array(
+                s.f, active_mask=active, tau=s.tau
+            )
+            if s.gravity != (0.0, 0.0):
+                from qlbm.classical.d2q9 import compute_guo_force
+
+                F_i = compute_guo_force(s.u, s.force, s.tau, dt=s.dt)
+                f_post[:, active] += s.dt * F_i[:, active]
+        else:
+            f_eq = compute_equilibrium(s.rho, s.u)
+            f_post = bgk_collision(
+                s.f,
+                f_eq,
+                s.tau,
+                force=s.force,
+                u=s.u,
+                dt=s.dt,
+            )
         f_post[:, ~active] = 0.0
         t_collision = time.perf_counter() - t0
 

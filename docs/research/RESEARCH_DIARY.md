@@ -849,10 +849,10 @@ Transfer the physical problem and numerical architecture from OpenLB's `FreeSurf
 
 ### Tests Executed
 1. `demos/simulation/vof_dam_break.py --steps 100 --nx 64 --ny 32`:
-   - {\text{cm}}$ descent: 2.50 \to 11.59$ (PASS)
-   - Surge front advancement: 6.00 \to 17.00$ (PASS)
-   - Global mass error: bash.00 \times 10^0 < 10^{-12}$ (PASS)
-   - Low-Mach stability: max $\\|\mathbf{u}\\| = 0.0557 < 0.25$ (PASS)
+   - $y_{\text{cm}}$ descent: $12.50 \to 11.59$ (PASS)
+   - Surge front advancement: $16.00 \to 17.00$ (PASS)
+   - Global mass error: $0.00 \times 10^0 < 10^{-12}$ (PASS)
+   - Low-Mach stability: max $\|\mathbf{u}\| = 0.0557 < 0.25$ (PASS)
    - Execution rate: 135 steps/s.
 2. `pytest tests/research/test_quantum_vof.py -v`:
    - All 8 unit and integration tests PASSED in 7.02s.
@@ -861,13 +861,70 @@ Transfer the physical problem and numerical architecture from OpenLB's `FreeSurf
 
 ### Scientific & Architectural Findings
 1. **Option A Hybrid Feasibility**:
-   Unitary streaming and solid wall reflection can be executed directly on quantum registers using  = \log_2 N_x + \log_2 N_y + 4 + 1$ qubits with Draper QFT adders. Statevector simulation reproduces classical array streaming to machine precision ($< 1.37 \times 10^{-13}$).
+   Unitary streaming and solid wall reflection can be executed directly on quantum registers using $N = \log_2 N_x + \log_2 N_y + 4 + 1$ qubits with Draper QFT adders. Statevector simulation reproduces classical array streaming to machine precision ($< 1.37 \times 10^{-13}$).
 2. **Preservation of Interface Conservation**:
    By retaining geometric VOF operations (pairwise anti-symmetric fluxes and neighborhood consistency) on the classical processor, the hybrid solver preserves strict mass conservation ($< 10^{-12}$) during quantum hydrodynamic stepping.
 3. **Collision Interface Formulation**:
    The `QuantumCollisionOperator` abstract base class provides the formal boundary for future research into non-unitary dissipative collision realizations (linearized approximations, Carleman embedding, or block encoding).
 
 ### Next Step
-Proceed to **PHASE 14 — QUANTUM COLLISION APPROXIMATION & REDUCED-SCALE HYBRID DAM BREAK**:
-1. Investigate linearized D2Q9 BGK collision around hydrostatic equilibrium.
-2. Benchmark hybrid quantum-streaming dam-break column collapse against the classical baseline at matching resolutions.
+Proceed to **PHASE 14 — LINEARIZED QUANTUM D2Q9 COLLISION & BLOCK ENCODING (COMPLETED)**.
+
+---
+
+## Phase 14: Linearized Quantum D2Q9 Collision Operator & Ancilla Block-Encoding
+
+### Date
+2026-10-27
+
+### Objective
+Formulate, implement, and validate the quantum representation of the D2Q9 hydrodynamic collision operator:
+1. Low-Mach linearization around hydrostatic equilibrium ($\rho_0 = 1.0, \mathbf{u}_0 = 0$), establishing the projection matrix $\mathbf{E}$ onto conserved moments $\{\rho, j_x, j_y\}$.
+2. Hermite-weighted symmetrization: $\tilde{\mathbf{C}}_{\text{lin}} = \mathbf{W}^{-1} \mathbf{C}_{\text{lin}} \mathbf{W}$ with $\|\tilde{\mathbf{C}}_{\text{lin}}\|_2 = 1.0 \le 1.0$.
+3. Exact 5-qubit ($32 \times 32$) unitary block dilation ($1$ ancilla $+ 4$ velocity qubits) via spectral decomposition ($\|U U^\dagger - I\|_{\infty} < 10^{-15}$).
+4. Machine-precision conservation of mass ($\Delta \rho < 10^{-15}$) and momentum ($\|\Delta \mathbf{j}\| < 10^{-15}$).
+5. Analytical $O(\text{Ma}^2)$ error bound $\frac{5}{6\tau} \|\mathbf{u}\|^2$ verified empirically with slope $2.000$.
+6. Full quantum dam-break simulation integration (`--mode full_quantum`) in `vof_dam_break.py` and `HybridVOFStep`.
+
+### Files Created/Modified
+- `qlbm/components/vof/collision.py`: `LinearizedQuantumCollisionOperator` implementation.
+- `qlbm/components/vof/__init__.py`: exported collision operator.
+- `qlbm/components/__init__.py`: updated package exports.
+- `qlbm/components/vof/hybrid_stepper.py`: integrated quantum collision in `HybridVOFStep`.
+- `demos/simulation/vof_dam_break.py`: added `full_quantum` Mode Q and quantum resource reporting.
+- `tests/research/test_quantum_collision.py`: 11 comprehensive unit and physical benchmark tests.
+- `docs/research/14_quantum_collision_linearization.md`: theoretical derivations and error analysis.
+
+### Tests Executed
+1. `pytest tests/research/test_quantum_collision.py -v`:
+   - `TestLinearizedCollisionSpectra::test_projection_matrix_idempotence` PASSED ($< 10^{-15}$)
+   - `TestLinearizedCollisionSpectra::test_projection_matrix_eigenvalues` PASSED (exact rank 3)
+   - `TestLinearizedCollisionSpectra::test_linearized_collision_eigenvalues` PASSED (decay $1 - 1/\tau$)
+   - `TestHermiteSymmetrizationAndUnitarity::test_weighted_matrix_symmetry` PASSED ($0.00$)
+   - `TestHermiteSymmetrizationAndUnitarity::test_spectral_norm_subunitary` PASSED ($\le 1.0$)
+   - `TestHermiteSymmetrizationAndUnitarity::test_unitary_block_dilation` PASSED ($< 10^{-14}$)
+   - `TestHermiteSymmetrizationAndUnitarity::test_quantum_circuit_construction` PASSED (5 qubits)
+   - `TestCollisionInvariantsAndConservation::test_mass_conservation_arbitrary_distributions` PASSED ($< 10^{-15}$)
+   - `TestCollisionInvariantsAndConservation::test_momentum_conservation_arbitrary_distributions` PASSED ($< 10^{-15}$)
+   - `TestMachQuadraticConvergence::test_quadratic_mach_convergence_rate` PASSED (slope $2.000$)
+   - `TestEndToEndHybridDamBreakWithCollision::test_classical_vs_quantum_collision_dam_break_match` PASSED
+   - Result: **11 passed in 2.39s**.
+2. Combined research test suite (`pytest tests/research/ -q`):
+   - **136 passed in 42.58s** (0 regressions).
+3. End-to-end full quantum dam-break run (`demos/simulation/vof_dam_break.py --mode full_quantum`):
+   - Mass conservation: $\Delta M / M_0 = 1.48 \times 10^{-16} < 10^{-12}$ (PASS)
+   - Low-Mach stability: max $\|\mathbf{u}\| = 0.0019 < 0.25$ (PASS)
+
+### Scientific & Architectural Findings
+1. **Unitarity via Hermite Weighting:**
+   The non-unitary BGK collision operator is strictly contractive and symmetric under the Hermite-scaled distribution basis $\tilde{f}_i = f_i / \sqrt{w_i}$, enabling exact unitary block dilation using a single ancilla qubit without non-physical dissipation.
+2. **Quadratic Mach Convergence:**
+   The deviation between linearized quantum collision and non-linear BGK scales strictly as $\frac{5}{6\tau} \|\mathbf{u}\|^2$, establishing the exact physical domain of validity ($Ma < 0.1$) for quantum linear collision in hydrodynamic free-surface flows.
+3. **Complete Quantum Hydrodynamic Stepper (Mode Q):**
+   With unitary streaming (QFT Draper adders), unitary solid reflection, and block-encoded collision, both kinetic substeps of LBM are realized as quantum operators coupled to classical geometric VOF tracking.
+
+### Next Step
+Proceed to **PHASE 15 — SYNTHESIS, COMPREHENSIVE VALIDATION & THESIS PATHWAY**:
+1. Finalize the cross-paradigm comparison: Classical LBM vs Multiphase Shan-Chen vs Hybrid VOF-LBM vs Full-Quantum VOF.
+2. Consolidate error metrics, scaling limits, and quantum circuit resource requirements into the final thesis research roadmap.
+

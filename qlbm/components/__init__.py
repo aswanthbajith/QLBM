@@ -54,6 +54,7 @@ from .ms.streaming import (
 )
 from .vof import (
     HybridVOFStep,
+    LinearizedQuantumCollisionOperator,
     QuantumCollisionOperator,
     QuantumD2Q9BounceBackOperator,
     QuantumD2Q9StreamingOperator,
@@ -64,6 +65,7 @@ __all__ = [
     "QuantumComponent",
     "QuantumVOFComponent",
     "QuantumCollisionOperator",
+    "LinearizedQuantumCollisionOperator",
     "QuantumD2Q9BounceBackOperator",
     "QuantumD2Q9StreamingOperator",
     "HybridVOFStep",
