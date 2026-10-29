@@ -978,3 +978,50 @@ Consolidate the entire 15-phase research program into a unified, mathematically 
 4. **Research Program Completion**:
    All 15 research phases have been fully executed, validated, and documented in the repository. The resulting codebase provides a complete, scientifically justified framework for the Master's thesis.
 
+---
+
+## Phase 16: Free-Surface Accuracy Audit & Körner Mass Exchange
+
+### Date
+2026-10-29
+
+### Objective
+Resolve the physical accuracy gap identified during independent benchmarking against the canonical Martin & Moyce (1952) experimental dataset:
+1. Identify the root cause of the $\sim 36\%$ RMS front lag and diffuse interfacial smearing observed in the Phase 12-15 VOF solver.
+2. Implement the standard, rigorously conservative free-surface mass-exchange and cell-conversion formulation of Körner et al. (2005) and Thürey (2007) in `VOFHydroSolver`.
+3. Refactor `HybridVOFStep` to share identical free-surface step building blocks with `VOFHydroSolver`, ensuring exact quantum-classical operator parity.
+4. Add comprehensive automated tests (`tests/research/test_free_surface_korner.py`), benchmark against the Martin & Moyce dataset across grid resolutions, and produce publication-quality validation videos.
+
+### Files Created/Modified
+- `qlbm/classical/hybrid_vof_lbm.py`: Added `free_surface_scheme` (`'korner'` default, `'legacy'` opt-in), implemented Körner mass flux weighting ($w_i = 0$ at gas/solid faces) and conservative excess redistribution with hysteresis ($\kappa = 10^{-3}$). Shared step helpers (`_compute_body_force`, `_reconstruct_gas_populations`, `_exchange_mass`, `_handle_state_transitions`, `_update_macroscopic`).
+- `qlbm/components/vof/hybrid_stepper.py`: Delegated free-surface substeps 1 and 4-7 to shared `VOFHydroSolver` helpers.
+- `demos/simulation/vof_dam_break.py`: Added `--scheme` CLI option.
+- `demos/simulation/make_dam_break_gif.py`: Added `--scheme`, configurable domain parameters, and frame capture for video generation.
+- `demos/visualization/visualize_dam_break.py`: Corrected Plot 6 to render authentic digitised Martin & Moyce (1952) data points ($T^* = T_{\text{MM}}/\sqrt{2}$).
+- `tests/research/test_free_surface_korner.py`: 5 automated tests verifying no gas leakage, long-term bounds, interface sharpness, legacy bit-exact reproducibility, and hybrid equivalence.
+- `docs/research/dam_break/INDEPENDENT_AUDIT.md`, `docs/research/dam_break/RESULTS.md`: Updated with rigorous quantitative benchmark findings and link to accuracy report.
+- `results/dam_break_final/accuracy_report.md`: Comprehensive audit report with visual comparisons, error tables, and reproduction commands.
+
+### Tests Executed
+1. `pytest tests/research/test_free_surface_korner.py -v`:
+   - `test_no_mass_transfer_to_pure_gas` PASSED
+   - `test_long_term_dam_break_conservation_and_bounds` PASSED ($|M(t)-M_0|/M_0 < 10^{-12}$, $C \in [0, 1]$, topological consistency maintained)
+   - `test_interface_sharpness_bounded_vs_legacy` PASSED (diffuse cell count sharply reduced)
+   - `test_legacy_scheme_bit_exact_reproducibility` PASSED (legacy scheme reproduces saved reference to machine precision)
+   - `test_classical_vs_hybrid_korner_equivalence` PASSED ($\max |\Delta M| < 10^{-11}$, $\max |\Delta \mathbf{u}| < 10^{-11}$)
+   - Result: **5 passed in 10.30s**.
+2. Full research test suite (`pytest tests/research/ -q`):
+   - **153 passed** in 76s, 0 failures, 0 regressions.
+
+### Scientific & Physical Findings
+1. **Root Cause Analysis of Front Lag**:
+   In the legacy scheme, mass flux $A_i (f_{\bar i}^*(\mathbf{x}+\mathbf{c}_i) - f_i^*(\mathbf{x}))$ was applied across interface-gas faces with weight $A_i = \frac{1}{2}(C + 0)$. Because gas cells had zero populations ($f^* \equiv 0$), liquid mass continuously drained into gas cells, causing artificial interface diffusion ($>240$ smeared cells) and a retarded front advance ($35.9\%$ RMS error).
+2. **Körner Mass Exchange & Excess Redistribution**:
+   Restricting mass exchange strictly to fluid-fluid faces ($w_i = 1.0$ for liquid faces, $\frac{1}{2}(C+C_{\text{nbr}})$ for interface-interface faces) and conservatively redistributing excess mass to neighbouring interface cells completely eliminates artificial gas leakage.
+3. **Quantitative Benchmark Accuracy ($H_0/L_0 = 2$)**:
+   - $64 \times 64$: RMS error reduced from $35.9\%$ to $21.2\%$.
+   - $192 \times 96$: RMS error drops to **$7.80\%$**, with the initial surge expansion ($0 < T^* \le 1.15$) agreeing with Martin & Moyce to within **$\pm 4\%$**.
+   - Peak Mach number stays strictly at $\text{Ma}_{\max} \le 0.170 \ll 0.3$.
+   - Discrete mass conservation invariant $|M(t) - M(0)|/M(0) \le 2.22 \times 10^{-16}$ is maintained throughout all 2000 steps.
+
+

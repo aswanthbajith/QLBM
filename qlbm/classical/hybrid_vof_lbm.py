@@ -65,6 +65,18 @@ def enforce_neighborhood_consistency(
     return types
 
 
+_NEIGHBOURS = tuple(
+    (dx, dy) for dy in (-1, 0, 1) for dx in (-1, 0, 1) if (dx, dy) != (0, 0)
+)
+
+FREE_SURFACE_SCHEMES = ("korner", "legacy")
+
+
+def _shift(a: np.ndarray, dx: int, dy: int) -> np.ndarray:
+    r"""Periodic lookup of the neighbour value :math:`a(x + d_x, y + d_y)` on the last two axes."""
+    return np.roll(np.roll(a, -dy, axis=-2), -dx, axis=-1)
+
+
 class VOFHydroSolver:
     r"""Two-dimensional D2Q9 Hybrid Volume-of-Fluid Free-Surface LBM Solver.
 
@@ -88,6 +100,22 @@ class VOFHydroSolver:
         Volume fraction tolerance for cell state classification, default :math:`10^{-5}`.
     dt : float, optional
         Time step size in lattice units, default 1.0.
+    free_surface_scheme : {'korner', 'legacy'}, optional
+        Mass-exchange and cell-conversion algorithm, default ``'korner'``.
+
+        * ``'korner'``: Körner et al. (2005) / Thürey (2007). No mass is exchanged
+          across faces touching GAS or SOLID cells; LIQUID faces have weight 1 and
+          INTERFACE-INTERFACE faces weight :math:`(C + C_{nbr})/2`. Interface cells
+          fill when :math:`m > (1+\kappa)\rho` and empty when :math:`m < -\kappa\rho`,
+          and the excess mass is redistributed conservatively to neighbouring
+          interface cells.
+        * ``'legacy'``: the Phase 12-15 algorithm (fill-area-weighted exchange with
+          all non-solid neighbours, threshold classification on :math:`C`). Kept
+          for exact reproducibility of earlier results; it lets liquid mass leak
+          into GAS cells, which smears the interface (see Phase 16 diary entry).
+    conversion_hysteresis : float, optional
+        Hysteresis :math:`\kappa` for interface filling/emptying in the
+        ``'korner'`` scheme, default :math:`10^{-3}`.
     """
 
     def __init__(
@@ -101,11 +129,22 @@ class VOFHydroSolver:
         solid_mask: Optional[np.ndarray] = None,
         eps: float = 1e-5,
         dt: float = 1.0,
+        free_surface_scheme: str = "korner",
+        conversion_hysteresis: float = 1e-3,
     ) -> None:
         if nx <= 0 or ny <= 0:
             raise ValueError(f"Grid dimensions must be positive, got nx={nx}, ny={ny}.")
         if tau <= 0.5:
             raise ValueError(f"Relaxation time must satisfy tau > 0.5, got {tau}.")
+        if free_surface_scheme not in FREE_SURFACE_SCHEMES:
+            raise ValueError(
+                f"free_surface_scheme must be one of {FREE_SURFACE_SCHEMES}, "
+                f"got '{free_surface_scheme}'."
+            )
+        if conversion_hysteresis < 0.0:
+            raise ValueError("conversion_hysteresis must be non-negative.")
+        self.free_surface_scheme = free_surface_scheme
+        self.kappa = float(conversion_hysteresis)
 
         self.nx = int(nx)
         self.ny = int(ny)
@@ -342,11 +381,7 @@ class VOFHydroSolver:
         active = self.fluid_mask
 
         # 1. Update effective gravity body force in active fluid
-        self.force = np.zeros((2, self.ny, self.nx), dtype=np.float64)
-        if self.gravity != (0.0, 0.0):
-            gx, gy = self.gravity
-            self.force[0, active] = self.rho[active] * gx
-            self.force[1, active] = self.rho[active] * gy
+        self._compute_body_force(active)
 
         # 2. Collision step in active fluid cells (BGK + Guo forcing)
         f_eq = compute_equilibrium(self.rho, self.u)
@@ -364,8 +399,56 @@ class VOFHydroSolver:
         f_streamed = stream_and_bounce(f_post, solid_mask=self.solid_mask)
 
         # 4. Free-surface gas boundary reconstruction (Körner et al. 2005)
-        # For interface cells having GAS neighbors in direction c_i:
-        # Reconstruct missing incoming population f_bar_i
+        self._reconstruct_gas_populations(f_streamed, f_post)
+
+        # 5. Directional mass exchange (pairwise anti-symmetric)
+        self._exchange_mass(f_post)
+
+        # 6. Cell State Transitions & Population Initialization
+        self._handle_state_transitions(f_streamed)
+
+        # 7. Macroscopic Moments on Active Cells
+        self._update_macroscopic()
+
+        # 8. Reconstruct Geometry for next time step
+        self.reconstruct_geometry()
+        self.time_step += 1
+
+    # -----------------------------------------------------------------
+    # Step Building Blocks (shared with HybridVOFStep)
+    # -----------------------------------------------------------------
+
+    def _compute_body_force(self, active: np.ndarray) -> None:
+        r"""Gravity body force :math:`\mathbf{F} = \rho \mathbf{g}` on active fluid cells."""
+        self.force = np.zeros((2, self.ny, self.nx), dtype=np.float64)
+        if self.gravity != (0.0, 0.0):
+            gx, gy = self.gravity
+            self.force[0, active] = self.rho[active] * gx
+            self.force[1, active] = self.rho[active] * gy
+
+    def _update_macroscopic(self) -> None:
+        r"""Recompute :math:`\rho` and :math:`\mathbf{u}` on active cells from ``self.f``."""
+        active = self.fluid_mask
+        if np.any(active):
+            rho_all, u_all = compute_macroscopic(
+                self.f,
+                force=self.force,
+                dt=self.dt,
+            )
+            self.rho[active] = rho_all[active]
+            self.u[:, active] = u_all[:, active]
+            self.u[:, ~active] = 0.0
+
+    def _reconstruct_gas_populations(
+        self, f_streamed: np.ndarray, f_post: np.ndarray
+    ) -> None:
+        r"""Reconstruct populations streaming in from GAS neighbours (in place).
+
+        For an interface cell whose neighbour in direction :math:`\mathbf{c}_i` is
+        gas, :math:`\bar f_{\bar i} = f^{eq}_{\bar i}(\rho_G, \mathbf{u}) +
+        f^{eq}_i(\rho_G, \mathbf{u}) - f^*_i` with
+        :math:`\rho_G = p_G / c_s^2 + 1` including the Young-Laplace jump.
+        """
         iface_mask = self.cell_types == CellType.INTERFACE
         for i in range(1, 9):
             opp = OPPOSITE[i]
@@ -390,7 +473,34 @@ class VOFHydroSolver:
                     feq[opp] + feq[i] - f_post[i, reconstruct_mask]
                 )
 
-        # 5. Directional Mass Flux Advection (Strictly Pairwise Anti-Symmetric)
+    def _exchange_mass(self, f_post: np.ndarray) -> None:
+        r"""Update ``self.mass`` with the pairwise anti-symmetric exchange
+        :math:`\Delta m_i = w_i\,(f^*_{\bar i}(\mathbf{x}+\mathbf{c}_i) - f^*_i(\mathbf{x}))`.
+        """
+        if self.free_surface_scheme == "legacy":
+            self._exchange_mass_legacy(f_post)
+            return
+
+        types = self.cell_types
+        is_liq = types == CellType.LIQUID
+        is_if = types == CellType.INTERFACE
+        fluid = is_liq | is_if
+        delta_m = np.zeros((self.ny, self.nx), dtype=np.float64)
+        for i in range(1, 9):
+            opp = OPPOSITE[i]
+            cx, cy = int(C[i][0]), int(C[i][1])
+            both = fluid & _shift(fluid, cx, cy)
+            # w is symmetric under (x, i) <-> (x + c_i, opp): exact conservation.
+            w = np.zeros((self.ny, self.nx), dtype=np.float64)
+            w[both & (is_liq | _shift(is_liq, cx, cy))] = 1.0
+            ii = both & is_if & _shift(is_if, cx, cy)
+            c_nbr = _shift(self.fill_level, cx, cy)
+            w[ii] = 0.5 * (self.fill_level[ii] + c_nbr[ii])
+            delta_m += w * (_shift(f_post[opp], cx, cy) - f_post[i])
+        self.mass[~self.solid_mask] += delta_m[~self.solid_mask]
+
+    def _exchange_mass_legacy(self, f_post: np.ndarray) -> None:
+        r"""Phase 12-15 exchange: weight :math:`(C + C_{nbr})/2` on every non-solid face."""
         delta_m = np.zeros((self.ny, self.nx), dtype=np.float64)
 
         for i in range(1, 9):
@@ -422,25 +532,6 @@ class VOFHydroSolver:
         # Update liquid mass globally across all fluid cells
         self.mass[~self.solid_mask] += delta_m[~self.solid_mask]
 
-        # 6. Cell State Transitions & Population Initialization
-        self._handle_state_transitions(f_streamed)
-
-        # 7. Macroscopic Moments on Active Cells
-        active = self.fluid_mask
-        if np.any(active):
-            rho_all, u_all = compute_macroscopic(
-                self.f,
-                force=self.force,
-                dt=self.dt,
-            )
-            self.rho[active] = rho_all[active]
-            self.u[:, active] = u_all[:, active]
-            self.u[:, ~active] = 0.0
-
-        # 8. Reconstruct Geometry for next time step
-        self.reconstruct_geometry()
-        self.time_step += 1
-
     def run(self, num_steps: int) -> None:
         r"""Advance simulation by `num_steps` time steps."""
         for _ in range(num_steps):
@@ -452,6 +543,113 @@ class VOFHydroSolver:
 
     def _handle_state_transitions(self, f_streamed: np.ndarray) -> None:
         r"""Handle interface filling/emptying, enforce neighborhood consistency, and initialize new interface cells."""
+        if self.free_surface_scheme == "legacy":
+            self._handle_state_transitions_legacy(f_streamed)
+        else:
+            self._handle_state_transitions_korner(f_streamed)
+
+    def _handle_state_transitions_korner(self, f_streamed: np.ndarray) -> None:
+        r"""Körner/Thürey cell conversions with conservative excess-mass redistribution.
+
+        1. Interface cells fill if :math:`m > (1+\kappa)\rho` and empty if
+           :math:`m < -\kappa\rho`. Interface cells without fluid neighbours are
+           emptied and those without gas neighbours are filled. A cell next to a
+           filling cell may not empty (this would create LIQUID-GAS contact).
+        2. GAS neighbours of filled cells become INTERFACE, initialised with
+           :math:`f^{eq}(\bar\rho, \bar{\mathbf{u}})` averaged over fluid
+           neighbours. LIQUID neighbours of emptied cells become INTERFACE.
+        3. The excess mass (:math:`m-\rho` for filled, :math:`m` for emptied cells)
+           is shared equally among neighbouring INTERFACE cells. If a cell has no
+           such neighbour its conversion is cancelled, so no mass is ever lost.
+        """
+        t = self.cell_types
+        is_gas = t == CellType.GAS
+        is_liq = t == CellType.LIQUID
+        iface = t == CellType.INTERFACE
+        fluid = is_liq | iface
+
+        rho_new, u_new = compute_macroscopic(f_streamed, force=self.force, dt=self.dt)
+        rho_new = np.where(fluid, rho_new, 1.0)
+
+        n_fluid = np.zeros((self.ny, self.nx), dtype=np.int32)
+        n_gas = np.zeros((self.ny, self.nx), dtype=np.int32)
+        for dx, dy in _NEIGHBOURS:
+            n_fluid += _shift(fluid, dx, dy)
+            n_gas += _shift(is_gas, dx, dy)
+
+        k = self.kappa
+        emptied = iface & ((self.mass < -k * rho_new) | (n_fluid == 0))
+        filled = iface & ((self.mass > (1.0 + k) * rho_new) | (n_gas == 0)) & ~emptied
+        near_filled = np.zeros_like(filled)
+        for dx, dy in _NEIGHBOURS:
+            near_filled |= _shift(filled, dx, dy)
+        emptied &= ~near_filled
+
+        new_if = np.zeros_like(filled)
+        liq_to_if = np.zeros_like(filled)
+        for dx, dy in _NEIGHBOURS:
+            new_if |= _shift(filled, dx, dy) & is_gas
+            liq_to_if |= _shift(emptied, dx, dy) & is_liq
+
+        if np.any(new_if):
+            rho_sum = np.zeros((self.ny, self.nx), dtype=np.float64)
+            u_sum = np.zeros((2, self.ny, self.nx), dtype=np.float64)
+            count = np.zeros((self.ny, self.nx), dtype=np.float64)
+            for dx, dy in _NEIGHBOURS:
+                src = _shift(fluid, dx, dy)
+                rho_sum += np.where(src, _shift(rho_new, dx, dy), 0.0)
+                u_sum += np.where(src, _shift(u_new, dx, dy), 0.0)
+                count += src
+            count = np.maximum(count, 1.0)
+            rho0 = rho_sum[new_if] / count[new_if]
+            u0 = u_sum[:, new_if] / count[new_if]
+            # Cap velocity to enforce low-Mach stability (as in the legacy scheme)
+            u_mag = np.hypot(u0[0], u0[1])
+            u0 = u0 * np.where(u_mag > 0.15, 0.15 / np.maximum(u_mag, 1e-300), 1.0)
+            f_streamed[:, new_if] = compute_equilibrium(rho0, u0)
+            rho_new[new_if] = rho0
+
+        new_t = np.copy(t)
+        new_t[new_if] = CellType.INTERFACE
+        new_t[liq_to_if] = CellType.INTERFACE
+        new_t[filled] = CellType.LIQUID
+        new_t[emptied] = CellType.GAS
+
+        excess = np.zeros((self.ny, self.nx), dtype=np.float64)
+        excess[filled] = self.mass[filled] - rho_new[filled]
+        self.mass[filled] = rho_new[filled]
+        excess[emptied] = self.mass[emptied]
+        self.mass[emptied] = 0.0
+
+        donors = filled | emptied
+        receivers = (new_t == CellType.INTERFACE) & ~donors
+        n_recv = np.zeros((self.ny, self.nx), dtype=np.int32)
+        for dx, dy in _NEIGHBOURS:
+            n_recv += _shift(receivers, dx, dy)
+        orphan = donors & (n_recv == 0)
+        if np.any(orphan):
+            self.mass[orphan] += excess[orphan]
+            excess[orphan] = 0.0
+            new_t[orphan] = CellType.INTERFACE
+        share = np.where(n_recv > 0, excess / np.maximum(n_recv, 1), 0.0)
+        for dx, dy in _NEIGHBOURS:
+            self.mass += np.where(receivers, _shift(share, dx, dy), 0.0)
+
+        new_t[self.solid_mask] = CellType.SOLID
+        new_t = enforce_neighborhood_consistency(new_t, self.solid_mask)
+        self.cell_types = new_t
+        self.f = f_streamed
+        inactive = (new_t == CellType.GAS) | (new_t == CellType.SOLID)
+        self.f[:, inactive] = 0.0
+
+        fill = np.zeros((self.ny, self.nx), dtype=np.float64)
+        fill[new_t == CellType.LIQUID] = 1.0
+        ifm = new_t == CellType.INTERFACE
+        fill[ifm] = np.clip(self.mass[ifm] / np.maximum(rho_new[ifm], 1e-6), 0.0, 1.0)
+        self.fill_level = fill
+
+    def _handle_state_transitions_legacy(self, f_streamed: np.ndarray) -> None:
+        r"""Phase 12-15 conversions: threshold classification on :math:`C = m/\rho`."""
         old_types = np.copy(self.cell_types)
         rho_safe = np.maximum(self.rho, 1e-6)
 

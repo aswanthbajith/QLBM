@@ -108,11 +108,7 @@ class HybridVOFStep:
         # Substep 1: Gravity body force
         # -------------------------------------------------------------
         t0 = time.perf_counter()
-        s.force = np.zeros((2, s.ny, s.nx), dtype=np.float64)
-        if s.gravity != (0.0, 0.0):
-            gx, gy = s.gravity
-            s.force[0, active] = s.rho[active] * gx
-            s.force[1, active] = s.rho[active] * gy
+        s._compute_body_force(active)
         t_gravity = time.perf_counter() - t0
 
         # -------------------------------------------------------------
@@ -181,51 +177,18 @@ class HybridVOFStep:
 
         # -------------------------------------------------------------
         # Substep 4: Free-surface boundary reconstruction (Körner et al.)
+        # Substeps 4-7 delegate to the solver so that the classical and
+        # hybrid paths share one implementation of the free-surface scheme.
         # -------------------------------------------------------------
         t0 = time.perf_counter()
-        iface_mask = s.cell_types == CellType.INTERFACE
-        for i in range(1, 9):
-            opp = OPPOSITE[i]
-            cx, cy = C[i]
-            neighbor_is_gas = np.roll(
-                np.roll(s.cell_types == CellType.GAS, shift=-cy, axis=0),
-                shift=-cx,
-                axis=1,
-            )
-            reconstruct_mask = iface_mask & neighbor_is_gas
-            if np.any(reconstruct_mask):
-                p_iface = s.p_gas + s.sigma * s.curvature[reconstruct_mask]
-                rho_iface = p_iface / CS_SQ + 1.0
-                u_iface = s.u[:, reconstruct_mask]
-                feq = compute_equilibrium(rho_iface, u_iface)
-                f_streamed[opp, reconstruct_mask] = (
-                    feq[opp] + feq[i] - f_post[i, reconstruct_mask]
-                )
+        s._reconstruct_gas_populations(f_streamed, f_post)
         t_gas_recon = time.perf_counter() - t0
 
         # -------------------------------------------------------------
-        # Substep 5: Pairwise Anti-Symmetric Mass Flux Advection
+        # Substep 5: Pairwise Anti-Symmetric Mass Exchange
         # -------------------------------------------------------------
         t0 = time.perf_counter()
-        delta_m = np.zeros((s.ny, s.nx), dtype=np.float64)
-        for i in range(1, 9):
-            opp = OPPOSITE[i]
-            cx, cy = C[i]
-            c_nbr = np.roll(
-                np.roll(s.fill_level, shift=-cy, axis=0), shift=-cx, axis=1
-            )
-            solid_nbr = np.roll(
-                np.roll(s.solid_mask, shift=-cy, axis=0), shift=-cx, axis=1
-            )
-            fluid_face = (~s.solid_mask) & (~solid_nbr)
-            A_i = np.where(fluid_face, 0.5 * (s.fill_level + c_nbr), 0.0)
-            f_nbr_opp = np.roll(
-                np.roll(f_post[opp], shift=-cy, axis=0), shift=-cx, axis=1
-            )
-            flux = A_i * (f_nbr_opp - f_post[i])
-            delta_m += flux
-
-        s.mass[~s.solid_mask] += delta_m[~s.solid_mask]
+        s._exchange_mass(f_post)
         t_mass_flux = time.perf_counter() - t0
 
         # -------------------------------------------------------------
@@ -239,16 +202,7 @@ class HybridVOFStep:
         # Substep 7: Macroscopic moments update
         # -------------------------------------------------------------
         t0 = time.perf_counter()
-        active = s.fluid_mask
-        if np.any(active):
-            rho_all, u_all = compute_macroscopic(
-                s.f,
-                force=s.force,
-                dt=s.dt,
-            )
-            s.rho[active] = rho_all[active]
-            s.u[:, active] = u_all[:, active]
-            s.u[:, ~active] = 0.0
+        s._update_macroscopic()
         t_moments = time.perf_counter() - t0
 
         # -------------------------------------------------------------

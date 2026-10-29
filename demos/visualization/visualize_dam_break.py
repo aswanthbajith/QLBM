@@ -227,12 +227,13 @@ def generate_dam_break_plots(
         z_c = [r["z_dimless"] for r in hist_c]
         ax.plot(t_c, z_c, "b-o", markersize=4, label="QLBM Simulation ($Z = x_{\\text{front}} / L_0$)")
 
-        # Martin & Moyce (1952) experimental benchmark curve: Z(T) ~ 1 + 2.14 T for initial collapse
-        t_exp = np.linspace(0, max(t_c) if max(t_c) > 0 else 1.0, 50)
-        # Empirical curve fit for column collapse (Martin & Moyce 1952, Stansby et al. 1998)
-        # For small T < 1.0, front surge follows Z(T) = 1.0 + 1.25 * T^1.5 (viscous + inertial start)
-        z_exp = 1.0 + 1.2 * (t_exp**1.5)
-        ax.plot(t_exp, z_exp, "r--", linewidth=1.8, label="Martin & Moyce (1952) Correlation")
+        # Martin & Moyce (1952) experimental benchmark dataset (H0/L0 = 2):
+        # T_MM = t * sqrt(2 g / L0), so dimensionless T* = t * sqrt(g / L0) = T_MM / sqrt(2).
+        t_mm = np.array([0.0, 0.41, 0.84, 1.19, 1.43, 1.63, 1.83, 1.98, 2.20, 2.32, 2.51, 2.65, 2.83, 2.98, 3.11, 3.33]) / np.sqrt(2.0)
+        z_mm = np.array([1.0, 1.11, 1.22, 1.44, 1.67, 1.89, 2.11, 2.33, 2.56, 2.78, 3.00, 3.22, 3.44, 3.67, 3.89, 4.11])
+        t_max_plot = max(t_c) if max(t_c) > 0 else 1.0
+        mask_mm = t_mm <= t_max_plot * 1.05
+        ax.plot(t_mm[mask_mm], z_mm[mask_mm], "ro", fillstyle="none", markersize=6, markeredgewidth=1.5, label="Martin & Moyce (1952) Exp. Data")
 
     ax.set_title("6. Dimensionless Surge Front Displacement vs Dimensionless Time")
     ax.set_xlabel("Dimensionless Time $T = t \\sqrt{g / L_0}$")

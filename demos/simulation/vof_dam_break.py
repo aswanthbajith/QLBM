@@ -47,12 +47,13 @@ def run_dam_break_simulation(
     log_interval: int = 10,
     output_dir: Optional[str] = None,
     quiet: bool = False,
+    scheme: str = "korner",
 ) -> Dict[str, Any]:
     """Execute dam-break simulation under the specified operating mode.
 
     Parameters
     ----------
-    mode : {'classical', 'streaming_test', 'hybrid'}
+    mode : {'classical', 'streaming_test', 'hybrid', 'full_quantum'}
         Simulation operating mode.
     nx, ny : int
         Lattice domain dimensions.
@@ -72,6 +73,8 @@ def run_dam_break_simulation(
         Directory for exporting CSV, JSON, and NPZ result files.
     quiet : bool
         If True, suppress console stdout.
+    scheme : {'korner', 'legacy'}
+        Free-surface mass-exchange and cell-conversion scheme (default: 'korner').
 
     Returns
     -------
@@ -103,6 +106,7 @@ def run_dam_break_simulation(
         gravity=gravity,
         surface_tension=surface_tension,
         solid_mask=solid_mask,
+        free_surface_scheme=scheme,
     )
 
     solver.initialize_dam_break(
@@ -406,6 +410,13 @@ def main() -> int:
     parser.add_argument(
         "--quiet", action="store_true", help="Suppress console stdout"
     )
+    parser.add_argument(
+        "--scheme",
+        type=str,
+        default="korner",
+        choices=["korner", "legacy"],
+        help="Free-surface scheme: 'korner' (default) or 'legacy'",
+    )
 
     args = parser.parse_args()
 
@@ -422,6 +433,7 @@ def main() -> int:
         log_interval=args.log_interval,
         output_dir=args.output_dir,
         quiet=args.quiet,
+        scheme=args.scheme,
     )
 
     return 0 if results["validation"]["all_passed"] else 1

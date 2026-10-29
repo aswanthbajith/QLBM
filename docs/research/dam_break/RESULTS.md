@@ -102,7 +102,7 @@ The dimensionless surge front displacement $Z = x_{\text{front}} / L_0$ was moni
 | 0.5031 | 1.0625 | 1.4283 | Monotonic surge advance |
 | 0.5590 | 1.0625 | 1.5015 | Surge front propagating rightward |
 
-In the early stage ($T < 0.4$), the LBM simulation exhibits a short delay before visible cell transition occurs due to the discrete cell fill threshold ($C > 0.5$). For $T \ge 0.5$, the surge front propagates continuously along the floor, matching the characteristic $Z \propto T^{1.5}$ surge dynamics.
+In the early stage ($T < 0.4$), the discrete cell fill threshold causes an initial threshold delay. As documented in Phase 16 ([`results/dam_break_final/accuracy_report.md`](file:///home/aswa/Research/qlbm/results/dam_break_final/accuracy_report.md)), the legacy scheme front lags the Martin & Moyce experimental curve over extended times ($\sim 36\%$ RMS error at $64 \times 64$) due to mass exchange with GAS cells. Adopting the Körner et al. (2005) scheme cuts this error down to $\sim 8\%$ RMS on fine grids ($192 \times 96$).
 
 ---
 

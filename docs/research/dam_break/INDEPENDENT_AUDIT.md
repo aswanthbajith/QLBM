@@ -202,7 +202,7 @@ An identical 25-step simulation was executed comparing Mode A (Pure Classical) a
    $$\sum_{\mathbf{x} \in \Omega_{\text{solid}}} C(\mathbf{x}) + \|\mathbf{u}(\mathbf{x})\| = 0.0000000000$$
    Zero fluid penetrated any wall.
 3. **Comparison with Martin & Moyce (1952)**:
-   In the classical benchmark ($64 \times 32$, $16 \times 24$, 100 steps), the non-dimensional surge front advances as $Z^* = x_{\text{front}} / L_0$ as a function of non-dimensional time $T^* = t \sqrt{g / L_0}$. The leading edge accelerates along the dry bed with surge rate $dZ^*/dT^* \approx 1.8 - 2.1$, closely matching Martin & Moyce's experimental surge curve $Z^* \approx 1 + 2.0 T^*$. In the miniature $16 \times 8$ grid, column collapse dynamics are spatially coarse, but classical and hybrid runs follow identical trajectories to $< 10^{-11}$.
+   In the classical benchmark ($64 \times 32$, $16 \times 24$, 100 steps), the non-dimensional surge front advances as $Z^* = x_{\text{front}} / L_0$ as a function of non-dimensional time $T^* = t \sqrt{g / L_0}$. Note: while classical and hybrid runs follow identical trajectories to $< 10^{-11}$, comparison against digitised Martin & Moyce (1952) experimental data ($H_0/L_0=2$) reveals that the legacy scheme lags the experimental front by $\sim 36\%$ RMS due to artificial mass leakage across the diffuse interface into GAS cells. Upgrading to the Körner (2005) scheme reduces this discrepancy significantly (down to $\sim 8\%$ RMS on fine grids); see [`results/dam_break_final/accuracy_report.md`](file:///home/aswa/Research/qlbm/results/dam_break_final/accuracy_report.md) for full quantitative audit tables.
 
 ---
 
