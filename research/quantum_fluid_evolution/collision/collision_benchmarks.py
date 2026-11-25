@@ -34,6 +34,9 @@ from research.quantum_fluid_evolution.collision.deterministic_dissipation_channe
     DeterministicDissipationChannelD3Q19,
 )
 from research.quantum_fluid_evolution.collision.rotation_collision import RotationCollision3D
+from research.quantum_fluid_evolution.collision.variational_collision_pre import (
+    VariationalQuantumCollisionD3Q19,
+)
 
 
 def run_collision_comparison_benchmark(
@@ -74,12 +77,14 @@ def run_collision_comparison_benchmark(
     op_denoise = DenoisingCollision3D(tau=tau, dt=1.0)
     op_rot = RotationCollision3D(theta=0.05)
     op_determ = DeterministicDissipationChannelD3Q19(tau=tau, dt=1.0)
+    op_vqc = VariationalQuantumCollisionD3Q19(tau=tau, dt=1.0)
 
     # 4. Apply Operators
     f_lin = op_lin.apply(f_in)
     f_denoise = op_denoise.apply(f_in)
     f_rot = op_rot.apply(f_in)
     f_determ = op_determ.apply(f_in)
+    f_vqc = op_vqc.apply(f_in)
 
     # 5. Evaluate Invariants & Discrepancies
     results = {}
@@ -89,6 +94,7 @@ def run_collision_comparison_benchmark(
         ("Denoising Projector", f_denoise, op_denoise),
         ("Unitary SO(2) Rotation", f_rot, op_rot),
         ("Deterministic CPTP Channel", f_determ, op_determ),
+        ("Variational VQC (PRE Nov 2026)", f_vqc, op_vqc),
     ]
 
     for name, f_out, op in operators:

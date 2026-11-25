@@ -97,11 +97,12 @@ class TestFourParadigmCollisionScorecard:
     def test_collision_comparison_suite_invariants(self):
         results = run_collision_comparison_benchmark(tau=0.85)
 
-        assert len(results) == 4
+        assert len(results) >= 4
         assert "Linearized Block-Encoding" in results
         assert "Denoising Projector" in results
         assert "Unitary SO(2) Rotation" in results
         assert "Deterministic CPTP Channel" in results
+        assert "Variational VQC (PRE Nov 2026)" in results
 
         # Check deterministic channel entry
         cptp = results["Deterministic CPTP Channel"]

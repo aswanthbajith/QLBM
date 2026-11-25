@@ -56,13 +56,24 @@ def run_waterfall_simulation(
     gate_velocity: float = 0.06,
     engine: str = "classical",
     qlks_a: float = 1.0,
+    z_shelf: Optional[int] = None,
+    x_cliff: Optional[int] = None,
     save_npz: bool = True,
     output_dir: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Execute complete 3D multiphase waterfall simulation."""
     nz, ny, nx = grid_size
-    z_shelf = nz // 2
-    x_cliff = nx * 3 // 8
+    if z_shelf is None:
+        z_shelf = nz // 2
+    if x_cliff is None:
+        if engine == "quantum" and nx <= 8:
+            x_cliff = max(2, nx // 4)
+        else:
+            x_cliff = nx * 3 // 8
+
+    # Auto-tune gate velocity for small quantum lattice prototypes if using default
+    if engine == "quantum" and nx <= 8 and gate_velocity == 0.06:
+        gate_velocity = 0.10
 
     print("=" * 105)
     print(f"  3D MULTIPHASE WATERFALL ENGINE [{engine.upper()} EXECUTION]")
@@ -81,9 +92,10 @@ def run_waterfall_simulation(
 
     # Initial distributions
     phi_init = np.full((nz, ny, nx), -1.0, dtype=np.float64)
+    x_reservoir_end = (x_cliff + 1) if (engine == "quantum" and nx <= 8) else x_cliff
     for z_i in range(z_shelf + 1, nz - 1):
         for y_i in range(1, ny - 1):
-            for x_i in range(1, x_cliff):
+            for x_i in range(1, x_reservoir_end):
                 if not solid[z_i, y_i, x_i]:
                     phi_init[z_i, y_i, x_i] = 1.0
 
@@ -267,6 +279,8 @@ def main() -> None:
     parser.add_argument("--sigma", type=float, default=0.015, help="Surface tension coefficient")
     parser.add_argument("--tau", type=float, default=0.8, help="LBM relaxation time")
     parser.add_argument("--gate-u", type=float, default=0.06, help="Initial gate release velocity")
+    parser.add_argument("--z-shelf", type=int, default=None, help="Height of reservoir shelf")
+    parser.add_argument("--x-cliff", type=int, default=None, help="Position of cliff edge")
     parser.add_argument("--engine", choices=["classical", "quantum"], default="classical",
                         help="Execution engine ('classical' NumPy or 'quantum' Qiskit circuit stepper)")
     parser.add_argument("--qlks-a", type=float, default=1.0, help="QLKS viscosity parameter A in (0, 1]")
@@ -285,6 +299,8 @@ def main() -> None:
         gate_velocity=args.gate_u,
         engine=args.engine,
         qlks_a=args.qlks_a,
+        z_shelf=args.z_shelf,
+        x_cliff=args.x_cliff,
         save_npz=not args.no_npz,
         output_dir=args.output_dir,
     )
