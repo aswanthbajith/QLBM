@@ -175,6 +175,7 @@ qlbm-output
 *.npz
 *.vti
 *.npy
+data/
 !ASWANTH/**/*.gif
 results/**
 !results/dam_break_final/accuracy_report.md
