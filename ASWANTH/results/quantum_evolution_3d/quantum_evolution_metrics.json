@@ -1,0 +1,84 @@
+{
+  "grid": {
+    "nx": 4,
+    "ny": 4,
+    "nz": 8
+  },
+  "physics": {
+    "tau": 0.8,
+    "gz": -0.01,
+    "num_steps": 4
+  },
+  "resources": {
+    "total_qubits": 14,
+    "spatial_qubits": 7,
+    "velocity_qubits": 5,
+    "ancilla_qubits": 2,
+    "step_circuit_depth": 232,
+    "step_circuit_size": 624,
+    "two_qubit_gates": 48,
+    "statevector_dim": 16384,
+    "statevector_ram_bytes": 262144,
+    "gate_breakdown": {
+      "x": 490,
+      "mcphase": 70,
+      "mcx": 32,
+      "h": 14,
+      "cp": 10,
+      "swap": 6,
+      "unitary": 1,
+      "c-unitary": 1
+    }
+  },
+  "results": {
+    "final_f_max_difference": 1.8696155734687636e-13,
+    "quantum_time_sec": 15.987100719999944,
+    "classical_time_sec": 3.187374020999414,
+    "history": [
+      {
+        "step": 1,
+        "p_succ": 0.9935677833411389,
+        "cumulative_p_succ": 0.9935677833411389,
+        "total_mass": 111.99999999993338,
+        "jx": -8.412825991399586e-12,
+        "jy": -8.988809696575117e-12,
+        "jz": -0.2999999999959635,
+        "kinetic_energy": 0.00040178571427513767,
+        "step_time_sec": 4.128468528000667
+      },
+      {
+        "step": 2,
+        "p_succ": 0.949278812923872,
+        "cumulative_p_succ": 0.9431728459294791,
+        "total_mass": 111.99999999986663,
+        "jx": -1.570188423727359e-11,
+        "jy": -1.6684431614066852e-11,
+        "jz": -0.5499999999931786,
+        "kinetic_energy": 0.001350446428539527,
+        "step_time_sec": 4.033877812000355
+      },
+      {
+        "step": 3,
+        "p_succ": 0.954772352763862,
+        "cumulative_p_succ": 0.9005153571710763,
+        "total_mass": 111.9999999997997,
+        "jx": -2.3495649870142188e-11,
+        "jy": -2.397637643980488e-11,
+        "jz": -0.7558333333237952,
+        "kinetic_energy": 0.0025503751239481067,
+        "step_time_sec": 4.019474419001199
+      },
+      {
+        "step": 4,
+        "p_succ": 0.9825243374253281,
+        "cumulative_p_succ": 0.8847782546458445,
+        "total_mass": 111.99999999973289,
+        "jx": -3.072719856334061e-11,
+        "jy": -3.052202934838988e-11,
+        "jz": -0.8672215542415151,
+        "kinetic_energy": 0.003357469750637751,
+        "step_time_sec": 3.8046342610014108
+      }
+    ]
+  }
+}
