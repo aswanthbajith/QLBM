@@ -51,15 +51,20 @@ def run_collision_comparison_benchmark(
     perturb[6] = 0.015
     f_in = feq + perturb
 
-    rho_in, u_in = compute_macroscopic(f_in[:, None, None, None])
-    rho_in = float(rho_in[0, 0, 0])
-    j_in = rho_in * u_in[:, 0, 0, 0]
+    rho_field, u_field = compute_macroscopic(f_in[:, None, None, None])
+    rho_in = float(rho_field[0, 0, 0])
+    u_in = u_field[:, 0, 0, 0]
+    j_in = rho_in * u_in
 
     # 2. Classical Non-linear BGK Reference
-    feq_actual = compute_equilibrium(np.array([rho_in]), u_in[:, None, None, None])
+    feq_actual = compute_equilibrium(rho_field, u_field)
     f_bgk = bgk_collision(f_in[:, None, None, None], feq_actual, tau=tau)[:, 0, 0, 0]
     rho_bgk = float(np.sum(f_bgk))
     j_bgk = np.sum(f_bgk[:, None] * C, axis=0)
+
+    # Analytical low-Mach quadratic error bound: ||f_lin - f_bgk|| <= 5/(6*tau) * ||u||^2
+    u_mag_sq = float(np.sum(u_in**2))
+    analytical_error_bound = float((5.0 / (6.0 * tau)) * u_mag_sq)
 
     # 3. Instantiate Quantum Operators
     op_lin = LinearizedQuantum3DCollisionOperator(tau=tau, g=(0, 0, 0), dt=1.0)
@@ -96,6 +101,8 @@ def run_collision_comparison_benchmark(
             "mass_conservation_error": mass_err,
             "momentum_conservation_error": mom_err,
             "max_difference_vs_bgk": bgk_diff,
+            "analytical_error_bound": analytical_error_bound,
+            "bound_satisfied": bool(bgk_diff <= analytical_error_bound),
             "unitarity_error": u_err,
             "unitary_dimension": dim,
             "qubits": res_metrics.get("num_qubits", 6),
