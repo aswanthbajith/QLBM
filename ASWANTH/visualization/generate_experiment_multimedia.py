@@ -56,9 +56,12 @@ def run_and_generate_multimedia(
     x_cliff = 12
     y_mid = ny // 2    # 8
 
-    # 1. Geometry Setup
+    # 1. Geometry Setup with solid enclosure
     solid = np.zeros((nz, ny, nx), dtype=bool)
     solid[0, :, :] = True  # Lower basin floor
+    solid[nz - 1, :, :] = True  # Upper domain ceiling
+    solid[:, :, 0] = True  # Rear reservoir back wall
+    solid[:, :, nx - 1] = True  # Far right basin wall
     solid[: z_shelf + 1, :, : x_cliff + 1] = True  # Shelf and cliff face
     solid[: 5, :, (x_cliff + 5):(x_cliff + 10)] = True  # Basin obstacle
 
@@ -69,12 +72,15 @@ def run_and_generate_multimedia(
         solid_mask=solid,
         interface_width=1.0,
     )
-    solver.initialize_waterfall_reservoir(z_shelf=z_shelf, x_cliff=x_cliff)
+    # Initialize reservoir with generous headspace air cushion (up to z=20, well below z=27 ceiling)
+    solver.initialize_waterfall_reservoir(z_shelf=z_shelf, x_cliff=x_cliff, fill_height=z_shelf + 1 + 5)
 
-    # Initial forward gate release velocity
+    # Initial forward gate release velocity - applied strictly to liquid water in reservoir
+    phi0 = solver.compute_phi()
+    water_mask = (phi0 > 0.0) & (~solid)
     gate_u = 0.08
     for i in range(19):
-        solver.f[i] += WEIGHTS[i] * 1.0 * (C[i, 0] * gate_u / CS_SQ)
+        solver.f[i, water_mask] += WEIGHTS[i] * 1.0 * (C[i, 0] * gate_u / CS_SQ)
 
     print("=" * 80)
     print("  3D WATERFALL MULTIMEDIA GENERATION")

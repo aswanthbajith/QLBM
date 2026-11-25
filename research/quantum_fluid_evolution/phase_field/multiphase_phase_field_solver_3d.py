@@ -182,7 +182,8 @@ class MultiphasePhaseFieldSolver3D:
         # Robust interface normal vector: n = grad(phi) / |grad(phi)|
         grad_phi = self.compute_gradient(phi_clip)
         grad_norm = np.sqrt(np.sum(grad_phi**2, axis=0))
-        mask_interface = grad_norm > 1e-4
+        # Mask strictly at true interface to prevent spurious nucleation in ambient air
+        mask_interface = (grad_norm > 0.02) & (np.abs(phi_clip) < 0.95) & (~self.solid_mask)
 
         unit_n = np.zeros_like(grad_phi)
         for d in range(3):
@@ -199,12 +200,13 @@ class MultiphasePhaseFieldSolver3D:
         # Counter-diffusion source term restoring hyperbolic-tangent profile:
         # S_i = (1 - 1/(2*tau_phi)) * w_i * (c_i . n) * (1 - phi_clip^2) / (2 * xi * c_s^2)
         source_factor = (1.0 - 0.5 / self.tau_phi) * (1.0 - phi_clip**2) / (2.0 * self.xi * CS2_D3Q7)
+        source_factor[~mask_interface] = 0.0
         S_i = WEIGHTS_D3Q7[:, None, None, None] * cn * source_factor[None, :, :, :]
 
         # Collision: g* = g - (g - g_eq)/tau_phi + S_i
         g_star = self.g_dist - (self.g_dist - g_eq) / self.tau_phi + S_i
 
-        # Streaming on D3Q7 lattice with halfway bounce-back on solid nodes
+        # Streaming on D3Q7 lattice
         g_next = np.zeros_like(self.g_dist)
         for i in range(7):
             cx, cy, cz = C_D3Q7[i]
@@ -212,11 +214,16 @@ class MultiphasePhaseFieldSolver3D:
             streamed_i = np.roll(np.roll(np.roll(g_star[i], cz, axis=0), cy, axis=1), cx, axis=2)
             g_next[i] = streamed_i
 
-        # Apply halfway bounce-back on solid boundaries
+        # True halfway bounce-back on solid boundary interfaces
+        fluid_mask = ~self.solid_mask
         for i in range(1, 7):
+            cx, cy, cz = C_D3Q7[i]
             opp = OPP_D3Q7[i]
-            g_next[opp, self.solid_mask] = g_star[i, self.solid_mask]
+            nbr_solid = np.roll(np.roll(np.roll(self.solid_mask, -cz, axis=0), -cy, axis=1), -cx, axis=2)
+            bounce_mask = fluid_mask & nbr_solid
+            g_next[opp, bounce_mask] = g_star[i, bounce_mask]
 
+        g_next[:, self.solid_mask] = WEIGHTS_D3Q7[:, None] * (-1.0)
         self.g_dist = g_next
         return self.compute_phi()
 
@@ -248,18 +255,23 @@ class MultiphasePhaseFieldSolver3D:
         # Collision: f* = f - (f - feq)/tau + F_guo
         f_star = self.f - (self.f - feq) / self.tau_f + F_guo
 
-        # Streaming on D3Q19 with halfway bounce-back on solid nodes
+        # Streaming on D3Q19
         f_next = np.zeros_like(self.f)
         for i in range(19):
             cx, cy, cz = C_D3Q19[i]
             streamed_i = np.roll(np.roll(np.roll(f_star[i], cz, axis=0), cy, axis=1), cx, axis=2)
             f_next[i] = streamed_i
 
-        # Bounce-back on solid obstacles
+        # True halfway bounce-back on solid obstacles
+        fluid_mask = ~self.solid_mask
         for i in range(1, 19):
+            cx, cy, cz = C_D3Q19[i]
             opp = OPP_D3Q19[i]
-            f_next[opp, self.solid_mask] = f_star[i, self.solid_mask]
+            nbr_solid = np.roll(np.roll(np.roll(self.solid_mask, -cz, axis=0), -cy, axis=1), -cx, axis=2)
+            bounce_mask = fluid_mask & nbr_solid
+            f_next[opp, bounce_mask] = f_star[i, bounce_mask]
 
+        f_next[:, self.solid_mask] = W_D3Q19[:, None] * 1.0
         self.f = f_next
         return rho, u
 
@@ -316,13 +328,17 @@ class MultiphasePhaseFieldSolver3D:
             self.f[i] = W_D3Q19[i] * 1.0
 
     def initialize_waterfall_reservoir(
-        self, z_shelf: int = 8, x_cliff: int = 6
+        self, z_shelf: int = 8, x_cliff: int = 6, fill_height: Optional[int] = None
     ) -> None:
         """Initialize liquid column resting on an elevated reservoir shelf."""
         phi = np.full((self.nz, self.ny, self.nx), -1.0, dtype=np.float64)
 
+        if fill_height is None:
+            # Leave generous headspace air cushion above the water to prevent ceiling shear
+            fill_height = min(self.nz - 4, z_shelf + 1 + max(3, (self.nz - 1 - z_shelf) // 2))
+
         # Liquid in reservoir above shelf
-        for z in range(z_shelf + 1, self.nz - 1):
+        for z in range(z_shelf + 1, fill_height + 1):
             for y in range(1, self.ny - 1):
                 for x in range(1, x_cliff):
                     if not self.solid_mask[z, y, x]:
