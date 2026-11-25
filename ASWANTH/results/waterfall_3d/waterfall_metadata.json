@@ -1,0 +1,33 @@
+{
+  "mode": "classical",
+  "grid": {
+    "nx": 16,
+    "ny": 4,
+    "nz": 16
+  },
+  "geometry": {
+    "shelf_height": 7,
+    "shelf_length": 6,
+    "gate_x": 6,
+    "water_height": 4
+  },
+  "physics": {
+    "tau": 0.7,
+    "gravity_lattice": 0.025,
+    "gravity_vector": [
+      0.0,
+      0.0,
+      -0.025
+    ]
+  },
+  "simulation": {
+    "steps": 120,
+    "gate_open_step": 2,
+    "initial_mass": 40.0,
+    "final_mass": 39.99999999999999,
+    "max_mass_error": 7.105427357601002e-15,
+    "total_runtime_seconds": 23.49544169999899,
+    "animation_gif": "ASWANTH/results/waterfall_3d/waterfall_3d_animation.gif"
+  },
+  "quantum_circuit": {}
+}

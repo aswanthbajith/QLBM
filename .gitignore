@@ -171,3 +171,10 @@ test/artifacts
 qlbm-output
 
 *.gif
+# Simulation dumps
+*.npz
+*.vti
+*.npy
+!ASWANTH/**/*.gif
+results/**
+!results/dam_break_final/accuracy_report.md
