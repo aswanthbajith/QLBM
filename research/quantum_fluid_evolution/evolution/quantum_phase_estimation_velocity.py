@@ -194,3 +194,56 @@ class QuantumPhaseEstimationVelocityProfiler:
             "circuit_qubits": self.circuit.num_qubits,
             "circuit_depth": self.circuit.depth(),
         }
+
+    def profile_from_distribution(
+        self,
+        f: np.ndarray,
+        coord: Optional[Tuple[int, int, int]] = None,
+    ) -> Dict[str, Any]:
+        """Profile directional velocity spectrum directly from a population array f.
+
+        Parameters
+        ----------
+        f : np.ndarray
+            Either a 1D distribution of shape (num_vels,) or a 4D array (num_vels, nz, ny, nx).
+        coord : tuple (z, y, x), optional
+            Coordinates in the lattice. Required if f is 4D.
+
+        Returns
+        -------
+        dict with quantum probabilities, quantum mean velocity, classical moment velocity,
+        and quantum-vs-classical error.
+        """
+        if f.ndim == 4:
+            if coord is None:
+                raise ValueError("coord (z, y, x) must be specified for 4D population array")
+            z, y, x = coord
+            f_node = f[:, z, y, x]
+        elif f.ndim == 1:
+            f_node = f
+        else:
+            raise ValueError(f"f must be 1D or 4D array, got shape {f.shape}")
+
+        vec = np.zeros(self.dim_vel, dtype=np.complex128)
+        pos_f = np.maximum(0.0, f_node[:self.num_vels])
+        s = float(np.sum(pos_f))
+        if s > 1e-15:
+            vec[:self.num_vels] = np.sqrt(pos_f / s)
+        else:
+            vec[0] = 1.0  # Rest state if vacuum
+
+        psi = Statevector(vec)
+        res = self.profile_velocity_spectrum(psi)
+
+        # Classical moment for exact verification
+        if s > 1e-15:
+            classical_u = float(np.sum(self.diag_c[:self.num_vels] * pos_f) / s)
+        else:
+            classical_u = 0.0
+
+        res["classical_moment_velocity"] = classical_u
+        res["quantum_vs_classical_error"] = abs(res["mean_velocity"] - classical_u)
+        if coord is not None:
+            res["probe_coord"] = list(coord)
+        return res
+

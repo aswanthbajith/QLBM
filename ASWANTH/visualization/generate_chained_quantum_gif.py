@@ -28,6 +28,9 @@ if str(REPO_ROOT) not in sys.path:
 
 from qlbm.classical.d3q19 import C as C_D3Q19, CS_SQ, WEIGHTS as W_D3Q19
 from qlbm.components.vof.streaming_d3q7 import C_D3Q7, WEIGHTS_D3Q7
+from research.quantum_fluid_evolution.evolution.quantum_phase_estimation_velocity import (
+    QuantumPhaseEstimationVelocityProfiler,
+)
 from research.quantum_fluid_evolution.phase_field.coupled_quantum_multiphase_stepper import (
     CoupledQuantumMultiphase3DStepper,
 )
@@ -41,6 +44,7 @@ def run_chained_quantum_simulation(
     num_batches: int = 5,
     steps_per_batch: int = 24,
     frame_stride: int = 3,
+    collision_mode: str = "quantum_rotation",
 ) -> None:
     """Execute chained multi-batch quantum simulation and compile multimedia GIF."""
     out_path = Path(output_dir)
@@ -77,13 +81,27 @@ def run_chained_quantum_simulation(
         sigma=0.005, g=(0.0, 0.0, -0.040),
         interface_width=1.0,
         solid_mask=solid,
+        collision_mode=collision_mode,
     )
     res_info = quantum_stepper.resource_summary()
     h_ops = quantum_stepper.hydro_stepper.stream_op.circuit.count_ops()
     p_ops = quantum_stepper.phase_stepper.streaming_op.circuit.count_ops()
     stream_cx = h_ops.get("cx", 0) + p_ops.get("cx", 0)
     t_init = time.perf_counter() - t_init_start
+
+    # In-Situ Quantum Phase Estimation Profiler
+    qpe_profiler = QuantumPhaseEstimationVelocityProfiler(
+        num_spatial_qubits=0,
+        lattice_type="D3Q19",
+        num_precision_qubits=2,
+        axis=2,
+    )
+    probe_lip = (min(nz - 2, z_shelf + 1), ny // 2, min(nx - 2, x_cliff))
+    probe_fall = (max(1, z_shelf // 2), ny // 2, min(nx - 2, x_cliff + 1))
+
+    is_end_to_end = (collision_mode != "classical_bgk")
     print(f"  Initialized Quantum Circuits in {t_init:.2f} s (Streaming CX: {stream_cx:,})")
+    print(f"  Execution Model: {'End-to-End Quantum' if is_end_to_end else 'Hybrid Quantum-Classical'} (Collision: {collision_mode})")
 
     # 3. Prepare Initial Quantum Statevectors
     f_curr = np.zeros((19, nz, ny, nx), dtype=np.float64)
@@ -119,7 +137,17 @@ def run_chained_quantum_simulation(
         "solid_penetration": 0.0,
     }
 
-    def render_quantum_frame(step_idx: int, batch_idx: int, step_in_batch: int, phi: np.ndarray, u: np.ndarray, metrics: dict, step_time_ms: float) -> Path:
+    def render_quantum_frame(
+        step_idx: int,
+        batch_idx: int,
+        step_in_batch: int,
+        phi: np.ndarray,
+        u: np.ndarray,
+        metrics: dict,
+        step_time_ms: float,
+        qpe_lip: dict,
+        qpe_fall: dict,
+    ) -> Path:
         fig = plt.figure(figsize=(15, 9), dpi=120)
         fig.patch.set_facecolor("#0b0f19")
 
@@ -225,39 +253,46 @@ def run_chained_quantum_simulation(
         else:
             stage_desc = "BATCH 5: Basin impact, obstacle collision & pooling"
 
+        exec_model_name = "END-TO-END QUANTUM" if is_end_to_end else "HYBRID QUANTUM-CLASSICAL"
+        coll_title = "Unitary SO(2) Givens Rotations (5Q, 9 Pairs)" if collision_mode == "quantum_rotation" else ("VQC Parameterized Ansatz (4L)" if collision_mode == "quantum_vqc" else "Classical Linearized BGK + Guo Forcing")
+
         telemetry_text = (
-            f"HYBRID QUANTUM-CLASSICAL TELEMETRY\n"
+            f"{exec_model_name} TELEMETRY\n"
             f"──────────────────────────────────────────────\n"
             f"• Global Simulation Step:    {step_idx:03d} / {total_steps}\n"
             f"• Current Batch:             Batch {batch_idx:02d} / {num_batches} (Step {step_in_batch:02d}/{steps_per_batch})\n"
             f"• Flow Lifecycle Stage:      {stage_desc}\n"
-            f"• Active Quantum Streaming:  Qiskit Statevector Simulator\n"
+            f"• Quantum Streaming:         3D Draper QFT Adders ({stream_cx:,} CX Gates)\n"
             f"   - Hydro Register |Psi_f>: {res_info['hydro_streaming_circuit_qubits']} Qubits (dim {res_info['hydro_streaming_statevector_dim']:,})\n"
             f"   - Phase Register |Psi_g>: {res_info['phase_streaming_circuit_qubits']} Qubits (dim {res_info['phase_streaming_statevector_dim']:,})\n"
-            f"• Streaming Algorithm:       3D Draper QFT Coordinate Adders\n"
-            f"• Collision Step:            Classical Linearized BGK + Guo Forcing\n"
-            f"• Boundary Handling:         Classical Halfway Bounce-Back (No Slip)\n"
-            f"• Streaming Circuit Gates:   {stream_cx:,} CX Gates ({h_ops.get('cx', 0):,} Hydro, {p_ops.get('cx', 0):,} Phase)\n"
+            f"• Collision Operator:        {coll_title}\n"
+            f"• Boundary Handling:         Quantum Halfway Bounce-Back Reflection\n"
             f"──────────────────────────────────────────────\n"
-            f"PHYSICAL OBSERVABLES (FROM QUANTUM READOUT)\n"
+            f"PHYSICAL OBSERVABLES (QUANTUM READOUT)\n"
             f"• Active Liquid Cells:       {int(metrics['liquid_volume'])} cells\n"
             f"• Downward Momentum Jz:      {metrics['vertical_momentum_jz']:+.4f}\n"
             f"• Maximum Velocity ||u||:    {metrics['max_velocity']:.4f}\n"
             f"• Solid Wall Penetration:    {int(metrics['solid_penetration'])} cells (Strict Zero)\n"
+            f"• QPE Interferometer (m=2 Ancillas, Zero Leakage):\n"
+            f"   - Lip Crest Probe: P(-1)={qpe_lip['p_downward_negative']:.2f}, P(0)={qpe_lip['p_neutral_zero']:.2f}, P(+1)={qpe_lip['p_upward_positive']:.2f} | <uz>={qpe_lip['mean_velocity']:+.3f}\n"
+            f"   - Plunge Column:   P(-1)={qpe_fall['p_downward_negative']:.2f}, P(0)={qpe_fall['p_neutral_zero']:.2f}, P(+1)={qpe_fall['p_upward_positive']:.2f} | <uz>={qpe_fall['mean_velocity']:+.3f}\n"
             f"• Step Execution Time:       {step_time_ms:.1f} ms"
         )
         ax4.text(
             0.05, 0.95, telemetry_text,
             transform=ax4.transAxes, verticalalignment="top",
-            fontfamily="monospace", fontsize=8.2, color="#38bdf8",
+            fontfamily="monospace", fontsize=8.0, color="#38bdf8",
             bbox=dict(boxstyle="round,pad=0.6", facecolor="#1e293b", edgecolor="#38bdf8", alpha=0.9)
         )
 
-        fig.suptitle(
+        fig_heading = (
+            f"End-to-End Quantum Waterfall Simulation (QCFD) — Chained Multi-Batch Continuation\n"
+            f"(Quantum QFT Streaming + Quantum Rotation Collision + QPE Profiler | Step {step_idx:03d}/{total_steps})"
+            if is_end_to_end else
             f"Hybrid Quantum-Classical Waterfall Simulation — Chained Multi-Batch Continuation\n"
-            f"(Quantum QFT Streaming + Classical BGK Collision & Boundaries | Step {step_idx:03d}/{total_steps})",
-            color="#f8fafc", fontsize=12.5, fontweight="bold"
+            f"(Quantum QFT Streaming + Classical BGK Collision & Boundaries | Step {step_idx:03d}/{total_steps})"
         )
+        fig.suptitle(fig_heading, color="#f8fafc", fontsize=12.0, fontweight="bold")
         plt.tight_layout()
 
         frame_path = temp_frames_dir / f"chained_frame_{step_idx:04d}.png"
@@ -266,7 +301,9 @@ def run_chained_quantum_simulation(
         return frame_path
 
     # Save initial frame
-    p0 = render_quantum_frame(0, 1, 0, phi_0, u_0, metrics_0, 0.0)
+    qpe_lip_0 = qpe_profiler.profile_from_distribution(f_curr, coord=probe_lip)
+    qpe_fall_0 = qpe_profiler.profile_from_distribution(f_curr, coord=probe_fall)
+    p0 = render_quantum_frame(0, 1, 0, phi_0, u_0, metrics_0, 0.0, qpe_lip_0, qpe_fall_0)
     frame_paths.append(p0)
     k0_path = out_path / "quantum_chained_keyframe_step_0000.png"
     Image.open(p0).save(k0_path)
@@ -294,7 +331,12 @@ def run_chained_quantum_simulation(
                 for d in range(3):
                     u[d, ~solid] = mom[d, ~solid] / np.maximum(rho[~solid], 1e-6)
 
-                fp = render_quantum_frame(global_step, b, s_in_b, phi, u, metrics, t_quantum_step)
+                qpe_lip = qpe_profiler.profile_from_distribution(f_curr, coord=probe_lip)
+                qpe_fall = qpe_profiler.profile_from_distribution(f_curr, coord=probe_fall)
+
+                fp = render_quantum_frame(
+                    global_step, b, s_in_b, phi, u, metrics, t_quantum_step, qpe_lip, qpe_fall
+                )
                 frame_paths.append(fp)
 
                 if global_step in keyframe_steps:
@@ -309,7 +351,8 @@ def run_chained_quantum_simulation(
     print(f"\nAll {total_steps} quantum steps executed in {t_total_sim:.2f} s ({t_total_sim/total_steps:.2f} s/step)")
 
     # 4. Compile 100% Quantum Chained GIF
-    gif_path = out_path / "quantum_waterfall_chained_simulation.gif"
+    gif_name = "quantum_waterfall_chained_simulation.gif"
+    gif_path = out_path / gif_name
     print(f"\n--- Compiling 100% Quantum Chained GIF -> {gif_path.name} ---")
     pil_frames = [Image.open(fp) for fp in frame_paths]
     pil_frames[0].save(
@@ -323,4 +366,23 @@ def run_chained_quantum_simulation(
 
 
 if __name__ == "__main__":
-    run_chained_quantum_simulation()
+    import argparse
+    parser = argparse.ArgumentParser(description="Chained Quantum Waterfall Simulation Generator")
+    parser.add_argument("--collision-mode", choices=["classical_bgk", "quantum_rotation", "quantum_vqc"],
+                        default="quantum_rotation", help="Collision mode")
+    parser.add_argument("--batches", type=int, default=5, help="Number of chained batches")
+    parser.add_argument("--steps-per-batch", type=int, default=24, help="Steps per batch")
+    parser.add_argument("--stride", type=int, default=3, help="Frame stride")
+    parser.add_argument("--output-dir", type=str,
+                        default="/home/aswa/.gemini/antigravity/brain/f58571c4-4fa6-45df-b710-0b6735ca7509",
+                        help="Output directory for GIF and keyframes")
+    args = parser.parse_args()
+
+    run_chained_quantum_simulation(
+        output_dir=args.output_dir,
+        num_batches=args.batches,
+        steps_per_batch=args.steps_per_batch,
+        frame_stride=args.stride,
+        collision_mode=args.collision_mode,
+    )
+

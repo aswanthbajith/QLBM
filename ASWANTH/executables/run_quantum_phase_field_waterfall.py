@@ -39,6 +39,9 @@ from qlbm.components.vof.streaming_d3q7 import WEIGHTS_D3Q7
 from research.quantum_fluid_evolution.collision.deterministic_dissipation_channel import (
     DeterministicDissipationChannelD3Q19,
 )
+from research.quantum_fluid_evolution.evolution.quantum_phase_estimation_velocity import (
+    QuantumPhaseEstimationVelocityProfiler,
+)
 from research.quantum_fluid_evolution.phase_field.coupled_quantum_multiphase_stepper import (
     CoupledQuantumMultiphase3DStepper,
 )
@@ -55,9 +58,12 @@ def run_waterfall_simulation(
     tau: float = 0.8,
     gate_velocity: float = 0.06,
     engine: str = "classical",
+    collision_mode: str = "classical_bgk",
     qlks_a: float = 1.0,
     z_shelf: Optional[int] = None,
     x_cliff: Optional[int] = None,
+    qpe_profile: bool = False,
+    qpe_interval: int = 5,
     save_npz: bool = True,
     output_dir: Optional[str] = None,
 ) -> Dict[str, Any]:
@@ -119,9 +125,14 @@ def run_waterfall_simulation(
             interface_width=1.0,
             qlks_A=qlks_a,
             solid_mask=solid,
+            collision_mode=collision_mode,
         )
         res_info = quantum_stepper.resource_summary()
         print("\n--- Quantum Circuit Architecture ---")
+        print(f"  Execution Model:     {res_info['model']}")
+        print(f"  Collision Mode:      {res_info['collision_mode'].upper()} (Quantum: {res_info['collision_quantum']})")
+        if res_info.get("collision_operator_type"):
+            print(f"  Collision Operator:  {res_info['collision_operator_type']} (Depth: {res_info.get('collision_circuit_depth')})")
         print(f"  Hydrodynamic Qubits: {res_info['hydro_qubits']} (D3Q19 register, dim {res_info['hydro_statevector_dim']:,})")
         print(f"  Phase-Field Qubits:  {res_info['phase_qubits']} (D3Q7 register, dim {res_info['phase_statevector_dim']:,})")
         print(f"  Total System Qubits: {res_info['total_system_qubits']}")
@@ -150,6 +161,22 @@ def run_waterfall_simulation(
         solver.initialize_waterfall_reservoir(z_shelf=z_shelf, x_cliff=x_cliff)
         for i in range(19):
             solver.f[i] += WEIGHTS[i] * 1.0 * (C[i, 0] * gate_velocity / CS_SQ)
+
+    qpe_profiler = None
+    probe_lip = (min(nz - 2, z_shelf + 1), ny // 2, min(nx - 2, x_cliff))
+    probe_fall = (max(1, z_shelf // 2), ny // 2, min(nx - 2, x_cliff + 1))
+    if qpe_profile:
+        qpe_profiler = QuantumPhaseEstimationVelocityProfiler(
+            num_spatial_qubits=0,
+            lattice_type="D3Q19",
+            num_precision_qubits=2,
+            axis=2,  # Vertical Z-axis
+        )
+        print("\n--- In-Situ Quantum Phase Estimation (QPE) Interferometer ---")
+        print(f"  QPE Ancilla Qubits:   {qpe_profiler.num_precision_qubits} (Precision: 2-bit dyadic fractions)")
+        print("  QPE Unitary Operator: exp(i * 2pi * 0.25 * J_z) (Zero spectral leakage)")
+        print(f"  QPE Probe Lip:        (z={probe_lip[0]}, y={probe_lip[1]}, x={probe_lip[2]}) [Cliff Crest]")
+        print(f"  QPE Probe Plunge:     (z={probe_fall[0]}, y={probe_fall[1]}, x={probe_fall[2]}) [Falling Jet]")
 
     print("\n--- Time Evolution Scorecard ---")
     header = (
@@ -190,9 +217,17 @@ def run_waterfall_simulation(
             "solid_penetration": penetration,
             "total_order_mass": step_res["total_order_mass"],
         }
-        history.append(record)
 
-        if s == 1 or s % 5 == 0 or s == num_steps:
+        # In-situ QPE measurement
+        if qpe_profiler is not None and (s == 1 or s % qpe_interval == 0 or s == num_steps):
+            f_src = f_curr if engine == "quantum" else solver.f
+            res_lip = qpe_profiler.profile_from_distribution(f_src, coord=probe_lip)
+            res_fall = qpe_profiler.profile_from_distribution(f_src, coord=probe_fall)
+            record["qpe"] = {
+                "lip": res_lip,
+                "plunge": res_fall,
+            }
+
             row = (
                 f"{s:^6d} | "
                 f"{elapsed:^9.3f} | "
@@ -204,6 +239,30 @@ def run_waterfall_simulation(
                 f"{penetration:^17d}"
             )
             print(row)
+            print(
+                f"       ↳ [QPE Lip]    P(-1)={res_lip['p_downward_negative']:.3f}, "
+                f"P(0)={res_lip['p_neutral_zero']:.3f}, P(+1)={res_lip['p_upward_positive']:.3f} | "
+                f"<uz>={res_lip['mean_velocity']:+.4f} (moment={res_lip['classical_moment_velocity']:+.4f})"
+            )
+            print(
+                f"       ↳ [QPE Plunge] P(-1)={res_fall['p_downward_negative']:.3f}, "
+                f"P(0)={res_fall['p_neutral_zero']:.3f}, P(+1)={res_fall['p_upward_positive']:.3f} | "
+                f"<uz>={res_fall['mean_velocity']:+.4f} (moment={res_fall['classical_moment_velocity']:+.4f})"
+            )
+        elif s == 1 or s % 5 == 0 or s == num_steps:
+            row = (
+                f"{s:^6d} | "
+                f"{elapsed:^9.3f} | "
+                f"{int(step_res['liquid_volume']):^10d} | "
+                f"{air_liquid:^16d} | "
+                f"{basin_pool:^10d} | "
+                f"{step_res['vertical_momentum_jz']:^12.5f} | "
+                f"{step_res['max_velocity']:^9.4f} | "
+                f"{penetration:^17d}"
+            )
+            print(row)
+
+        history.append(record)
 
     total_time = time.perf_counter() - t_start
     final_record = history[-1]
@@ -290,6 +349,12 @@ def main() -> None:
     parser.add_argument("--x-cliff", type=int, default=None, help="Position of cliff edge")
     parser.add_argument("--engine", choices=["classical", "quantum"], default="classical",
                         help="Execution engine ('classical' NumPy or 'quantum' Qiskit circuit stepper)")
+    parser.add_argument("--collision-mode", choices=["classical_bgk", "quantum_rotation", "quantum_vqc"],
+                        default="classical_bgk", help="Collision mode when engine='quantum'")
+    parser.add_argument("--qpe-profile", action="store_true",
+                        help="Enable in-situ Quantum Phase Estimation velocity interferometry at probe locations")
+    parser.add_argument("--qpe-interval", type=int, default=5,
+                        help="Interval of steps between QPE velocity profile measurements")
     parser.add_argument("--qlks-a", type=float, default=1.0, help="QLKS viscosity parameter A in (0, 1]")
     parser.add_argument("--output-dir", type=str, default="data/waterfall_phase_field_output",
                         help="Directory to save JSON metrics and NPZ fields")
@@ -305,9 +370,12 @@ def main() -> None:
         tau=args.tau,
         gate_velocity=args.gate_u,
         engine=args.engine,
+        collision_mode=args.collision_mode,
         qlks_a=args.qlks_a,
         z_shelf=args.z_shelf,
         x_cliff=args.x_cliff,
+        qpe_profile=args.qpe_profile,
+        qpe_interval=args.qpe_interval,
         save_npz=not args.no_npz,
         output_dir=args.output_dir,
     )
@@ -315,3 +383,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
