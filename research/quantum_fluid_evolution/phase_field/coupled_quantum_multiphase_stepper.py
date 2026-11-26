@@ -103,6 +103,7 @@ class CoupledQuantumMultiphase3DStepper:
         rho_liquid: float = 1.0,
         rho_gas: float = 1.0,
         solid_mask: Optional[np.ndarray] = None,
+        collision_mode: str = "classical_bgk",
         logger: Logger = getLogger("qlbm"),
     ) -> None:
         if not is_two_pow(nx) or not is_two_pow(ny) or not is_two_pow(nz):
@@ -121,7 +122,26 @@ class CoupledQuantumMultiphase3DStepper:
         self.qlks_A = float(np.clip(qlks_A, 0.01, 1.0))
         self.rho_liquid = float(rho_liquid)
         self.rho_gas = float(rho_gas)
+        self.collision_mode = str(collision_mode).lower()
         self.logger = logger
+
+        if self.collision_mode not in ("classical_bgk", "quantum_rotation", "quantum_vqc"):
+            raise ValueError(
+                f"Unsupported collision_mode '{collision_mode}'. "
+                "Must be one of: 'classical_bgk', 'quantum_rotation', 'quantum_vqc'"
+            )
+
+        if self.collision_mode == "quantum_rotation":
+            from research.quantum_fluid_evolution.collision.rotation_collision import (
+                RotationCollision3D,
+            )
+            theta = float(np.clip(0.1 / self.tau_f, 0.01, 0.5))
+            self.rotation_op = RotationCollision3D(theta=theta)
+        elif self.collision_mode == "quantum_vqc":
+            from research.quantum_fluid_evolution.collision.variational_collision_pre import (
+                VariationalQuantumCollisionD3Q19,
+            )
+            self.vqc_op = VariationalQuantumCollisionD3Q19(tau=self.tau_f, num_layers=2)
 
         if solid_mask is None:
             self.solid_mask = np.zeros((self.nz, self.ny, self.nx), dtype=bool)
@@ -167,8 +187,14 @@ class CoupledQuantumMultiphase3DStepper:
         hydro_stream_q = self.hydro_stepper.stream_op.circuit.num_qubits
         phase_stream_q = self.phase_stepper.streaming_op.circuit.num_qubits
 
-        return {
-            "model": "Hybrid: quantum-circuit streaming (statevector-simulated) + classical collision/forcing/walls",
+        summary = {
+            "model": (
+                f"End-to-End Quantum: quantum streaming + {self.collision_mode}"
+                if self.collision_mode != "classical_bgk"
+                else "Hybrid: quantum-circuit streaming (statevector-simulated) + classical collision/forcing/walls"
+            ),
+            "collision_mode": self.collision_mode,
+            "collision_quantum": self.collision_mode != "classical_bgk",
             "hydro_qubits": hydro_res["total_qubits"],
             "phase_qubits": phase_res["total_qubits"],
             "total_system_qubits": hydro_res["total_qubits"] + phase_res["total_qubits"],
@@ -186,6 +212,15 @@ class CoupledQuantumMultiphase3DStepper:
             "rho_liquid": self.rho_liquid,
             "rho_gas": self.rho_gas,
         }
+        if self.collision_mode == "quantum_rotation":
+            summary["collision_circuit_qubits"] = 5
+            summary["collision_operator_type"] = "Unitary SO(2) Givens Rotation Network"
+            summary["collision_circuit_depth"] = self.rotation_op.build_circuit().depth()
+        elif self.collision_mode == "quantum_vqc":
+            summary["collision_circuit_qubits"] = 5
+            summary["collision_operator_type"] = "Variational Quantum Circuit (VQC)"
+            summary["collision_circuit_depth"] = self.vqc_op.circuit.depth()
+        return summary
 
     # -----------------------------------------------------------------
     # Multiphase Coupling Physics (classical)
@@ -288,24 +323,38 @@ class CoupledQuantumMultiphase3DStepper:
         for d in range(3):
             u[d, fluid_mask] = mom[d, fluid_mask] / np.maximum(rho[fluid_mask], 1e-6)
 
-        # 3. Hydro collision (classical linearized BGK) + Guo forcing.
-        #    Guo scheme: equilibrium uses the shifted momentum j + F/2. For the linear
-        #    equilibrium f_i^eq = w_i (rho + c_i.j / cs^2) this adds w_i c_i.F / (2 cs^2).
-        #    Net momentum change per step is then exactly F.
-        f_flat = f_arr.reshape(19, -1)
-        feq = self.hydro_stepper.collision_op._E @ f_flat
-        cf = np.tensordot(C_D3Q19, F_total, axes=([1], [0]))
-        feq = feq + (W_D3Q19[:, None, None, None] * cf / (2.0 * CS_SQ)).reshape(19, -1)
-        lambda_f = 1.0 - 1.0 / self.tau_f
-        f_coll = (feq + (f_flat - feq) * lambda_f).reshape(19, self.nz, self.ny, self.nx)
-
+        # 3. Hydro collision (mode-dependent) + Guo forcing.
         cu = np.tensordot(C_D3Q19, u, axes=([1], [0]))
+        cf = np.tensordot(C_D3Q19, F_total, axes=([1], [0]))
         uf = np.sum(u * F_total, axis=0)
         F_guo = (1.0 - 0.5 / self.tau_f) * W_D3Q19[:, None, None, None] * (
             (cf - uf[None, :, :, :]) / CS_SQ + (cu * cf) / (CS_SQ**2)
         )
-        f_coll += F_guo
-        f_coll[:, self.solid_mask] = 0.0
+
+        if self.collision_mode == "quantum_rotation":
+            # Quantum SO(2) Givens rotation collision
+            rho_before = np.sum(f_arr, axis=0)
+            f_rot = self.rotation_op.apply(f_arr)
+            # Conserve local density invariant under unitary Givens rotations
+            rho_after = np.maximum(np.sum(f_rot, axis=0), 1e-12)
+            f_coll = f_rot * (rho_before / rho_after)[None, :, :, :]
+            f_coll += F_guo
+            f_coll[:, self.solid_mask] = 0.0
+        elif self.collision_mode == "quantum_vqc":
+            # Variational Quantum Collision circuit
+            f_coll = self.vqc_op.apply(f_arr)
+            f_coll += F_guo
+            f_coll[:, self.solid_mask] = 0.0
+        else:
+            # Classical linearized BGK + Guo forcing.
+            # Guo scheme: equilibrium uses shifted momentum j + F/2.
+            f_flat = f_arr.reshape(19, -1)
+            feq = self.hydro_stepper.collision_op._E @ f_flat
+            feq = feq + (W_D3Q19[:, None, None, None] * cf / (2.0 * CS_SQ)).reshape(19, -1)
+            lambda_f = 1.0 - 1.0 / self.tau_f
+            f_coll = (feq + (f_flat - feq) * lambda_f).reshape(19, self.nz, self.ny, self.nx)
+            f_coll += F_guo
+            f_coll[:, self.solid_mask] = 0.0
 
         # 4. Hydro streaming: QFT circuit on statevector simulator (signed, exact)
         f_next = self.hydro_stepper.stream_op.stream_distribution_array(f_coll, signed=True)
