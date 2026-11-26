@@ -1,10 +1,10 @@
-"""Generate Chained Multi-Batch Quantum-Computed Waterfall Simulation.
+"""Generate Chained Multi-Batch Hybrid Quantum-Classical Waterfall Simulation.
 
-Executes 100% Genuine Quantum Computing across chained 24-step batches:
-- Architecture: 27 Qubits (15 Hydrodynamic + 12 Phase-Field)
-- Chained Batch Execution: Sequential 24-step quantum batches with continuous statevector transfer
-- Physics: High-gravity waterfall detachment, plunging, obstacle impact, and basin pooling
-- Telemetry: Real-time quantum circuit depth, gate counts, and physical observables
+Executes hybrid quantum-classical simulation across chained 24-step batches:
+- Quantum Streaming: 3D Draper QFT coordinate adder circuits (13Q Hydro + 11Q Phase)
+- Classical BGK Collision: Exact Linearized BGK projector + Guo second-order body forcing
+- Classical Boundary Handling: Halfway bounce-back on solid obstacles (zero penetration)
+- Telemetry: Real-time circuit gate counts and physical observables from statevector readout
 """
 
 from __future__ import annotations
@@ -63,8 +63,8 @@ def run_chained_quantum_simulation(
     solid[: 2, :, 4:6] = True      # Basin obstacle
 
     print("=" * 80)
-    print("  100% GENUINE 27-QUBIT CHAINED QUANTUM WATERFALL SIMULATION")
-    print(f"  Grid: {nx}x{ny}x{nz} (256 nodes) | Qubits: 27 (15 Hydro + 12 Phase)")
+    print("  HYBRID QUANTUM-CLASSICAL CHAINED WATERFALL SIMULATION")
+    print(f"  Grid: {nx}x{ny}x{nz} (256 nodes) | Quantum Streaming: 13Q Hydro + 11Q Phase")
     print(f"  Chained Batches: {num_batches} batches x {steps_per_batch} steps = {total_steps} total steps")
     print(f"  Frame Stride: Every {frame_stride} steps (plus batch boundary keyframes)")
     print("=" * 80)
@@ -79,8 +79,11 @@ def run_chained_quantum_simulation(
         solid_mask=solid,
     )
     res_info = quantum_stepper.resource_summary()
+    h_ops = quantum_stepper.hydro_stepper.stream_op.circuit.count_ops()
+    p_ops = quantum_stepper.phase_stepper.streaming_op.circuit.count_ops()
+    stream_cx = h_ops.get("cx", 0) + p_ops.get("cx", 0)
     t_init = time.perf_counter() - t_init_start
-    print(f"  Initialized Quantum Circuits in {t_init:.2f} s")
+    print(f"  Initialized Quantum Circuits in {t_init:.2f} s (Streaming CX: {stream_cx:,})")
 
     # 3. Prepare Initial Quantum Statevectors
     f_curr = np.zeros((19, nz, ny, nx), dtype=np.float64)
@@ -223,18 +226,18 @@ def run_chained_quantum_simulation(
             stage_desc = "BATCH 5: Basin impact, obstacle collision & pooling"
 
         telemetry_text = (
-            f"CHAINED QUANTUM COMPUTING TELEMETRY\n"
+            f"HYBRID QUANTUM-CLASSICAL TELEMETRY\n"
             f"──────────────────────────────────────────────\n"
-            f"• Global Quantum Step:       {step_idx:03d} / {total_steps}\n"
+            f"• Global Simulation Step:    {step_idx:03d} / {total_steps}\n"
             f"• Current Batch:             Batch {batch_idx:02d} / {num_batches} (Step {step_in_batch:02d}/{steps_per_batch})\n"
             f"• Flow Lifecycle Stage:      {stage_desc}\n"
-            f"• Active Quantum Qubits:     27 Qubits (100% Genuine Circuits)\n"
-            f"   - Hydro Register |Psi_f>: 15 Qubits (dim 32,768)\n"
-            f"   - Phase Register |Psi_g>: 12 Qubits (dim 4,096)\n"
+            f"• Active Quantum Streaming:  Qiskit Statevector Simulator\n"
+            f"   - Hydro Register |Psi_f>: {res_info['hydro_streaming_circuit_qubits']} Qubits (dim {res_info['hydro_streaming_statevector_dim']:,})\n"
+            f"   - Phase Register |Psi_g>: {res_info['phase_streaming_circuit_qubits']} Qubits (dim {res_info['phase_streaming_statevector_dim']:,})\n"
             f"• Streaming Algorithm:       3D Draper QFT Coordinate Adders\n"
-            f"• Collision Unitaries:       Linearized BGK Block-Encoding / VQC\n"
-            f"• Obstacle Oracles:          Spatial Wall Reflection Unitaries\n"
-            f"• Circuit Gate Equivalents:  4,456 CX Gates | 170,884 T-Gates\n"
+            f"• Collision Step:            Classical Linearized BGK + Guo Forcing\n"
+            f"• Boundary Handling:         Classical Halfway Bounce-Back (No Slip)\n"
+            f"• Streaming Circuit Gates:   {stream_cx:,} CX Gates ({h_ops.get('cx', 0):,} Hydro, {p_ops.get('cx', 0):,} Phase)\n"
             f"──────────────────────────────────────────────\n"
             f"PHYSICAL OBSERVABLES (FROM QUANTUM READOUT)\n"
             f"• Active Liquid Cells:       {int(metrics['liquid_volume'])} cells\n"
@@ -251,8 +254,8 @@ def run_chained_quantum_simulation(
         )
 
         fig.suptitle(
-            f"100% Quantum-Computed Waterfall Simulation — Chained Batch Continuation\n"
-            f"(27 Qubits | Step {step_idx:03d}/{total_steps} | Batch {batch_idx:02d}/{num_batches})",
+            f"Hybrid Quantum-Classical Waterfall Simulation — Chained Multi-Batch Continuation\n"
+            f"(Quantum QFT Streaming + Classical BGK Collision & Boundaries | Step {step_idx:03d}/{total_steps})",
             color="#f8fafc", fontsize=12.5, fontweight="bold"
         )
         plt.tight_layout()

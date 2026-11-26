@@ -50,7 +50,7 @@ The resulting circuits are fully bound via `.assign_parameters(optimal_theta)`, 
 
 ## 3. Coupled 27-Qubit Hardware Transpilation Analysis
 
-We transpiled the complete coupled multiphase quantum algorithm (D3Q19 hydrodynamics + D3Q7 phase-field + boundary oracles + QFT coordinate streaming + VQC collision) on an $8 \times 4 \times 8$ grid across three target hardware architectures:
+We transpiled the complete coupled multiphase quantum algorithm (D3Q19 hydrodynamics + D3Q7 phase-field + boundary oracles + QFT coordinate streaming + VQC collision) on a $4 \times 2 \times 4$ prototype lattice across three target hardware architectures:
 
 | Architecture | Target Basis Gates | 2-Qubit Entangling Gates | Single-Qubit Gates | Circuit Depth | Est. Hardware Time |
 |---|:---:|:---:|:---:|:---:|:---:|

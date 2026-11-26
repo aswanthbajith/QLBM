@@ -185,8 +185,13 @@ class QuantumD3Q19StreamingOperator(QuantumVOFComponent):
         self,
         f: np.ndarray,
         return_timing: bool = False,
+        signed: bool = False,
     ) -> Union[np.ndarray, Tuple[np.ndarray, Dict[str, float]]]:
         """Apply quantum 3D streaming to a classical D3Q19 distribution array.
+
+        Note: this executes the streaming circuit on a classical statevector
+        simulator with exact amplitude readout. The streaming circuit is a
+        permutation (periodic shift), so the result equals ``np.roll``.
 
         Parameters
         ----------
@@ -194,6 +199,11 @@ class QuantumD3Q19StreamingOperator(QuantumVOFComponent):
             Input post-collision distributions of shape (19, nz, ny, nx).
         return_timing : bool, optional
             Whether to return fine-grained phase execution timings.
+        signed : bool, optional
+            If False (default), use probability encoding ``sqrt(f / sum f)``,
+            which requires non-negative input. If True, use signed L2 amplitude
+            encoding ``f / ||f||`` and real-part readout, which is exact for the
+            streaming permutation and accepts negative populations.
 
         Returns
         -------
@@ -204,14 +214,14 @@ class QuantumD3Q19StreamingOperator(QuantumVOFComponent):
             raise ValueError(
                 f"Expected shape (19, {self.nz}, {self.ny}, {self.nx}), got {f.shape}"
             )
-        if np.any(f < 0.0):
+        if not signed and np.any(f < 0.0):
             raise ValueError(
                 f"Negative populations detected in input distribution: min(f) = {np.min(f):.6e}"
             )
 
         t_start = time.perf_counter()
 
-        f_total = float(np.sum(f))
+        f_total = float(np.linalg.norm(f)) if signed else float(np.sum(f))
         if f_total < 1e-15:
             res = np.zeros_like(f)
             if return_timing:
@@ -227,7 +237,10 @@ class QuantumD3Q19StreamingOperator(QuantumVOFComponent):
         t_prep_start = time.perf_counter()
         total_dim = 2**self.circuit.num_qubits
         amplitudes = np.zeros(total_dim, dtype=np.complex128)
-        amplitudes[self._basis_indices] = np.sqrt(f / f_total)
+        if signed:
+            amplitudes[self._basis_indices] = f / f_total
+        else:
+            amplitudes[self._basis_indices] = np.sqrt(f / f_total)
         psi_in = Statevector(amplitudes)
         t_prep = time.perf_counter() - t_prep_start
 
@@ -236,10 +249,13 @@ class QuantumD3Q19StreamingOperator(QuantumVOFComponent):
         psi_out = self.stream_statevector(psi_in)
         t_evolve = time.perf_counter() - t_evolve_start
 
-        # 3. Readout and probability extraction (vectorized decoding)
+        # 3. Readout and decoding (vectorized)
         t_read_start = time.perf_counter()
-        probs = psi_out.probabilities()
-        f_streamed = probs[self._basis_indices] * f_total
+        if signed:
+            f_streamed = np.real(psi_out.data[self._basis_indices]) * f_total
+        else:
+            probs = psi_out.probabilities()
+            f_streamed = probs[self._basis_indices] * f_total
         t_read = time.perf_counter() - t_read_start
 
         t_total = time.perf_counter() - t_start

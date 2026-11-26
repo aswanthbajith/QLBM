@@ -204,7 +204,7 @@ class QuantumPhaseField3DStepper:
         # Unit normal n = grad(phi) / |grad(phi)|
         grad_phi = self.compute_gradient(phi_clip)
         grad_norm = np.sqrt(np.sum(grad_phi**2, axis=0))
-        mask_interface = grad_norm > 1e-4
+        mask_interface = (grad_norm > 0.02) & (np.abs(phi_clip) < 0.95) & (~self.solid_mask)
 
         unit_n = np.zeros_like(grad_phi)
         for d in range(3):
@@ -221,6 +221,7 @@ class QuantumPhaseField3DStepper:
 
         # Counter-diffusion source term S_i:
         source_factor = (1.0 - 0.5 / self.tau_phi) * (1.0 - phi_clip**2) / (2.0 * self.xi * CS2_D3Q7)
+        source_factor[~mask_interface] = 0.0
         S_i = WEIGHTS_D3Q7[:, None, None, None] * cn * source_factor[None, :, :, :]
 
         # Relax non-equilibrium perturbations via contraction factor lambda = 1 - 1/tau_phi

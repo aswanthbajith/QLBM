@@ -1,13 +1,13 @@
-"""Generate 100% Genuine Quantum-Computed Animated GIF and Keyframes.
+"""Generate Hybrid Quantum-Classical Animated GIF and Keyframes.
 
-Executes the coupled 27-qubit Quantum Multiphase 3D Stepper:
-- 15-qubit D3Q19 Hydrodynamic register (dim 32,768)
-- 12-qubit D3Q7 Phase-Field register (dim 4,096)
-- 3D Draper QFT coordinate streaming circuits
-- Linearized BGK collision block-encoding
-- Spatial obstacle oracle boundary handling
+Executes the coupled Quantum Multiphase 3D Stepper:
+- 13-qubit D3Q19 Hydrodynamic streaming circuit (dim 8,192)
+- 11-qubit D3Q7 Phase-Field streaming circuit (dim 2,048)
+- 3D Draper QFT coordinate streaming circuits via Qiskit
+- Classical Linearized BGK collision + Guo second-order body forcing
+- Classical Halfway bounce-back solid obstacle boundary handling
 
-Every frame is rendered directly from the quantum statevector readout.
+Frames are rendered directly from statevector readout.
 """
 
 from __future__ import annotations
@@ -63,9 +63,8 @@ def run_and_generate_quantum_multimedia(
     solid[: 2, :, 4:6] = True      # Basin obstacle
 
     print("=" * 80)
-    print("  GENUINE 27-QUBIT QUANTUM WATERFALL SIMULATION")
-    print(f"  Grid: {nx}x{ny}x{nz} (256 nodes) | Qubits: 27 (15 Hydro + 12 Phase)")
-    print(f"  Hydro Statevector Dim: 32,768 | Phase Statevector Dim: 4,096")
+    print("  HYBRID QUANTUM-CLASSICAL WATERFALL SIMULATION")
+    print(f"  Grid: {nx}x{ny}x{nz} (256 nodes) | Quantum Streaming: 13Q Hydro + 11Q Phase")
     print(f"  Quantum Steps: {num_steps}")
     print("=" * 80)
 
@@ -79,8 +78,11 @@ def run_and_generate_quantum_multimedia(
         solid_mask=solid,
     )
     res_info = quantum_stepper.resource_summary()
+    h_ops = quantum_stepper.hydro_stepper.stream_op.circuit.count_ops()
+    p_ops = quantum_stepper.phase_stepper.streaming_op.circuit.count_ops()
+    stream_cx = h_ops.get("cx", 0) + p_ops.get("cx", 0)
     t_init = time.perf_counter() - t_init_start
-    print(f"  Initialized Quantum Circuits in {t_init:.2f} s")
+    print(f"  Initialized Quantum Circuits in {t_init:.2f} s (Streaming CX: {stream_cx:,})")
     print(f"  Hydro Step Depth: {res_info['hydro_step_depth']} | Phase Step Depth: {res_info['phase_step_depth']}")
 
     # 3. Prepare Quantum Statevectors
@@ -229,18 +231,16 @@ def run_and_generate_quantum_multimedia(
         ax4.axis("off")
 
         telemetry_text = (
-            f"GENUINE QUANTUM EXECUTION TELEMETRY\n"
+            f"HYBRID QUANTUM-CLASSICAL TELEMETRY\n"
             f"──────────────────────────────────────────────\n"
-            f"• Quantum Step:              {s:02d} / {num_steps}\n"
-            f"• Total Active Qubits:       27 Qubits\n"
-            f"   - Hydro Register |Psi_f>: 15 Qubits (dim 32,768)\n"
-            f"   - Phase Register |Psi_g>: 12 Qubits (dim 4,096)\n"
-            f"• Quantum Circuit Depth:     Hydro {res_info['hydro_step_depth']} | Phase {res_info['phase_step_depth']}\n"
-            f"• Streaming Algorithm:       3D Draper QFT Adders\n"
-            f"• Collision Algorithm:       Linearized BGK Block-Encoding / VQC\n"
-            f"• Boundary Handling:         Spatial Obstacle Oracle Unitaries\n"
-            f"• Native Hardware Gates:     4,456 CX Gates (IBM Superconducting)\n"
-            f"• Fault-Tolerant T-Gates:    170,884 T-Gates (Clifford+T Set)\n"
+            f"• Simulation Step:           {s:02d} / {num_steps}\n"
+            f"• Active Quantum Streaming:  Qiskit Statevector Simulator\n"
+            f"   - Hydro Register |Psi_f>: {res_info['hydro_streaming_circuit_qubits']} Qubits (dim {res_info['hydro_streaming_statevector_dim']:,})\n"
+            f"   - Phase Register |Psi_g>: {res_info['phase_streaming_circuit_qubits']} Qubits (dim {res_info['phase_streaming_statevector_dim']:,})\n"
+            f"• Streaming Algorithm:       3D Draper QFT Coordinate Adders\n"
+            f"• Collision Step:            Classical Linearized BGK + Guo Forcing\n"
+            f"• Boundary Handling:         Classical Halfway Bounce-Back (No Slip)\n"
+            f"• Streaming Circuit Gates:   {stream_cx:,} CX Gates ({h_ops.get('cx', 0):,} Hydro, {p_ops.get('cx', 0):,} Phase)\n"
             f"──────────────────────────────────────────────\n"
             f"PHYSICAL OBSERVABLES (FROM QUANTUM READOUT)\n"
             f"• Liquid Cell Count:         {int(metrics['liquid_volume'])} cells\n"
@@ -257,8 +257,9 @@ def run_and_generate_quantum_multimedia(
         )
 
         fig.suptitle(
-            f"100% Quantum-Computed 3D Waterfall Evolution (27 Qubits | Step {s:02d}/{num_steps})",
-            color="#f8fafc", fontsize=13, fontweight="bold"
+            f"Hybrid Quantum-Classical 3D Waterfall Simulation (Step {s:02d}/{num_steps})\n"
+            f"(Quantum QFT Streaming + Classical BGK Collision & Boundaries)",
+            color="#f8fafc", fontsize=12.5, fontweight="bold"
         )
         plt.tight_layout()
 
