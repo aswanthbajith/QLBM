@@ -1,0 +1,161 @@
+{
+  "configuration": {
+    "shape": [
+      16,
+      16,
+      32
+    ],
+    "gravity": 6.25e-05,
+    "nu_liquid": 0.00125,
+    "sigma": 2.5e-06,
+    "xi": 3.0,
+    "tau_phase": 0.725,
+    "steps": 1280,
+    "H": 10.4,
+    "refine": 1,
+    "base_nu": 0.0025,
+    "slow": 2,
+    "reservoir_width": 8.0
+  },
+  "precision": [
+    {
+      "bits": 16,
+      "errors": {
+        "alpha": 4.4514501319925515e-05,
+        "P": 7.40220679773562e-05,
+        "jx": 4.490993614893104e-05,
+        "jy": 5.076718039610616e-05,
+        "jz": 5.5104883223031326e-05,
+        "rho": 5.3555092835749774e-05,
+        "mu": 1.4815126633615923e-05
+      },
+      "integer_error": 0,
+      "min_alpha": 0.0,
+      "max_alpha": 0.9907073974609375,
+      "min_rho": 0.0012054443359375,
+      "min_mu": 1.52587890625e-05,
+      "resources": {
+        "qubits": 733,
+        "input_qubits": 494,
+        "output_qubits": 158,
+        "workspace": 81,
+        "X": 16,
+        "CX": 21402,
+        "CCX": 8768,
+        "gates": 30186
+      }
+    },
+    {
+      "bits": 24,
+      "errors": {
+        "alpha": 1.7398134971591261e-07,
+        "P": 2.636018242474676e-07,
+        "jx": 1.9625714150605517e-07,
+        "jy": 2.1261150164980343e-07,
+        "jz": 1.9077819349415132e-07,
+        "rho": 1.975662323391858e-07,
+        "mu": 5.886268483531947e-08
+      },
+      "integer_error": 0,
+      "min_alpha": 0.0,
+      "max_alpha": 0.9906840324401855,
+      "min_rho": 0.001202404499053955,
+      "min_mu": 2.2470951080322266e-05,
+      "resources": {
+        "qubits": 1029,
+        "input_qubits": 702,
+        "output_qubits": 214,
+        "workspace": 113,
+        "X": 34,
+        "CX": 37482,
+        "CCX": 15680,
+        "gates": 53196
+      }
+    },
+    {
+      "bits": 32,
+      "errors": {
+        "alpha": 6.2784166754426e-10,
+        "P": 1.1175628018486594e-09,
+        "jx": 7.955341826645142e-10,
+        "jy": 7.271946024674496e-10,
+        "jz": 8.782955662669373e-10,
+        "rho": 7.672067143908723e-10,
+        "mu": 1.7124459305339402e-10
+      },
+      "integer_error": 0,
+      "min_alpha": 0.0,
+      "max_alpha": 0.9906840401235968,
+      "min_rho": 0.0012024047318845987,
+      "min_mu": 2.2500054910779e-05,
+      "resources": {
+        "qubits": 1325,
+        "input_qubits": 910,
+        "output_qubits": 270,
+        "workspace": 145,
+        "X": 48,
+        "CX": 58030,
+        "CCX": 24640,
+        "gates": 82718
+      }
+    },
+    {
+      "bits": 40,
+      "errors": {
+        "alpha": 2.71149769304202e-12,
+        "P": 4.157194716507967e-12,
+        "jx": 3.201870409433316e-12,
+        "jy": 3.1620036314771935e-12,
+        "jz": 3.239846562417322e-12,
+        "rho": 3.3949837299068752e-12,
+        "mu": 7.964372129192539e-13
+      },
+      "integer_error": 0,
+      "min_alpha": 0.0,
+      "max_alpha": 0.9906840406547417,
+      "min_rho": 0.0012024048091916484,
+      "min_mu": 2.2500000341096893e-05,
+      "resources": {
+        "qubits": 1621,
+        "input_qubits": 1118,
+        "output_qubits": 326,
+        "workspace": 177,
+        "X": 60,
+        "CX": 83466,
+        "CCX": 35648,
+        "gates": 119174
+      }
+    }
+  ],
+  "checkpoint_start": 1280,
+  "continuation_steps": 16,
+  "final": {
+    "step": 1296,
+    "phase_rmse": 9.583827319482446e-13,
+    "max_density_error": 5.8867355434699675e-12,
+    "max_velocity_component_error": 5.454391105441658e-11,
+    "max_population_error": 3.404011100771598e-11,
+    "phase_relative_error": 3.641489025591904e-15,
+    "min_alpha": 6.275513442233205e-11,
+    "max_alpha": 0.972373730358413,
+    "max_speed": 0.03498708919554129,
+    "raw_min_alpha": 6.441953914748666e-11,
+    "raw_max_alpha": 0.972373730358803
+  },
+  "maximum_phase_rmse": 9.583827319482446e-13,
+  "max_population_error": 3.404011100771598e-11,
+  "max_phase_relative_error": 3.641489025591904e-15,
+  "macro_calls": 33,
+  "elapsed_seconds": 8.34783308599799,
+  "resources": {
+    "qubits": 1621,
+    "input_qubits": 1118,
+    "output_qubits": 326,
+    "workspace": 177,
+    "X": 60,
+    "CX": 83466,
+    "CCX": 35648,
+    "gates": 119174
+  },
+  "scope": "Basis-gate simulation of joint macroscopic moment and affine material circuit; hybrid per-cell preparation and readout; matched M27 gate backend."
+}

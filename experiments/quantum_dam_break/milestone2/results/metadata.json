@@ -1,0 +1,19 @@
+{
+  "model": "D2Q9 occupancy quantum channel; kinetic lattice gas, not shallow-water or BGK",
+  "backend": "NumPy exact local unitary Born kernel and sampled global diagonal trajectories; no Qiskit/QPU",
+  "grid": [
+    8,
+    4
+  ],
+  "data_qubits": 288,
+  "reusable_ancillas_in_optional_circuit": 1,
+  "shots": 2048,
+  "steps": 16,
+  "omega": 0.7,
+  "seed": 2026,
+  "local_classes": 205,
+  "nontrivial_classes": 107,
+  "max_class_size": 10,
+  "stream_swap_count": 210,
+  "units": "dimensionless lattice units only"
+}

@@ -1,0 +1,54 @@
+{
+  "backend": "NumPy exact local channels and basis-controlled-X statevector; no Qiskit/QPU",
+  "pressure": {
+    "best_fit_g_lu": 0.1487289269185327,
+    "relative_l2_error": 0.2719702543131492,
+    "max_stationarity_l1": 1.2500851048757866e-16,
+    "mass_range": [
+      0.25,
+      9.75
+    ],
+    "decision": "M2 equilibrium does not implement shallow-water hydrostatic closure"
+  },
+  "force": {
+    "bias": 0.4,
+    "rate": 0.25,
+    "acceleration_min": 0.0018482356396969314,
+    "acceleration_max": 0.07208118994818008,
+    "max_mass_error": 0,
+    "decision": "directional forcing, not calibrated gravity"
+  },
+  "shear": {
+    "status": "effective lattice-gas estimate only",
+    "k": 0.39269908169872414,
+    "omega": 0.7,
+    "fit_steps": [
+      4,
+      20
+    ],
+    "nu_eff_lu": 0.8854162530324668,
+    "log_fit_r2": 0.9910362975374497,
+    "min_amplitude_to_se": 4.436789556279979,
+    "shots": 2048,
+    "grid": [
+      8,
+      16
+    ]
+  },
+  "oracle": {
+    "data_qubits": 9,
+    "pattern_controlled_X_gates": 13,
+    "max_pressure_error_lu": 0.03125,
+    "statevector_norm": 0.9999999999999999,
+    "uncompute_max_error": 0.0,
+    "decision": "reversible nonlinear pressure primitive; no fluid flux update yet"
+  },
+  "bed_source_oracle": {
+    "data_qubits": 8,
+    "pattern_controlled_X_gates": 69,
+    "acceleration_times_dt_lu": -0.25,
+    "max_error_from_zero_momentum_lu": 0.0,
+    "all_basis_roundtrip": true,
+    "decision": "reversible source primitive with modular signed momentum; not a well-balanced fluid update"
+  }
+}

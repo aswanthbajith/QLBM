@@ -1,0 +1,93 @@
+{
+  "model": "2D nondimensional shallow-water Rusanov split-flux finite volume, flat bed; not LBM; synthetic geometry",
+  "backend": "indexed basis controlled-X gate simulator, not full statevector or QPU; re-preparation after every step",
+  "grid": [
+    16,
+    16
+  ],
+  "solid_cells": 15,
+  "steps": 32,
+  "dt_nd": 0.125,
+  "dx_nd": 1,
+  "dy_nd": 1,
+  "g_nd": 1,
+  "a_nd": 3,
+  "depth_quantum": 0.03125,
+  "initial": {
+    "step": 0,
+    "time_nd": 0.0,
+    "integrated_depth_nd": 120.0,
+    "wet_cells": 80,
+    "max_transverse_discharge_nd": 0.0,
+    "max_speed_nd": 0.0,
+    "max_directional_signal_speed": 1.224744871391589,
+    "depth_rmse_vs_float": 0.0,
+    "obstacle_mass_nd": 0.0,
+    "min_depth": 0.0
+  },
+  "final": {
+    "step": 32,
+    "time_nd": 4.0,
+    "integrated_depth_nd": 120.0,
+    "wet_cells": 183,
+    "max_transverse_discharge_nd": 0.0625,
+    "max_speed_nd": 1.0,
+    "max_directional_signal_speed": 1.4066082084298674,
+    "depth_rmse_vs_float": 0.0362128965309619,
+    "obstacle_mass_nd": 0.0,
+    "min_depth": 0.0
+  },
+  "max_mass_error": 0.0,
+  "max_obstacle_mass": 0.0,
+  "max_transverse_discharge": 0.0625,
+  "max_signal_speed": 1.4330127018922192,
+  "logical_qubits_per_step": 13336,
+  "logical_pattern_controlled_x_per_step": 10926586632,
+  "single_cell_oracle_controls": 20,
+  "hypothetical_pair_oracle_controls_same_encoding": 40,
+  "oracle_control_pattern_count_single": 1048576,
+  "hypothetical_pair_pattern_count": 1099511627776,
+  "quantized_reference_agreement": "all 32 steps",
+  "inverse_and_scratch": "all 32 steps",
+  "ritter": {
+    "domain_cells": 32,
+    "dx": 0.5,
+    "dt": 0.0625,
+    "time": 1.0,
+    "float_rmse_vs_ritter_point_samples": 0.08871307605630244,
+    "precision": [
+      {
+        "scale": 8,
+        "depth_quantum": 0.125,
+        "rmse_vs_float": 0.09158415773377841,
+        "rmse_vs_ritter_point_samples": 0.13665907589856394,
+        "wet_cells": 20,
+        "integrated_depth_dx": 12.0,
+        "logical_qubits": 1298,
+        "logical_pattern_controlled_x": 13145408
+      },
+      {
+        "scale": 16,
+        "depth_quantum": 0.0625,
+        "rmse_vs_float": 0.062187213681458776,
+        "rmse_vs_ritter_point_samples": 0.08553504877575782,
+        "wet_cells": 21,
+        "integrated_depth_dx": 12.0,
+        "logical_qubits": 1493,
+        "logical_pattern_controlled_x": 147709600
+      },
+      {
+        "scale": 32,
+        "depth_quantum": 0.03125,
+        "rmse_vs_float": 0.02358547412987948,
+        "rmse_vs_ritter_point_samples": 0.09475891392135845,
+        "wet_cells": 21,
+        "integrated_depth_dx": 12.0,
+        "logical_qubits": 1688,
+        "logical_pattern_controlled_x": 1450833024
+      }
+    ]
+  },
+  "native_qiskit": "not executed",
+  "physical_viscosity": "not implemented; numerical dissipation only"
+}

@@ -1,0 +1,59 @@
+{
+  "configuration": {
+    "shape": [
+      32,
+      4,
+      64
+    ],
+    "gravity": 0.000125,
+    "nu_liquid": 0.02,
+    "sigma": 2e-05,
+    "xi": 6.0,
+    "tau_phase": 1.4,
+    "steps": 1280,
+    "H": 20.8,
+    "refine": 2,
+    "base_nu": 0.01
+  },
+  "mode": "fast",
+  "status": "completed",
+  "steps": 1280,
+  "Re": 53.02980294136496,
+  "Bo": 2700.74869739479,
+  "initial": {
+    "case": "refined",
+    "step": 0,
+    "t_star": 0.0,
+    "front_H": 1.0096153846153846,
+    "left_height_H": 1.0096153846153846,
+    "com_x_H": 0.5244333896169252,
+    "com_z_H": 0.5166929897120893,
+    "speed": 6.490188118873203e-09,
+    "mach": 1.1241335572568263e-08,
+    "phase_relative_error": 0.0,
+    "material_relative_error": 0.0,
+    "min_alpha": 5.366818101038007e-13,
+    "max_alpha": 0.999998673988057
+  },
+  "final": {
+    "case": "refined",
+    "step": 1280,
+    "t_star": 3.1378581622109447,
+    "front_H": 2.7884615384615383,
+    "left_height_H": 0.5288461538461539,
+    "com_x_H": 1.250237580433463,
+    "com_z_H": 0.21335525192439217,
+    "speed": 0.06051017214783686,
+    "mach": 0.10480669253479262,
+    "phase_relative_error": 2.5059096579779133e-13,
+    "material_relative_error": 2.4938858259487577e-13,
+    "min_alpha": 1.616192028819352e-08,
+    "max_alpha": 0.9994645973942408
+  },
+  "peak_speed": 0.08571529618363408,
+  "max_phase_relative_error": 2.5059096579779133e-13,
+  "max_material_relative_error": 2.4938858259487577e-13,
+  "min_alpha": 5.366818101038007e-13,
+  "max_alpha": 1.0000000000000002,
+  "seconds": 16.649881067001843
+}

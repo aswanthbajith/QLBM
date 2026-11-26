@@ -1,0 +1,19 @@
+# M25 — Dam-break runout at matched nondimensional time
+
+Objective: two-phase water–air dam-break QLBM on a quantum computer. This milestone keeps M24's D3Q19/D3Q7 hybrid equations and circuits, and implements a reproducible similarity-scaling and parameter-selection workflow. It does not introduce a new collision algorithm. All fields are solver outputs; plots use actual cell data. Classical `fast` runs screen parameter choices; `gate` runs use existing exact ideal four-qubit dual-rail collision expectations and complex-amplitude reversible streaming, with classical equilibrium, forcing, limiting, preparation and readout. They are not globally coherent or QPU executions.
+
+## Scaling
+
+Let r=spatial refinement (x,z only; planar periodic y) and s=slower timestep factor. Relative to base lattice units, dx'=dx/r, dt'=dt/(r*s), g'=g/(r*s^2), nu'=nu*r/s, sigma'=sigma*r/s^2, H'=r*H, xi'=r*xi, N'=N*r*s. The nominal Re=sqrt(gH)H/nu, Bo=(rhoL-rhoG)gH^2/sigma (rhoL normalized to one), xi/H and t*=N sqrt(g/H) are unchanged for fixed base nu. Characteristic lattice Mach decreases by s. Phase relaxation is adjusted by tau_phi'=0.5+(tau_phi-0.5)*r/s to preserve nominal diffusivity. The M24 source and limiter are not proven invariant under this scaling; this is not an exact discrete similarity theorem. Grid size and interface thickness still strongly constrain accuracy.
+
+## Executed results
+
+At base dt, Re 26.5 and 53.0 completed 640 steps. Re 106, 212 and 530 triggered the unchanged speed guard (|u|>0.1 lu) after 420, 370, 197 steps. With smaller dt (s=2), Re 106 and 212 completed 1280 steps; s=4 Re 530 completed 2560 steps with classical reference only. Re 212 gate run reached downstream floor cell index 31 at step 1120 (t*=2.74562589). At t*=3.13785816, left column height was 4 cells vs 6 at Re 26.5; front 31 vs 26. Phase relative drift <=2.521e-13, no bounds violations outside roundoff, matched phase snapshot RMSE 9.378e-15 and max final population error 4.886e-14. The Re 53 gate case also completed, and its finer-grid classical comparator (64x4x32, 1280 steps) had a final front x/H=2.78846 vs 2.88462; block-average phase snapshot RMSE 0.02062434. Two resolutions are insufficient for convergence. Wall contact is defined by alpha>0.5 at the last floor cell, not a pressure-impact validation. The front estimator uses the outer cell edge, not an interpolated crossing; threshold sensitivity is in report.json. The raw snapshots for guard failures stop at the last scheduled frame; their final f,h and CSV diagnostics preserve the last computed state.
+
+## Physical SI preflight
+
+For illustrative H=0.1 m, g=9.81 m/s^2, water density=998 kg/m^3, air=1.2 kg/m^3, water viscosity=0.001 Pa s, surface tension=0.072 N/m, target Re≈98,847 and Bo≈1358. M25 Re 212 is ~466 times too viscous, modeled surface tension ≈0.0362 N/m; true water relaxation time would be ≈0.50000805 at this grid/timestep, close to the stability limit. The model's nominal Bo≈2701. Re 530 is still too viscous. These are unit conversions for an assumed scale, not measured SI fidelity. Martin–Moyce front/height data remain a future independent validation; this geometry, diffuse initial column, viscosity and surface tension do not reproduce their experiment. No empirical accuracy claim.
+
+## Reproduce
+
+From `experiments/quantum_dam_break`, install M14 tested dependencies and run `bash milestone25/reproduce.sh --full-regression`. Each case saves JSON, CSV and NPZ, two gate cases save VTI. `analyze.py` computes all aggregate statistics and plots. Full regression: 285 passed, 11 skipped (including unavailable optional quantum SDK). No new native Qiskit or hardware run. No quantum advantage claimed. Next: validated high-Re collision/forcing (e.g. weighted MRT), experimentally matched geometry and surface tension, measure front/column and pressure impulse, check convergence and then integrate more physics into quantum operators.

@@ -1,0 +1,36 @@
+{
+  "scale": 64,
+  "population_bits": 8,
+  "omega": 1.0,
+  "grid": [
+    2,
+    1
+  ],
+  "steps": 2,
+  "input_superposition_terms": 2,
+  "selector_histories_per_input": 4096,
+  "nonzero_support_terms": 8192,
+  "reference_history_mismatches": 0,
+  "reference_flag_mismatches": 0,
+  "mass_error_ticks": 0,
+  "overflow_flags": 0,
+  "negative_populations": 0,
+  "norm": 0.9999999999999999,
+  "inverse_amplitude_error": 6.661338147750939e-16,
+  "unique_final_outputs_per_input": [
+    1,
+    6
+  ],
+  "copy_then_inverse_selector_zero_probability": 0.6464843749999915,
+  "resources": {
+    "qubits": 100614,
+    "history_qubits": 1200,
+    "flag_qubits": 4,
+    "orientation_qubits": 12,
+    "scratch_qubits": 99398,
+    "hadamards": 12,
+    "x_cx_ccx": 1319276,
+    "streaming_gates": 1200
+  },
+  "elapsed_seconds": 1.9524499100007233
+}

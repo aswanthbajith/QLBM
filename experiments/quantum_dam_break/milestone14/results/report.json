@@ -1,0 +1,184 @@
+{
+  "backend": "exact sparse complex statevector for local dilation; sampled branch computational-basis gates and reversible word permutation for grid trajectories; no Qiskit/QPU",
+  "local": {
+    "samples": 1024,
+    "feasible": 812,
+    "group_actions": 7,
+    "baseline_mismatches": 3929,
+    "channel_mismatches": 0,
+    "metrics": {
+      "M13": {
+        "diagonal_rmse": 0.0005584031633044448,
+        "cross_rmse": 0.0017158084563335524,
+        "tensor_rmse": 0.0012758943435124514
+      },
+      "M14_mean": {
+        "diagonal_rmse": 0.0005584031633044448,
+        "cross_rmse": 0.0011848331671923229,
+        "tensor_rmse": 0.000926186732486328
+      },
+      "M14_all_branches": {
+        "diagonal_rmse": 0.0005584031633044448,
+        "cross_rmse": 0.0016720107987105962,
+        "tensor_rmse": 0.0012464818899192351
+      }
+    },
+    "mean_population_std_ticks": 0.258434382538634,
+    "max_population_std_ticks": 1.299038105676658,
+    "coherence": {
+      "support": 16,
+      "norm": 0.9999999999999993,
+      "relative_phase_error": 8.326672684688674e-17,
+      "inverse_error": 3.3306690738754696e-16
+    },
+    "resources": {
+      "base_gates": 459733,
+      "wrapper_gates": 4800,
+      "hadamards": 3,
+      "base_qubits": 141085,
+      "total_qubits": 141088
+    }
+  },
+  "obstacle": {
+    "steps": 16,
+    "seeds": [
+      14,
+      15,
+      16,
+      17
+    ],
+    "final": [
+      {
+        "seed": "baseline",
+        "step": 16,
+        "mass_ticks": 30720,
+        "obstacle_ticks": 0,
+        "wet": 234,
+        "infeasible": 105,
+        "depth_rmse_float": 0.025267489726785115,
+        "ritter_rmse": 0.0,
+        "max_transverse": 1.0
+      },
+      {
+        "seed": 14,
+        "step": 16,
+        "mass_ticks": 30720,
+        "obstacle_ticks": 0,
+        "wet": 231,
+        "infeasible": 110,
+        "depth_rmse_float": 0.026105683495596572,
+        "ritter_rmse": 0.0,
+        "max_transverse": 1.0
+      },
+      {
+        "seed": 15,
+        "step": 16,
+        "mass_ticks": 30720,
+        "obstacle_ticks": 0,
+        "wet": 230,
+        "infeasible": 107,
+        "depth_rmse_float": 0.02531683873447669,
+        "ritter_rmse": 0.0,
+        "max_transverse": 1.0
+      },
+      {
+        "seed": 16,
+        "step": 16,
+        "mass_ticks": 30720,
+        "obstacle_ticks": 0,
+        "wet": 231,
+        "infeasible": 113,
+        "depth_rmse_float": 0.02727066759463739,
+        "ritter_rmse": 0.0,
+        "max_transverse": 1.0
+      },
+      {
+        "seed": 17,
+        "step": 16,
+        "mass_ticks": 30720,
+        "obstacle_ticks": 0,
+        "wet": 234,
+        "infeasible": 105,
+        "depth_rmse_float": 0.026166989750963574,
+        "ritter_rmse": 0.0,
+        "max_transverse": 1.0
+      }
+    ],
+    "ensemble_rmse_float": 0.022245370894089078,
+    "ensemble_std_depth": 0.01388725668645233,
+    "mass_error_ticks": 0,
+    "independent_reference_agreement_steps": 80,
+    "resources": {
+      "base_local_gates": 499497,
+      "wrapper_local_gates": 4800,
+      "hadamards": 3,
+      "selector_qubits": 3,
+      "local_qubits": 153196
+    }
+  },
+  "strip": {
+    "steps": 24,
+    "seeds": [
+      14,
+      15,
+      16
+    ],
+    "final": [
+      {
+        "seed": "baseline",
+        "step": 24,
+        "mass_ticks": 196608,
+        "obstacle_ticks": 0,
+        "wet": 224,
+        "infeasible": 56,
+        "depth_rmse_float": 0.00554401972475712,
+        "ritter_rmse": 0.08033012282551998,
+        "max_transverse": 0.0
+      },
+      {
+        "seed": 14,
+        "step": 24,
+        "mass_ticks": 196608,
+        "obstacle_ticks": 0,
+        "wet": 224,
+        "infeasible": 56,
+        "depth_rmse_float": 0.0057982848144500845,
+        "ritter_rmse": 0.08044423018097654,
+        "max_transverse": 0.0
+      },
+      {
+        "seed": 15,
+        "step": 24,
+        "mass_ticks": 196608,
+        "obstacle_ticks": 0,
+        "wet": 224,
+        "infeasible": 56,
+        "depth_rmse_float": 0.005690755823942749,
+        "ritter_rmse": 0.08034740554592716,
+        "max_transverse": 0.0
+      },
+      {
+        "seed": 16,
+        "step": 24,
+        "mass_ticks": 196608,
+        "obstacle_ticks": 0,
+        "wet": 224,
+        "infeasible": 56,
+        "depth_rmse_float": 0.005698575732934367,
+        "ritter_rmse": 0.08034337166485193,
+        "max_transverse": 0.0
+      }
+    ],
+    "ensemble_rmse_float": 0.005587205556579023,
+    "ensemble_std_depth": 0.0012685919000748613,
+    "mass_error_ticks": 0,
+    "independent_reference_agreement_steps": 96,
+    "resources": {
+      "base_local_gates": 616347,
+      "wrapper_local_gates": 5760,
+      "hadamards": 3,
+      "selector_qubits": 3,
+      "local_qubits": 189350
+    }
+  }
+}

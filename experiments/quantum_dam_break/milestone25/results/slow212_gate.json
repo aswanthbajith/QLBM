@@ -1,0 +1,68 @@
+{
+  "configuration": {
+    "shape": [
+      16,
+      4,
+      32
+    ],
+    "gravity": 6.25e-05,
+    "nu_liquid": 0.00125,
+    "sigma": 2.5e-06,
+    "xi": 3.0,
+    "tau_phase": 0.725,
+    "steps": 1280,
+    "H": 10.4,
+    "refine": 1,
+    "base_nu": 0.0025,
+    "slow": 2
+  },
+  "mode": "gate",
+  "status": "completed",
+  "steps": 1280,
+  "Re": 212.11921176545985,
+  "Bo": 2700.74869739479,
+  "initial": {
+    "case": "slow212_gate",
+    "step": 0,
+    "t_star": 0.0,
+    "front_H": 1.0576923076923077,
+    "left_height_H": 0.9615384615384615,
+    "com_x_H": 0.5248071076548068,
+    "com_z_H": 0.5170832984146254,
+    "speed": 1.0881362295456795e-11,
+    "mach": 1.884707235129547e-11,
+    "phase_relative_error": 0.0,
+    "material_relative_error": 0.0,
+    "min_alpha": 7.490119635633619e-13,
+    "max_alpha": 0.9999981494022272
+  },
+  "final": {
+    "case": "slow212_gate",
+    "step": 1280,
+    "t_star": 3.1378581622109447,
+    "front_H": 3.0769230769230766,
+    "left_height_H": 0.3846153846153846,
+    "com_x_H": 1.466813679499571,
+    "com_z_H": 0.198130413242557,
+    "speed": 0.027587069681233395,
+    "mach": 0.04778220631983919,
+    "phase_relative_error": 2.520665971458351e-13,
+    "material_relative_error": 2.5060479539792746e-13,
+    "min_alpha": 1.2496379694915127e-09,
+    "max_alpha": 0.996953863060213
+  },
+  "peak_speed": 0.07050736500428931,
+  "max_phase_relative_error": 2.520665971458351e-13,
+  "max_material_relative_error": 2.5060479539792746e-13,
+  "min_alpha": 7.490119635633619e-13,
+  "max_alpha": 1.0000000000000002,
+  "seconds": 26.111121489000652,
+  "transport_qubits": [
+    16,
+    14
+  ],
+  "logical_mcx": [
+    271288,
+    50368
+  ]
+}

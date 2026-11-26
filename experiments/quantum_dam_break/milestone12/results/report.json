@@ -1,0 +1,192 @@
+{
+  "backend": "bit-sliced X/CX/CCX computational-basis gate simulation and reversible word permutation; no QPU/Qiskit execution",
+  "model": "dyadic convex BGK with conservative integer residual repair and conditional local reflection projection",
+  "shear": [
+    {
+      "omega": 0.25,
+      "gate_viscosity": 0.08059392981301704,
+      "gate_fit_r2": 0.9971656095254187,
+      "float_viscosity": 0.11996129130948353,
+      "float_fit_r2": 0.9997875119999855,
+      "formal_small_k_viscosity": 0.328125,
+      "initial_amplitude": 0.08001269428028948,
+      "final_amplitude": 0.046566306624223265,
+      "max_depth_error": 0.0283203125,
+      "max_transverse_velocity": 0.004193548387096774
+    },
+    {
+      "omega": 0.5,
+      "gate_viscosity": 0.08986080115209764,
+      "gate_fit_r2": 0.9997469821443697,
+      "float_viscosity": 0.11042291571853491,
+      "float_fit_r2": 0.9999995484032888,
+      "formal_small_k_viscosity": 0.140625,
+      "initial_amplitude": 0.08001269428028948,
+      "final_amplitude": 0.04640565679103578,
+      "max_depth_error": 0.021484375,
+      "max_transverse_velocity": 0.0035807291666666665
+    },
+    {
+      "omega": 0.75,
+      "gate_viscosity": 0.058574301092186705,
+      "gate_fit_r2": 0.9997067465777798,
+      "float_viscosity": 0.07327762695363056,
+      "float_fit_r2": 0.9999999938403142,
+      "formal_small_k_viscosity": 0.078125,
+      "initial_amplitude": 0.08001269428028948,
+      "final_amplitude": 0.05588585118558153,
+      "max_depth_error": 0.0400390625,
+      "max_transverse_velocity": 0.00489556135770235
+    },
+    {
+      "omega": 1.0,
+      "gate_viscosity": 0.04744700403827493,
+      "gate_fit_r2": 0.9999372018333138,
+      "float_viscosity": 0.0464416034557632,
+      "float_fit_r2": 1.0,
+      "formal_small_k_viscosity": 0.046875,
+      "initial_amplitude": 0.08001269428028948,
+      "final_amplitude": 0.0596603188217022,
+      "max_depth_error": 0.015625,
+      "max_transverse_velocity": 0.001951854261548471
+    }
+  ],
+  "strip": {
+    "baseline": {
+      "initial": {
+        "step": 0,
+        "mass_ticks": 196608,
+        "wet_cells": 128,
+        "infeasible_cells": 0,
+        "max_transverse_velocity": 0.0,
+        "depth_rmse_float": 0.0,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.0
+      },
+      "final": {
+        "step": 24,
+        "mass_ticks": 196608,
+        "wet_cells": 224,
+        "infeasible_cells": 54,
+        "max_transverse_velocity": 0.006666666666666667,
+        "depth_rmse_float": 0.0035948480727172605,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.08403600362913864
+      },
+      "max_mass_error_ticks": 0,
+      "max_transverse_velocity": 0.006711409395973154,
+      "resources": {
+        "local_qubits": 147557,
+        "local_scratch": 146956,
+        "local_x_cx_ccx": 479775,
+        "global_qubits": 300812,
+        "global_x_cx_ccx_equivalent": 123005640,
+        "streaming_word_swaps": 5090
+      },
+      "steps": 24,
+      "integer_reference_agreement_steps": 24
+    },
+    "symmetric_full": {
+      "initial": {
+        "step": 0,
+        "mass_ticks": 196608,
+        "wet_cells": 128,
+        "infeasible_cells": 0,
+        "max_transverse_velocity": 0.0,
+        "depth_rmse_float": 0.0,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.0
+      },
+      "final": {
+        "step": 24,
+        "mass_ticks": 196608,
+        "wet_cells": 224,
+        "infeasible_cells": 54,
+        "max_transverse_velocity": 0.0,
+        "depth_rmse_float": 0.0035948480727172605,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.08403600362913864
+      },
+      "max_mass_error_ticks": 0,
+      "max_transverse_velocity": 0.0,
+      "resources": {
+        "local_qubits": 157135,
+        "local_scratch": 156534,
+        "local_x_cx_ccx": 511771,
+        "global_qubits": 310390,
+        "global_x_cx_ccx_equivalent": 131196616,
+        "streaming_word_swaps": 5090
+      },
+      "steps": 24,
+      "integer_reference_agreement_steps": 24
+    },
+    "symmetric_half": {
+      "initial": {
+        "step": 0,
+        "mass_ticks": 196608,
+        "wet_cells": 128,
+        "infeasible_cells": 0,
+        "max_transverse_velocity": 0.0,
+        "depth_rmse_float": 0.0,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.0
+      },
+      "final": {
+        "step": 24,
+        "mass_ticks": 196608,
+        "wet_cells": 224,
+        "infeasible_cells": 66,
+        "max_transverse_velocity": 0.0,
+        "depth_rmse_float": 0.005544558122958788,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.10748781847977114
+      },
+      "max_mass_error_ticks": 0,
+      "max_transverse_velocity": 0.0,
+      "resources": {
+        "local_qubits": 171665,
+        "local_scratch": 171064,
+        "local_x_cx_ccx": 559459,
+        "global_qubits": 324920,
+        "global_x_cx_ccx_equivalent": 143404744,
+        "streaming_word_swaps": 5090
+      },
+      "steps": 24,
+      "integer_reference_agreement_steps": 24
+    }
+  },
+  "obstacle": {
+    "initial": {
+      "step": 0,
+      "mass_ticks": 30720,
+      "wet_cells": 80,
+      "infeasible_cells": 0,
+      "max_transverse_velocity": 0.0,
+      "depth_rmse_float": 0.0,
+      "obstacle_ticks": 0,
+      "ritter_rmse": 0.0
+    },
+    "final": {
+      "step": 16,
+      "mass_ticks": 30720,
+      "wet_cells": 219,
+      "infeasible_cells": 99,
+      "max_transverse_velocity": 1.0,
+      "depth_rmse_float": 0.029459511795904485,
+      "obstacle_ticks": 0,
+      "ritter_rmse": 0.0
+    },
+    "max_mass_error_ticks": 0,
+    "max_transverse_velocity": 1.0,
+    "resources": {
+      "local_qubits": 129313,
+      "local_scratch": 128812,
+      "local_x_cx_ccx": 421905,
+      "global_qubits": 257053,
+      "global_x_cx_ccx_equivalent": 101832615,
+      "streaming_word_swaps": 5117
+    },
+    "steps": 16,
+    "integer_reference_agreement_steps": 16
+  }
+}

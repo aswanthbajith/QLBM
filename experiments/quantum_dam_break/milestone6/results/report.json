@@ -1,0 +1,132 @@
+{
+  "backend": "clean-workspace reversible basis gate simulation; memoized local gate executions; no statevector/QPU",
+  "grid": [
+    16,
+    16
+  ],
+  "steps": 32,
+  "initial": {
+    "step": 0,
+    "time_nd": 0.0,
+    "integrated_depth_nd": 120.0,
+    "wet_cells": 80,
+    "obstacle_depth": 0.0,
+    "depth_rmse_vs_float": 0.0,
+    "max_error_vs_m5": 0.0
+  },
+  "final": {
+    "step": 32,
+    "time_nd": 4.0,
+    "integrated_depth_nd": 120.0,
+    "wet_cells": 183,
+    "obstacle_depth": 0.0,
+    "depth_rmse_vs_float": 0.0362128965309619,
+    "max_error_vs_m5": 0.0
+  },
+  "max_mass_error": 0.0,
+  "max_error_vs_m5": 0.0,
+  "quantized_reference_agreement": "all steps",
+  "inverse_and_cleanup": "all steps",
+  "old_logical_gates": 10926586632,
+  "new_logical_gates": 72185704,
+  "gate_reduction_factor": 151.36773663660605,
+  "old_logical_qubits": 13336,
+  "new_logical_qubits": 24796,
+  "arithmetic_work_qubits": 11460,
+  "local_oracles": {
+    "-1": {
+      "gates": 37343,
+      "qubits": 11504,
+      "ancillas": 11460
+    },
+    "1": {
+      "gates": 37157,
+      "qubits": 11449,
+      "ancillas": 11405
+    }
+  },
+  "scaling": [
+    {
+      "scale": 2,
+      "input_bits": 8,
+      "arithmetic_gates": 12993,
+      "arithmetic_ancillas": 3961,
+      "lut_input_patterns": 256
+    },
+    {
+      "scale": 4,
+      "input_bits": 11,
+      "arithmetic_gates": 17846,
+      "arithmetic_ancillas": 5453,
+      "lut_input_patterns": 2048
+    },
+    {
+      "scale": 8,
+      "input_bits": 14,
+      "arithmetic_gates": 23491,
+      "arithmetic_ancillas": 7191,
+      "lut_input_patterns": 16384
+    },
+    {
+      "scale": 16,
+      "input_bits": 17,
+      "arithmetic_gates": 29928,
+      "arithmetic_ancillas": 9175,
+      "lut_input_patterns": 131072
+    },
+    {
+      "scale": 32,
+      "input_bits": 20,
+      "arithmetic_gates": 37157,
+      "arithmetic_ancillas": 11405,
+      "lut_input_patterns": 1048576
+    },
+    {
+      "scale": 64,
+      "input_bits": 23,
+      "arithmetic_gates": 45178,
+      "arithmetic_ancillas": 13881,
+      "lut_input_patterns": 8388608
+    },
+    {
+      "scale": 128,
+      "input_bits": 26,
+      "arithmetic_gates": 53991,
+      "arithmetic_ancillas": 16603,
+      "lut_input_patterns": 67108864
+    }
+  ],
+  "elapsed_seconds": 37.70578875699994,
+  "native_qiskit": "not executed",
+  "physical_viscosity": "not implemented",
+  "precision_benchmark": [
+    {
+      "scale": 32,
+      "rmse_vs_float": 0.02358547412987948,
+      "rmse_vs_ritter": 0.09475891392135845,
+      "wet_cells": 21,
+      "integrated_depth": 12.0,
+      "logical_gates": 9584768,
+      "logical_qubits": 13148
+    },
+    {
+      "scale": 64,
+      "rmse_vs_float": 0.008759187890843585,
+      "rmse_vs_ritter": 0.08980987860734047,
+      "wet_cells": 22,
+      "integrated_depth": 12.0,
+      "logical_gates": 11649760,
+      "logical_qubits": 15825
+    },
+    {
+      "scale": 128,
+      "rmse_vs_float": 0.005617538051878666,
+      "rmse_vs_ritter": 0.08888432107796933,
+      "wet_cells": 22,
+      "integrated_depth": 12.0,
+      "logical_gates": 13918272,
+      "logical_qubits": 18748
+    }
+  ],
+  "test_summary": "..................................................................       [100%]\n66 passed, 5 skipped in 10.88s"
+}

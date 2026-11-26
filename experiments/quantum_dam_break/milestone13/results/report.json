@@ -1,0 +1,473 @@
+{
+  "backend": "computational-basis X/CX/CCX gate execution and reversible word permutation; no Qiskit or hardware",
+  "local": {
+    "M12": {
+      "tested": 1024,
+      "feasible": 812,
+      "diagonal_rmse": 0.005104742291397616,
+      "cross_rmse": 0.0018111605492935265,
+      "reflection_mismatch_cases": 28,
+      "local_gates": 382141,
+      "local_scratch": 116704
+    },
+    "M13": {
+      "tested": 1024,
+      "feasible": 812,
+      "diagonal_rmse": 0.0005584031633044448,
+      "cross_rmse": 0.0017158084563335524,
+      "reflection_mismatch_cases": 53,
+      "local_gates": 459733,
+      "local_scratch": 140584
+    }
+  },
+  "obstacle": {
+    "M12": {
+      "initial": {
+        "step": 0,
+        "mass_ticks": 30720,
+        "wet_cells": 80,
+        "infeasible_cells": 0,
+        "max_transverse_velocity": 0.0,
+        "depth_rmse_float": 0.0,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.0
+      },
+      "final": {
+        "step": 16,
+        "mass_ticks": 30720,
+        "wet_cells": 219,
+        "infeasible_cells": 99,
+        "max_transverse_velocity": 1.0,
+        "depth_rmse_float": 0.029459511795904485,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.0
+      },
+      "max_mass_error_ticks": 0,
+      "max_transverse_velocity": 1.0,
+      "resources": {
+        "local_qubits": 129313,
+        "local_scratch": 128812,
+        "local_x_cx_ccx": 421905,
+        "global_qubits": 257053,
+        "global_x_cx_ccx_equivalent": 101832615,
+        "streaming_word_swaps": 5117
+      },
+      "steps": 16,
+      "integer_reference_agreement_steps": 16
+    },
+    "M13": {
+      "initial": {
+        "step": 0,
+        "mass_ticks": 30720,
+        "wet_cells": 80,
+        "infeasible_cells": 0,
+        "max_transverse_velocity": 0.0,
+        "depth_rmse_float": 0.0,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.0
+      },
+      "final": {
+        "step": 16,
+        "mass_ticks": 30720,
+        "wet_cells": 234,
+        "infeasible_cells": 105,
+        "max_transverse_velocity": 1.0,
+        "depth_rmse_float": 0.025267489726785115,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.0
+      },
+      "max_mass_error_ticks": 0,
+      "max_transverse_velocity": 1.0,
+      "resources": {
+        "local_qubits": 153193,
+        "local_scratch": 152692,
+        "local_x_cx_ccx": 499497,
+        "global_qubits": 280933,
+        "global_x_cx_ccx_equivalent": 120532287,
+        "streaming_word_swaps": 5117
+      },
+      "steps": 16,
+      "integer_reference_agreement_steps": 16
+    }
+  },
+  "strip": {
+    "M12_2": {
+      "initial": {
+        "step": 0,
+        "mass_ticks": 196608,
+        "wet_cells": 128,
+        "infeasible_cells": 0,
+        "max_transverse_velocity": 0.0,
+        "depth_rmse_float": 0.0,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.0
+      },
+      "final": {
+        "step": 24,
+        "mass_ticks": 196608,
+        "wet_cells": 224,
+        "infeasible_cells": 66,
+        "max_transverse_velocity": 0.0,
+        "depth_rmse_float": 0.005544558122958788,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.10748781847977114
+      },
+      "max_mass_error_ticks": 0,
+      "max_transverse_velocity": 0.0,
+      "resources": {
+        "local_qubits": 171665,
+        "local_scratch": 171064,
+        "local_x_cx_ccx": 559459,
+        "global_qubits": 324920,
+        "global_x_cx_ccx_equivalent": 143404744,
+        "streaming_word_swaps": 5090
+      },
+      "steps": 24,
+      "integer_reference_agreement_steps": 24
+    },
+    "M12_4": {
+      "initial": {
+        "step": 0,
+        "mass_ticks": 196608,
+        "wet_cells": 128,
+        "infeasible_cells": 0,
+        "max_transverse_velocity": 0.0,
+        "depth_rmse_float": 0.0,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.0
+      },
+      "final": {
+        "step": 24,
+        "mass_ticks": 196608,
+        "wet_cells": 224,
+        "infeasible_cells": 54,
+        "max_transverse_velocity": 0.0,
+        "depth_rmse_float": 0.0035948480727172605,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.08403600362913864
+      },
+      "max_mass_error_ticks": 0,
+      "max_transverse_velocity": 0.0,
+      "resources": {
+        "local_qubits": 157135,
+        "local_scratch": 156534,
+        "local_x_cx_ccx": 511771,
+        "global_qubits": 310390,
+        "global_x_cx_ccx_equivalent": 131196616,
+        "streaming_word_swaps": 5090
+      },
+      "steps": 24,
+      "integer_reference_agreement_steps": 24
+    },
+    "M13_2": {
+      "initial": {
+        "step": 0,
+        "mass_ticks": 196608,
+        "wet_cells": 128,
+        "infeasible_cells": 0,
+        "max_transverse_velocity": 0.0,
+        "depth_rmse_float": 0.0,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.0
+      },
+      "final": {
+        "step": 24,
+        "mass_ticks": 196608,
+        "wet_cells": 224,
+        "infeasible_cells": 69,
+        "max_transverse_velocity": 0.0,
+        "depth_rmse_float": 0.005221726269789788,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.10601492421313835
+      },
+      "max_mass_error_ticks": 0,
+      "max_transverse_velocity": 0.0,
+      "resources": {
+        "local_qubits": 203877,
+        "local_scratch": 203276,
+        "local_x_cx_ccx": 664035,
+        "global_qubits": 357132,
+        "global_x_cx_ccx_equivalent": 170176200,
+        "streaming_word_swaps": 5090
+      },
+      "steps": 24,
+      "integer_reference_agreement_steps": 24
+    },
+    "M13_4": {
+      "initial": {
+        "step": 0,
+        "mass_ticks": 196608,
+        "wet_cells": 128,
+        "infeasible_cells": 0,
+        "max_transverse_velocity": 0.0,
+        "depth_rmse_float": 0.0,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.0
+      },
+      "final": {
+        "step": 24,
+        "mass_ticks": 196608,
+        "wet_cells": 224,
+        "infeasible_cells": 56,
+        "max_transverse_velocity": 0.0,
+        "depth_rmse_float": 0.00554401972475712,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.08033012282551998
+      },
+      "max_mass_error_ticks": 0,
+      "max_transverse_velocity": 0.0,
+      "resources": {
+        "local_qubits": 189347,
+        "local_scratch": 188746,
+        "local_x_cx_ccx": 616347,
+        "global_qubits": 342602,
+        "global_x_cx_ccx_equivalent": 157968072,
+        "streaming_word_swaps": 5090
+      },
+      "steps": 24,
+      "integer_reference_agreement_steps": 24
+    }
+  },
+  "shear": [
+    {
+      "model": "M12",
+      "n": 32,
+      "wavelength": 16.0,
+      "omega": 0.25,
+      "gate_viscosity": 0.07773435199809288,
+      "gate_fit_r2": 0.9996345303387385,
+      "float_viscosity": 0.11930142735291684,
+      "float_fit_r2": 0.9999666676509521,
+      "formal_small_k_viscosity": 0.328125,
+      "initial_amplitude": 0.08001269428028948,
+      "final_amplitude": 0.046566306624223265,
+      "max_depth_error": 0.0283203125,
+      "max_transverse_velocity": 0.004193548387096774
+    },
+    {
+      "model": "M12",
+      "n": 64,
+      "wavelength": 32.0,
+      "omega": 0.25,
+      "gate_viscosity": 0.14138401924625668,
+      "gate_fit_r2": 0.9997244003326151,
+      "float_viscosity": 0.23449913588933066,
+      "float_fit_r2": 0.9999801032139802,
+      "formal_small_k_viscosity": 0.328125,
+      "initial_amplitude": 0.0800275114748042,
+      "final_amplitude": 0.06395015117851452,
+      "max_depth_error": 0.0380859375,
+      "max_transverse_velocity": 0.0038860103626943004
+    },
+    {
+      "model": "M12",
+      "n": 32,
+      "wavelength": 16.0,
+      "omega": 0.5,
+      "gate_viscosity": 0.0898116358430629,
+      "gate_fit_r2": 0.9996079549175771,
+      "float_viscosity": 0.11038725234328577,
+      "float_fit_r2": 0.9999999986028008,
+      "formal_small_k_viscosity": 0.140625,
+      "initial_amplitude": 0.08001269428028948,
+      "final_amplitude": 0.04640565679103578,
+      "max_depth_error": 0.021484375,
+      "max_transverse_velocity": 0.0035807291666666665
+    },
+    {
+      "model": "M12",
+      "n": 64,
+      "wavelength": 32.0,
+      "omega": 0.5,
+      "gate_viscosity": 0.10785282850041557,
+      "gate_fit_r2": 0.999708107900065,
+      "float_viscosity": 0.13189302136852005,
+      "float_fit_r2": 0.9999999448486734,
+      "formal_small_k_viscosity": 0.140625,
+      "initial_amplitude": 0.0800275114748042,
+      "final_amplitude": 0.06789166275884603,
+      "max_depth_error": 0.0322265625,
+      "max_transverse_velocity": 0.005813953488372093
+    },
+    {
+      "model": "M12",
+      "n": 32,
+      "wavelength": 16.0,
+      "omega": 0.75,
+      "gate_viscosity": 0.058628832020975255,
+      "gate_fit_r2": 0.9995617012726783,
+      "float_viscosity": 0.07328064929930352,
+      "float_fit_r2": 0.9999999954522609,
+      "formal_small_k_viscosity": 0.078125,
+      "initial_amplitude": 0.08001269428028948,
+      "final_amplitude": 0.05588585118558153,
+      "max_depth_error": 0.0400390625,
+      "max_transverse_velocity": 0.00489556135770235
+    },
+    {
+      "model": "M12",
+      "n": 64,
+      "wavelength": 32.0,
+      "omega": 0.75,
+      "gate_viscosity": 0.06807707720092024,
+      "gate_fit_r2": 0.9986223684602619,
+      "float_viscosity": 0.07686015209562069,
+      "float_fit_r2": 0.9999999584759084,
+      "formal_small_k_viscosity": 0.078125,
+      "initial_amplitude": 0.0800275114748042,
+      "final_amplitude": 0.07199115522828177,
+      "max_depth_error": 0.0458984375,
+      "max_transverse_velocity": 0.006455777921239509
+    },
+    {
+      "model": "M12",
+      "n": 32,
+      "wavelength": 16.0,
+      "omega": 1.0,
+      "gate_viscosity": 0.04751589063557227,
+      "gate_fit_r2": 0.9999082240674441,
+      "float_viscosity": 0.046441603455762634,
+      "float_fit_r2": 1.0,
+      "formal_small_k_viscosity": 0.046875,
+      "initial_amplitude": 0.08001269428028948,
+      "final_amplitude": 0.0596603188217022,
+      "max_depth_error": 0.015625,
+      "max_transverse_velocity": 0.001951854261548471
+    },
+    {
+      "model": "M12",
+      "n": 64,
+      "wavelength": 32.0,
+      "omega": 1.0,
+      "gate_viscosity": 0.04704861487380805,
+      "gate_fit_r2": 0.9998130453030853,
+      "float_viscosity": 0.046766730172711934,
+      "float_fit_r2": 1.0,
+      "formal_small_k_viscosity": 0.046875,
+      "initial_amplitude": 0.0800275114748042,
+      "final_amplitude": 0.07434100798040502,
+      "max_depth_error": 0.021484375,
+      "max_transverse_velocity": 0.003246753246753247
+    },
+    {
+      "model": "M13",
+      "n": 32,
+      "wavelength": 16.0,
+      "omega": 0.25,
+      "gate_viscosity": 0.08443039367239426,
+      "gate_fit_r2": 0.9989345403121359,
+      "float_viscosity": 0.11930142735291684,
+      "float_fit_r2": 0.9999666676509521,
+      "formal_small_k_viscosity": 0.328125,
+      "initial_amplitude": 0.08001269428028948,
+      "final_amplitude": 0.04476770205595629,
+      "max_depth_error": 0.0234375,
+      "max_transverse_velocity": 0.004188144329896907
+    },
+    {
+      "model": "M13",
+      "n": 64,
+      "wavelength": 32.0,
+      "omega": 0.25,
+      "gate_viscosity": 0.1486055473450137,
+      "gate_fit_r2": 0.9960323272070385,
+      "float_viscosity": 0.23449913588933066,
+      "float_fit_r2": 0.9999801032139802,
+      "formal_small_k_viscosity": 0.328125,
+      "initial_amplitude": 0.0800275114748042,
+      "final_amplitude": 0.0632981079680294,
+      "max_depth_error": 0.03515625,
+      "max_transverse_velocity": 0.004539559014267186
+    },
+    {
+      "model": "M13",
+      "n": 32,
+      "wavelength": 16.0,
+      "omega": 0.5,
+      "gate_viscosity": 0.09365058074150653,
+      "gate_fit_r2": 0.9991720503858577,
+      "float_viscosity": 0.11038725234328577,
+      "float_fit_r2": 0.9999999986028008,
+      "formal_small_k_viscosity": 0.140625,
+      "initial_amplitude": 0.08001269428028948,
+      "final_amplitude": 0.044678242745231155,
+      "max_depth_error": 0.0185546875,
+      "max_transverse_velocity": 0.003585397653194263
+    },
+    {
+      "model": "M13",
+      "n": 64,
+      "wavelength": 32.0,
+      "omega": 0.5,
+      "gate_viscosity": 0.1228986574663897,
+      "gate_fit_r2": 0.999186378223582,
+      "float_viscosity": 0.13189302136852005,
+      "float_fit_r2": 0.9999999448486734,
+      "formal_small_k_viscosity": 0.140625,
+      "initial_amplitude": 0.0800275114748042,
+      "final_amplitude": 0.06658314344672539,
+      "max_depth_error": 0.0302734375,
+      "max_transverse_velocity": 0.00548033526756931
+    },
+    {
+      "model": "M13",
+      "n": 32,
+      "wavelength": 16.0,
+      "omega": 0.75,
+      "gate_viscosity": 0.06547293443348569,
+      "gate_fit_r2": 0.9998648597422669,
+      "float_viscosity": 0.07328064929930352,
+      "float_fit_r2": 0.9999999954522609,
+      "formal_small_k_viscosity": 0.078125,
+      "initial_amplitude": 0.08001269428028948,
+      "final_amplitude": 0.05384313610731793,
+      "max_depth_error": 0.0400390625,
+      "max_transverse_velocity": 0.005776636713735558
+    },
+    {
+      "model": "M13",
+      "n": 64,
+      "wavelength": 32.0,
+      "omega": 0.75,
+      "gate_viscosity": 0.07369027272017256,
+      "gate_fit_r2": 0.9977544746602911,
+      "float_viscosity": 0.07686015209562069,
+      "float_fit_r2": 0.9999999584759084,
+      "formal_small_k_viscosity": 0.078125,
+      "initial_amplitude": 0.0800275114748042,
+      "final_amplitude": 0.0714015227724455,
+      "max_depth_error": 0.0390625,
+      "max_transverse_velocity": 0.005836575875486381
+    },
+    {
+      "model": "M13",
+      "n": 32,
+      "wavelength": 16.0,
+      "omega": 1.0,
+      "gate_viscosity": 0.048069759024193345,
+      "gate_fit_r2": 0.9995139274545014,
+      "float_viscosity": 0.046441603455762634,
+      "float_fit_r2": 1.0,
+      "formal_small_k_viscosity": 0.046875,
+      "initial_amplitude": 0.08001269428028948,
+      "final_amplitude": 0.05963894860022258,
+      "max_depth_error": 0.017578125,
+      "max_transverse_velocity": 0.001954397394136808
+    },
+    {
+      "model": "M13",
+      "n": 64,
+      "wavelength": 32.0,
+      "omega": 1.0,
+      "gate_viscosity": 0.05141592290482185,
+      "gate_fit_r2": 0.9998469188359885,
+      "float_viscosity": 0.046766730172711934,
+      "float_fit_r2": 1.0,
+      "formal_small_k_viscosity": 0.046875,
+      "initial_amplitude": 0.0800275114748042,
+      "final_amplitude": 0.07403075460579607,
+      "max_depth_error": 0.0380859375,
+      "max_transverse_velocity": 0.0029145077720207253
+    }
+  ]
+}

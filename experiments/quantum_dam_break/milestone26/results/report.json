@@ -1,0 +1,90 @@
+{
+  "configuration": {
+    "shape": [
+      16,
+      4,
+      32
+    ],
+    "gravity": 6.25e-05,
+    "nu_liquid": 0.00125,
+    "sigma": 2.5e-06,
+    "xi": 3.0,
+    "tau_phase": 0.725,
+    "steps": 1280,
+    "H": 10.4,
+    "refine": 1,
+    "base_nu": 0.0025,
+    "slow": 2
+  },
+  "mode": "gate",
+  "snapshots": 21,
+  "stride": 64,
+  "comparison_max_abs": {
+    "f": 0.0,
+    "h": 0.0,
+    "alpha_saved_slices": 0.0
+  },
+  "max_phase_relative_error": 2.520665971458351e-13,
+  "first_wall_wetting_step": 1120,
+  "peak_wall_pressure": 0.00031453822021100693,
+  "peak_wall_pressure_index": [
+    993,
+    1,
+    0
+  ],
+  "peak_wall_excess": 0.0003134485408516115,
+  "peak_wall_excess_index": [
+    993,
+    1,
+    0
+  ],
+  "max_speed_all_steps": 0.07050736500428931,
+  "max_span_variation": 0.0,
+  "pressure_definition": "Cell-centred gauge pressure, x=31 adjacent to wall at x=32; not validated wall traction or impact sensor.",
+  "vertical_momentum_definition": "rho*u_z, positive upward; normalized material density and force-corrected velocity",
+  "units": "lattice units; no calibrated SI impact loads",
+  "gif_frame_counts": {
+    "dynamic_pressure_multiangle.gif": 21,
+    "jz_multiangle.gif": 21,
+    "mu_multiangle.gif": 21,
+    "phi_multiangle.gif": 21,
+    "pressure_multiangle.gif": 21,
+    "rho_multiangle.gif": 21,
+    "speed_multiangle.gif": 21,
+    "wall_pressure.gif": 21,
+    "water_body_3d.gif": 21
+  },
+  "field_snapshot_ranges": {
+    "phi": [
+      -0.999999999998502,
+      0.9999962988044544
+    ],
+    "speed": [
+      9.35848032643661e-24,
+      0.0698744180843354
+    ],
+    "jz": [
+      -0.010015463918010198,
+      0.008927266101124062
+    ],
+    "pressure": [
+      -2.6194553275465617e-05,
+      0.0007006981609138949
+    ],
+    "rho": [
+      0.0012024048103673498,
+      0.9999981516273949
+    ],
+    "mu": [
+      2.250000000091941e-05,
+      0.001249997728391234
+    ],
+    "dynamic_pressure": [
+      4.3727067835349802e-47,
+      0.0004325575916406235
+    ]
+  },
+  "post_contact_peak_wall_pressure": 0.0002924105078185675,
+  "new_tests": "7 passed in 0.95s",
+  "full_regression": "292 passed, 11 skipped in 44.98s"
+}

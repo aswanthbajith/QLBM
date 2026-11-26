@@ -1,0 +1,71 @@
+{
+  "scale": 256,
+  "shape_zyx": [
+    4,
+    4,
+    8
+  ],
+  "steps": 256,
+  "dt": 0.00390625,
+  "feedback": true,
+  "initial_velocity": 0.0,
+  "final_velocity": 0.0,
+  "reference_final_velocity": 0.008887239001110004,
+  "max_velocity_error": 0.009347869731236878,
+  "max_velocity": 0.0,
+  "max_capillary_acceleration": 0.05167365074157715,
+  "initial_total_energy": 35.10443067399319,
+  "final_total_energy": 32.56036693661008,
+  "energy_increase_steps": 0,
+  "max_energy_increase": 0.0,
+  "final_phase_rmse": 0.1687700993498495,
+  "max_phase_mass_error_ticks": 0,
+  "max_mean_momentum": 0.0,
+  "max_unrounded_exchange_residual": 0.0,
+  "max_unrounded_energy_rate_residual": 0.0,
+  "matched_integer_steps": 256,
+  "min_phi": -0.921875,
+  "max_phi": 0.921875,
+  "resources": {
+    "local_oracles": {
+      "mu": {
+        "qubits": 3750,
+        "gates": 11460,
+        "calls_per_step": 128
+      },
+      "scale_mu": {
+        "qubits": 419,
+        "gates": 1228,
+        "calls_per_step": 128
+      },
+      "face": {
+        "qubits": 1887,
+        "gates": 5745,
+        "calls_per_step": 384
+      },
+      "force": {
+        "qubits": 1875,
+        "gates": 5595,
+        "calls_per_step": 128
+      },
+      "sum": {
+        "qubits": 285,
+        "gates": 602,
+        "calls_per_step": 127
+      },
+      "velocity": {
+        "qubits": 961,
+        "gates": 3000,
+        "calls_per_step": 1
+      },
+      "phase_update": {
+        "qubits": 671,
+        "gates": 1886,
+        "calls_per_step": 128
+      }
+    },
+    "forward_oracle_gate_total": 4867166,
+    "max_local_oracle_qubits": 3750
+  },
+  "runtime_seconds": 5.539594567000677
+}

@@ -1,0 +1,12 @@
+{
+  "python": "3.13.5",
+  "numpy": "2.3.5",
+  "numba": "0.65.1",
+  "matplotlib": "3.10.8",
+  "pytest": "9.0.2",
+  "qiskit_available": false,
+  "hardware": "none",
+  "git_branch": "research/m24-dam-release-runout",
+  "git_commit": "cbc86c8f02532bb1f441d7b7e83a0f45f72fb9bf",
+  "remote_changes": false
+}

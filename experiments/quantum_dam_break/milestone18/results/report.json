@@ -1,0 +1,71 @@
+{
+  "transport": [
+    {
+      "lattice": "D3Q19",
+      "qubits": 11,
+      "fluid_cells": 47,
+      "wall_links": 168,
+      "factorized_mcx": 5128,
+      "direct_mcx": 3376,
+      "legacy_pulse_mass": 0.0,
+      "new_pulse_mass": 1.0,
+      "new_reflected_population": 1.0,
+      "statevector_16step_error": 0.0,
+      "inverse_error": 0.0,
+      "solid_padding_probability": 0.0
+    },
+    {
+      "lattice": "D3Q7",
+      "qubits": 9,
+      "fluid_cells": 47,
+      "wall_links": 36,
+      "factorized_mcx": 1346,
+      "direct_mcx": 558,
+      "legacy_pulse_mass": 0.0,
+      "new_pulse_mass": 1.0,
+      "new_reflected_population": 1.0,
+      "statevector_16step_error": 0.0,
+      "inverse_error": 0.0,
+      "solid_padding_probability": 0.0
+    }
+  ],
+  "hybrid": {
+    "steps": 32,
+    "initial_mass": 47.00000000000001,
+    "initial_phase": -0.15000000000000024,
+    "final": {
+      "step": 32,
+      "mass": 46.999999999999915,
+      "phase": -0.14999999999999325,
+      "mass_error": 9.237055564881302e-14,
+      "phase_error": 6.994405055138486e-15,
+      "legacy_fluid_mass": -800459302871.4153,
+      "legacy_fluid_phase": 1339954.8793974672,
+      "legacy_solid_population": 0.0,
+      "solid_population": 0.0,
+      "reference_max_error": 9.26342336171615e-16,
+      "max_speed": 0.004989041810613985
+    },
+    "max_reference_error": 9.26342336171615e-16,
+    "max_mass_error": 9.237055564881302e-14,
+    "max_phase_error": 6.994405055138486e-15
+  },
+  "channel": {
+    "updates": 400,
+    "max_decoded_error": 4.440892098500626e-16,
+    "max_trace_error": 1.7763568394002505e-15,
+    "shot_experiments": 12,
+    "sample_shots": {
+      "lambda_value": 0.5,
+      "initial": 0.4,
+      "step": 4,
+      "shots": 1000,
+      "repeats": 256,
+      "expected": 0.025,
+      "bitflip_rmse": 0.016262014789072122,
+      "dual_rail_rmse": 0.003704410378184361,
+      "bitflip_theory_se": 0.01579161169735376,
+      "dual_rail_theory_se": 0.003446012188022556
+    }
+  }
+}

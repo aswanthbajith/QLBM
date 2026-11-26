@@ -1,0 +1,12 @@
+# M24 source audit
+
+Baseline: exact Milestone 23 archive, existing `milestone23/solver.py`, `milestone22/solver.py`, `milestone21/solver.py`, `milestone20/limiter.py`, `milestone19/solver.py`, and `milestone18/transport.py` inspected. M23 figure and numerical report inspected. Source-derived observations: 32 x 4 x 16 lattice; all six walls no-slip; 96 steps; g=.0005; front 10 to 11; COM x index 4.95799 to 5.26820, z index 4.87767 to 4.39913. Changed geometry and time are explicit ablations, not a literature-derived replacement of the collision equations.
+
+Remote GitHub branch heads checked: `aswanthbajith/QLBM`, `research/quantum-waterfall-impact-vqc` 66a0de43d066db20756872c4f48b79ebd10b9be0; same eight branches as M23. No remote write; no remote code copied in this milestone. Previous private research-skill files not available in this working source tree.
+
+Literature checked through web search, abstracts/snippets (not complete paper replication):
+- *A Momentum-Conserving Weakly Compressible Navier–Stokes Solver for Simulation of Violent Two-Phase Flows with High Density Ratio* (2023), https://doi.org/10.1080/10618562.2023.2202391 — actual water-air material constants and gravity nondimensional time t sqrt(g/H), consistent mass/momentum transport. Our solver has not reproduced their formulation or benchmark.
+- *Analysis and comparison of boundary condition variants in the free-surface lattice Boltzmann method*, https://doi.org/10.1002/fld.5173 — rectangular dam-break test with boundary-condition choices. Our periodic y is a planar modeling choice, not the same model as the paper.
+- *Dam-Break Modeling: LBM as the Way towards Fully 3D, Large-Scale Applications*, https://doi.org/10.1061/(ASCE)HY.1943-7900.0001879 — discusses no-slip versus free-slip for underresolved boundary layers and experimental validation.
+- *Free surface flow simulations on GPGPUs using the LBM*, https://www.sciencedirect.com/science/article/pii/S0898122111001684 — dam-break benchmark, all six walls no-slip for its physical setup, lattice gravity and viscosity adjusted to dimensionless numbers. Supports distinguishing resolved finite tank from our planar model.
+- *Review of Experimental Investigations of Dam-Break Flows over Fixed Bottom* (2023), https://www.mdpi.com/2073-4441/15/6/1229 — Martin and Moyce (1952) experimental front position and stage observations. Next benchmark should match geometry and dimensionless parameters, then compare front and column height; no experimental digitization or accuracy claim in M24.

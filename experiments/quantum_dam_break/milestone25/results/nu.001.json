@@ -1,0 +1,59 @@
+{
+  "configuration": {
+    "shape": [
+      16,
+      4,
+      32
+    ],
+    "gravity": 0.00025,
+    "nu_liquid": 0.001,
+    "sigma": 1e-05,
+    "xi": 3.0,
+    "tau_phase": 0.95,
+    "steps": 640,
+    "H": 10.4,
+    "refine": 1,
+    "base_nu": 0.001
+  },
+  "mode": "fast",
+  "status": "speed guard exceeded",
+  "steps": 197,
+  "Re": 530.2980294136497,
+  "Bo": 2700.74869739479,
+  "initial": {
+    "case": "nu.001",
+    "step": 0,
+    "t_star": 0.0,
+    "front_H": 1.0576923076923077,
+    "left_height_H": 0.9615384615384615,
+    "com_x_H": 0.5248071076548068,
+    "com_z_H": 0.5170832984146254,
+    "speed": 2.2291887646212473e-11,
+    "mach": 3.861068199985699e-11,
+    "phase_relative_error": 0.0,
+    "material_relative_error": 0.0,
+    "min_alpha": 7.490119635633619e-13,
+    "max_alpha": 0.9999981494022272
+  },
+  "final": {
+    "case": "nu.001",
+    "step": 197,
+    "t_star": 0.9658719655555564,
+    "front_H": 1.6346153846153846,
+    "left_height_H": 0.8653846153846153,
+    "com_x_H": 0.6548931294750189,
+    "com_z_H": 0.3755414520050093,
+    "speed": 0.10003040288142576,
+    "mach": 0.17325774009221362,
+    "phase_relative_error": 3.880884004516896e-14,
+    "material_relative_error": 3.838890445175532e-14,
+    "min_alpha": 2.259874926080485e-11,
+    "max_alpha": 0.9999528083794833
+  },
+  "peak_speed": 0.10003040288142576,
+  "max_phase_relative_error": 3.880884004516896e-14,
+  "max_material_relative_error": 3.838890445175532e-14,
+  "min_alpha": 7.490119635633619e-13,
+  "max_alpha": 1.0,
+  "seconds": 2.1928150599997025
+}

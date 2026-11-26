@@ -1,0 +1,91 @@
+{
+  "nu.02": {
+    "Re": 26.51490147068248,
+    "steps": 640,
+    "status": "completed",
+    "wall": null,
+    "peak_speed": 0.059975680718610216
+  },
+  "nu.01": {
+    "Re": 53.02980294136496,
+    "steps": 640,
+    "status": "completed",
+    "wall": null,
+    "peak_speed": 0.09206395340748881
+  },
+  "nu.005": {
+    "Re": 106.05960588272993,
+    "steps": 420,
+    "status": "speed guard exceeded",
+    "wall": null,
+    "peak_speed": 0.10031697549583596
+  },
+  "nu.0025": {
+    "Re": 212.11921176545985,
+    "steps": 370,
+    "status": "speed guard exceeded",
+    "wall": null,
+    "peak_speed": 0.10017469318192043
+  },
+  "nu.001": {
+    "Re": 530.2980294136497,
+    "steps": 197,
+    "status": "speed guard exceeded",
+    "wall": null,
+    "peak_speed": 0.10003040288142576
+  },
+  "gate": {
+    "Re": 53.02980294136496,
+    "steps": 640,
+    "status": "completed",
+    "wall": null,
+    "peak_speed": 0.09206395340749138
+  },
+  "refined": {
+    "Re": 53.02980294136496,
+    "steps": 1280,
+    "status": "completed",
+    "wall": null,
+    "peak_speed": 0.08571529618363408
+  },
+  "slow106": {
+    "Re": 106.05960588272993,
+    "steps": 1280,
+    "status": "completed",
+    "wall": {
+      "step": 1240,
+      "t_star": 3.0398000946418526
+    },
+    "peak_speed": 0.0603988000584074
+  },
+  "slow212": {
+    "Re": 212.11921176545985,
+    "steps": 1280,
+    "status": "completed",
+    "wall": {
+      "step": 1120,
+      "t_star": 2.7456258919345764
+    },
+    "peak_speed": 0.07050736500428564
+  },
+  "slow530": {
+    "Re": 530.2980294136497,
+    "steps": 2560,
+    "status": "completed",
+    "wall": {
+      "step": 2154,
+      "t_star": 2.6402134692978025
+    },
+    "peak_speed": 0.04005020018155539
+  },
+  "slow212_gate": {
+    "Re": 212.11921176545985,
+    "steps": 1280,
+    "status": "completed",
+    "wall": {
+      "step": 1120,
+      "t_star": 2.7456258919345764
+    },
+    "peak_speed": 0.07050736500428931
+  }
+}

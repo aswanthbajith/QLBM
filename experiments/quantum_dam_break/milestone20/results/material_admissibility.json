@@ -1,0 +1,39 @@
+{
+  "warning": "Postprocessing only. Density interpolation is NOT coupled to momentum or pressure. Values are representative endpoints, not calibrated inputs.",
+  "rho_liquid_kg_m3": 998.0,
+  "rho_gas_kg_m3": 1.2,
+  "ratio": 831.6666666666667,
+  "results": {
+    "m19": {
+      "min_kg_m3": -5.286325084057096,
+      "max_kg_m3": 1061.1499915517174,
+      "negative_density_cell_steps": 7816,
+      "outside_material_range_cell_steps": 52062
+    },
+    "bounded": {
+      "min_kg_m3": 1.1999999999998894,
+      "max_kg_m3": 998.0000000000002,
+      "negative_density_cell_steps": 0,
+      "outside_material_range_cell_steps": 0
+    },
+    "no_gravity": {
+      "min_kg_m3": 1.1999999999998894,
+      "max_kg_m3": 998.0000000000002,
+      "negative_density_cell_steps": 0,
+      "outside_material_range_cell_steps": 0
+    },
+    "shots_256": {
+      "min_kg_m3": 1.1999999999997786,
+      "max_kg_m3": 998.0000000000002,
+      "negative_density_cell_steps": 0,
+      "outside_material_range_cell_steps": 0
+    },
+    "shots_4096": {
+      "min_kg_m3": 1.1999999999997786,
+      "max_kg_m3": 998.0000000000002,
+      "negative_density_cell_steps": 0,
+      "outside_material_range_cell_steps": 0
+    }
+  },
+  "final_phase_rmse_m20_vs_m19": 0.03676011283330603
+}

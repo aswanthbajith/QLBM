@@ -1,0 +1,98 @@
+{
+  "model": "flat-bed shallow-water finite volume with linear drag; not LBM or molecular viscosity",
+  "backend": "computational basis reversible gate simulator with cached local gate outputs; no statevector or QPU",
+  "grid": [
+    16,
+    16
+  ],
+  "steps": 16,
+  "depth_scale_m": 1,
+  "length_scale_m": 1,
+  "velocity_scale_m_s": 3.132091952673165,
+  "dt_s": 0.03990942855088131,
+  "g_m_s2": 9.81,
+  "water_density_kg_m3": 998.2,
+  "beta": 0.875,
+  "linear_drag_rate_s_inv": 3.345860802148065,
+  "drag_rate_selection": "illustrative, not experimentally calibrated",
+  "initial": {
+    "step": 0,
+    "time_s": 0.0,
+    "volume_m3": 120.0,
+    "mass_kg": 119784.0,
+    "wet_cells": 80,
+    "kinetic_energy_nd": 0.0,
+    "depth_rmse_m": 0.0,
+    "depth_rmse_vs_undamped_m": 0.0,
+    "obstacle_depth_m": 0.0
+  },
+  "final": {
+    "step": 16,
+    "time_s": 0.638550856814101,
+    "volume_m3": 120.0,
+    "mass_kg": 119784.0,
+    "wet_cells": 148,
+    "kinetic_energy_nd": 1.8311654367107972,
+    "depth_rmse_m": 0.026834363780799966,
+    "depth_rmse_vs_undamped_m": 0.04947205716193764,
+    "obstacle_depth_m": 0.0
+  },
+  "max_mass_error_kg": 0.0,
+  "max_obstacle_depth_m": 0.0,
+  "quantized_reference_agreement": "16/16",
+  "inverse_and_clean_workspace": "16/16",
+  "m6_qubits": 24796,
+  "compact_transport_qubits": 19588,
+  "compact_transport_gates": 71549464,
+  "m6_gates": 72185704,
+  "damped_qubits": 25220,
+  "damped_gates": 71979032,
+  "m6_local_work_qubits": 11460,
+  "m7_local_work_qubits": 6252,
+  "drag_local_gates": 839,
+  "drag_local_work_qubits": 254,
+  "spatial_reference": [
+    {
+      "cells": 32,
+      "dx": 0.5,
+      "steps": 16,
+      "depth_rmse_nd": 0.08871307605630242,
+      "mass_error_nd": 0.0,
+      "observed_order": null
+    },
+    {
+      "cells": 64,
+      "dx": 0.25,
+      "steps": 32,
+      "depth_rmse_nd": 0.061874639472262856,
+      "mass_error_nd": 0.0,
+      "observed_order": 0.5197985554770099
+    },
+    {
+      "cells": 128,
+      "dx": 0.125,
+      "steps": 64,
+      "depth_rmse_nd": 0.04773517885534346,
+      "mass_error_nd": 0.0,
+      "observed_order": 0.3742953490335966
+    },
+    {
+      "cells": 256,
+      "dx": 0.0625,
+      "steps": 128,
+      "depth_rmse_nd": 0.03632439191622009,
+      "mass_error_nd": 0.0,
+      "observed_order": 0.39411421804387764
+    },
+    {
+      "cells": 512,
+      "dx": 0.03125,
+      "steps": 256,
+      "depth_rmse_nd": 0.02613415801363847,
+      "mass_error_nd": 0.0,
+      "observed_order": 0.4750019672954305
+    }
+  ],
+  "elapsed_seconds": 12.660307744999955,
+  "native_qiskit": "not available"
+}

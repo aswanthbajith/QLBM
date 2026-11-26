@@ -1,0 +1,90 @@
+[
+  {
+    "width": 1.0,
+    "ratio": 1.0,
+    "epsilon": 1e-08,
+    "dimension": 608,
+    "spectral_radius": 1.0000000000000335,
+    "unstable_modes": 0,
+    "dominant_real": 1.0000000000000335,
+    "dominant_imag": 0.0,
+    "conservation_jacobian_error": 8.988365607365267e-13
+  },
+  {
+    "width": 1.0,
+    "ratio": 1.0,
+    "epsilon": 1e-09,
+    "dimension": 608,
+    "spectral_radius": 1.0000000000011007,
+    "unstable_modes": 0,
+    "dominant_real": 1.0000000000011007,
+    "dominant_imag": 0.0,
+    "conservation_jacobian_error": 7.910117005849315e-12
+  },
+  {
+    "width": 0.1,
+    "ratio": 831.6666666666667,
+    "epsilon": 1e-08,
+    "dimension": 608,
+    "spectral_radius": 281.7015266019999,
+    "unstable_modes": 17,
+    "dominant_real": -281.7015266019999,
+    "dominant_imag": 0.0,
+    "conservation_jacobian_error": 7.32780502943342e-12
+  },
+  {
+    "width": 0.1,
+    "ratio": 831.6666666666667,
+    "epsilon": 1e-09,
+    "dimension": 608,
+    "spectral_radius": 281.7015266026749,
+    "unstable_modes": 17,
+    "dominant_real": -281.7015266026749,
+    "dominant_imag": 0.0,
+    "conservation_jacobian_error": 8.549894126019808e-11
+  },
+  {
+    "width": 0.5,
+    "ratio": 831.6666666666667,
+    "epsilon": 1e-08,
+    "dimension": 608,
+    "spectral_radius": 1.3051839770840767,
+    "unstable_modes": 2,
+    "dominant_real": -1.125684421679726,
+    "dominant_imag": 0.6605602143821475,
+    "conservation_jacobian_error": 9.094947017729282e-13
+  },
+  {
+    "width": 0.5,
+    "ratio": 831.6666666666667,
+    "epsilon": 1e-09,
+    "dimension": 608,
+    "spectral_radius": 1.3051839770885343,
+    "unstable_modes": 2,
+    "dominant_real": -1.1256844216860071,
+    "dominant_imag": 0.6605602143802511,
+    "conservation_jacobian_error": 7.468803353560816e-12
+  },
+  {
+    "width": 1.0,
+    "ratio": 831.6666666666667,
+    "epsilon": 1e-08,
+    "dimension": 608,
+    "spectral_radius": 0.9999999999999918,
+    "unstable_modes": 0,
+    "dominant_real": -0.9999999999999918,
+    "dominant_imag": 0.0,
+    "conservation_jacobian_error": 6.892264536872972e-13
+  },
+  {
+    "width": 1.0,
+    "ratio": 831.6666666666667,
+    "epsilon": 1e-09,
+    "dimension": 608,
+    "spectral_radius": 1.0000000000005547,
+    "unstable_modes": 0,
+    "dominant_real": -1.0000000000005547,
+    "dominant_imag": 0.0,
+    "conservation_jacobian_error": 5.051292717439537e-12
+  }
+]

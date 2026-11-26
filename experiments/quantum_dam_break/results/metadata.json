@@ -1,0 +1,14 @@
+{
+  "model": "fixed-weight quantum reset transport experiment; NOT hydrodynamic dam break",
+  "backend": "NumPy exact reduced quantum channel, no QPU or Qiskit run",
+  "nx": 4,
+  "ny": 4,
+  "base_qubits": 8,
+  "optional_collision_ancillas": 5,
+  "steps": 12,
+  "omega": 0.5,
+  "shots": 4096,
+  "dx_m": 1.0,
+  "dt_s": 1.0,
+  "initial_encoded_volume_m3": 8.0
+}

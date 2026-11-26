@@ -1,0 +1,140 @@
+{
+  "model": "D2Q9 shallow-water BGK collide-stream, flat bed, g_lu=1/8, conservative integer rounding and reject-invalid limiter",
+  "backend": "bit-sliced execution of X/CX/CCX gates on computational basis; streaming exact wire permutation; no QPU/full statevector; fresh registers each step",
+  "scale": 4096,
+  "omega": 1.0,
+  "grid": [
+    16,
+    16
+  ],
+  "solid_cells": 15,
+  "resources": {
+    "local_qubits": 165712,
+    "local_work_qubits": 165477,
+    "local_gates": 543928,
+    "global_qubits": 225622,
+    "global_gates": 131156926,
+    "streaming_word_swaps": 1802
+  },
+  "wet_bed": {
+    "initial": {
+      "step": 0,
+      "total_depth": 321.25,
+      "wet_cells": 241,
+      "max_depth": 1.5,
+      "max_speed": 0.0,
+      "max_transverse_velocity": 0.0,
+      "rejected_collisions_last_step": 0,
+      "depth_rmse_vs_float": 1.8148663243969386e-16,
+      "float_reference_valid": true,
+      "obstacle_depth": 0.0
+    },
+    "final": {
+      "step": 32,
+      "total_depth": 321.25,
+      "wet_cells": 241,
+      "max_depth": 1.38916015625,
+      "max_speed": 0.027790398987108094,
+      "max_transverse_velocity": 0.017070484581497798,
+      "rejected_collisions_last_step": 0,
+      "depth_rmse_vs_float": 0.0007831714827028389,
+      "float_reference_valid": true,
+      "obstacle_depth": 0.0
+    },
+    "steps": 32,
+    "quantized_reference_agreement": 32,
+    "reversibility_verified": 32,
+    "conservation_max_error": 0.0,
+    "rejected_collisions_total": 0,
+    "collision_attempts": 7712,
+    "float_first_negative_population": null,
+    "float_reference_stopped_step": null,
+    "min_float_population_before_stop": 0.0
+  },
+  "dry_bed_stress": {
+    "initial": {
+      "step": 0,
+      "total_depth": 120.0,
+      "wet_cells": 80,
+      "max_depth": 1.5,
+      "max_speed": 0.0,
+      "max_transverse_velocity": 0.0,
+      "rejected_collisions_last_step": 0,
+      "depth_rmse_vs_float": 0.0,
+      "float_reference_valid": true,
+      "obstacle_depth": 0.0
+    },
+    "final": {
+      "step": 24,
+      "total_depth": 120.0,
+      "wet_cells": 235,
+      "max_depth": 1.277099609375,
+      "max_speed": 1.4142135623730951,
+      "max_transverse_velocity": 1.0,
+      "rejected_collisions_last_step": 140,
+      "depth_rmse_vs_float": null,
+      "float_reference_valid": false,
+      "obstacle_depth": 0.0
+    },
+    "steps": 24,
+    "quantized_reference_agreement": 24,
+    "reversibility_verified": 24,
+    "conservation_max_error": 0.0,
+    "rejected_collisions_total": 2304,
+    "collision_attempts": 5784,
+    "float_first_negative_population": 2,
+    "float_reference_stopped_step": 7,
+    "min_float_population_before_stop": -0.025311556528549196
+  },
+  "pressure": {
+    "relative_l2": 0.004019641807857423,
+    "max_abs_error": 0.00048828125,
+    "rejected": 0
+  },
+  "viscosity": [
+    {
+      "omega": 0.5,
+      "tau": 2.0,
+      "nu_theoretical_lu": 0.5,
+      "nu_gate_fit_lu": 0.3665279013877491,
+      "nu_float_fit_lu": 0.48641361602154093,
+      "rejected_collisions": 0,
+      "local_qubits": 206652,
+      "local_work_qubits": 206381,
+      "local_gates": 678846,
+      "global_qubits": 241069,
+      "global_gates": 86934408,
+      "streaming_word_swaps": 936
+    },
+    {
+      "omega": 1.0,
+      "tau": 1.0,
+      "nu_theoretical_lu": 0.16666666666666666,
+      "nu_gate_fit_lu": 0.1643201215595298,
+      "nu_float_fit_lu": 0.1666662063363158,
+      "rejected_collisions": 0,
+      "local_qubits": 199482,
+      "local_work_qubits": 199211,
+      "local_gates": 654642,
+      "global_qubits": 233899,
+      "global_gates": 83836296,
+      "streaming_word_swaps": 936
+    },
+    {
+      "omega": 1.5,
+      "tau": 0.6666666666666666,
+      "nu_theoretical_lu": 0.055555555555555546,
+      "nu_gate_fit_lu": 0.028073892525988874,
+      "nu_float_fit_lu": 0.05571349492048884,
+      "rejected_collisions": 0,
+      "local_qubits": 207354,
+      "local_work_qubits": 207083,
+      "local_gates": 681090,
+      "global_qubits": 241771,
+      "global_gates": 87221640,
+      "streaming_word_swaps": 936
+    }
+  ],
+  "native_qiskit": "not executed; not installed",
+  "elapsed_seconds": 25.992674329000693
+}

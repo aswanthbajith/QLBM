@@ -1,0 +1,16 @@
+{
+  "vtk_snapshots": 21,
+  "animations": {
+    "dynamic_pressure_multiangle.gif": 21,
+    "jz_multiangle.gif": 21,
+    "mu_multiangle.gif": 21,
+    "phi_multiangle.gif": 21,
+    "pressure_multiangle.gif": 21,
+    "rho_multiangle.gif": 21,
+    "speed_multiangle.gif": 21,
+    "uy_multiangle.gif": 21,
+    "wall_pressure.gif": 21,
+    "water_body_3d.gif": 21
+  },
+  "total_frames": 210
+}

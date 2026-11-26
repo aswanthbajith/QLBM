@@ -1,0 +1,182 @@
+{
+  "model": "D2Q9 BGK with bounded conservative coordinate fallback",
+  "backend": "bit-sliced explicit X/CX/CCX basis simulation; streaming permutation; no QPU",
+  "scale": 4096,
+  "omega": 1,
+  "g_lattice": 0.125,
+  "dry_bed": {
+    "steps": 24,
+    "initial": {
+      "step": 0,
+      "total_depth": 120.0,
+      "wet_cells": 80,
+      "max_speed": 0.0,
+      "obstacle_depth": 0.0,
+      "full_bgk": 0,
+      "limited_update": 0,
+      "blocked": 0,
+      "m8_rejected": 0,
+      "pressure_bound_violations": 0,
+      "max_pressure_gap": 0.0,
+      "depth_rmse_vs_m8": 0.0
+    },
+    "final": {
+      "step": 24,
+      "total_depth": 120.0,
+      "wet_cells": 241,
+      "max_speed": 1.337954953199144,
+      "obstacle_depth": 0.0,
+      "full_bgk": 94,
+      "limited_update": 101,
+      "blocked": 46,
+      "m8_rejected": 140,
+      "pressure_bound_violations": 141,
+      "max_pressure_gap": 0.051388531196408155,
+      "depth_rmse_vs_m8": 0.2291563383797062
+    },
+    "full_bgk_total": 3191,
+    "limited_update_total": 1101,
+    "blocked_total": 1492,
+    "m8_rejected_total": 2304,
+    "reference_agreement_steps": 24,
+    "inverse_and_cleanup_steps": 24,
+    "resources": {
+      "local_qubits": 175543,
+      "local_work_qubits": 175308,
+      "local_gates": 576826,
+      "global_qubits": 235453,
+      "global_gates": 139085344,
+      "streaming_word_swaps": 1802
+    },
+    "mass_error_max": 0.0
+  },
+  "wet_bed_regression": {
+    "steps": 8,
+    "initial": {
+      "step": 0,
+      "total_depth": 321.25,
+      "wet_cells": 241,
+      "max_speed": 0.0,
+      "obstacle_depth": 0.0,
+      "full_bgk": 0,
+      "limited_update": 0,
+      "blocked": 0,
+      "m8_rejected": 0,
+      "pressure_bound_violations": 0,
+      "max_pressure_gap": 0.0,
+      "depth_rmse_vs_m8": 0.0
+    },
+    "final": {
+      "step": 8,
+      "total_depth": 321.25,
+      "wet_cells": 241,
+      "max_speed": 0.03683776871659237,
+      "obstacle_depth": 0.0,
+      "full_bgk": 241,
+      "limited_update": 0,
+      "blocked": 0,
+      "m8_rejected": 0,
+      "pressure_bound_violations": 0,
+      "max_pressure_gap": 0.0,
+      "depth_rmse_vs_m8": 0.0
+    },
+    "full_bgk_total": 1928,
+    "limited_update_total": 0,
+    "blocked_total": 0,
+    "m8_rejected_total": 0,
+    "reference_agreement_steps": 8,
+    "inverse_and_cleanup_steps": 8,
+    "resources": {
+      "local_qubits": 175543,
+      "local_work_qubits": 175308,
+      "local_gates": 576826,
+      "global_qubits": 235453,
+      "global_gates": 139085344,
+      "streaming_word_swaps": 1802
+    },
+    "mass_error_max": 0.0
+  },
+  "ritter_1d": {
+    "steps": 24,
+    "initial": {
+      "step": 0,
+      "total_depth": 192.0,
+      "wet_cells": 128,
+      "max_speed": 0.0,
+      "obstacle_depth": 0.0,
+      "full_bgk": 0,
+      "limited_update": 0,
+      "blocked": 0,
+      "m8_rejected": 0,
+      "pressure_bound_violations": 0,
+      "max_pressure_gap": 0.0,
+      "depth_rmse_vs_m8": 0.0
+    },
+    "final": {
+      "step": 24,
+      "total_depth": 192.0,
+      "wet_cells": 224,
+      "max_speed": 1.0,
+      "obstacle_depth": 0.0,
+      "full_bgk": 164,
+      "limited_update": 0,
+      "blocked": 92,
+      "m8_rejected": 92,
+      "pressure_bound_violations": 96,
+      "max_pressure_gap": 0.0006571412086486816,
+      "depth_rmse_vs_m8": 0.0
+    },
+    "full_bgk_total": 5040,
+    "limited_update_total": 0,
+    "blocked_total": 1104,
+    "m8_rejected_total": 1104,
+    "reference_agreement_steps": 24,
+    "inverse_and_cleanup_steps": 24,
+    "resources": {
+      "local_qubits": 175543,
+      "local_work_qubits": 175308,
+      "local_gates": 576826,
+      "global_qubits": 235468,
+      "global_gates": 147736876,
+      "streaming_word_swaps": 1780
+    },
+    "mass_error_max": 0.0
+  },
+  "ritter": [
+    {
+      "step": 4,
+      "rmse_m9": 0.07500035797294669,
+      "rmse_m8": 0.07500035797294669,
+      "exact_front": 3.4641016151377544,
+      "m9_front": 3.5
+    },
+    {
+      "step": 8,
+      "rmse_m9": 0.10665555836537295,
+      "rmse_m8": 0.10665555836537295,
+      "exact_front": 6.928203230275509,
+      "m9_front": 7.5
+    },
+    {
+      "step": 12,
+      "rmse_m9": 0.12877350837581678,
+      "rmse_m8": 0.12877350837581678,
+      "exact_front": 10.392304845413264,
+      "m9_front": 11.5
+    },
+    {
+      "step": 16,
+      "rmse_m9": 0.1476699269097189,
+      "rmse_m8": 0.1476699269097189,
+      "exact_front": 13.856406460551018,
+      "m9_front": 15.5
+    },
+    {
+      "step": 24,
+      "rmse_m9": 0.17950124071355242,
+      "rmse_m8": 0.17950124071355242,
+      "exact_front": 20.784609690826528,
+      "m9_front": 23.5
+    }
+  ]
+}

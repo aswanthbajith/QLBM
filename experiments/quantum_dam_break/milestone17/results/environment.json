@@ -1,0 +1,13 @@
+{
+  "python": "3.13.5",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "packages": {
+    "numpy": "2.3.5",
+    "numba": "0.65.1",
+    "pytest": "9.0.2",
+    "matplotlib": "3.10.8",
+    "pillow": "12.3.0"
+  },
+  "qiskit_available": false,
+  "OPENBLAS_NUM_THREADS": "1 for test and numerical experiment"
+}

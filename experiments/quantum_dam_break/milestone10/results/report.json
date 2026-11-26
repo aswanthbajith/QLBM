@@ -1,0 +1,137 @@
+{
+  "feasibility": [
+    {
+      "lattice": "D2Q9",
+      "directions_2d": 9,
+      "speed_spacing": 1.0,
+      "max_speed": 1.0,
+      "sample_feasible_fraction": 0.07689110556940981,
+      "ritter_fan_feasible_fraction": 0.09657560600230858
+    },
+    {
+      "lattice": "D2Q25",
+      "directions_2d": 25,
+      "speed_spacing": 0.5,
+      "max_speed": 1.0,
+      "sample_feasible_fraction": 0.5322859517871986,
+      "ritter_fan_feasible_fraction": 0.30165448249326665
+    },
+    {
+      "lattice": "D2Q81",
+      "directions_2d": 81,
+      "speed_spacing": 0.25,
+      "max_speed": 1.0,
+      "sample_feasible_fraction": 0.8647547797173732,
+      "ritter_fan_feasible_fraction": 0.6644863409003463
+    },
+    {
+      "lattice": "D2Q289",
+      "directions_2d": 289,
+      "speed_spacing": 0.25,
+      "max_speed": 2.0,
+      "sample_feasible_fraction": 0.8911388196176226,
+      "ritter_fan_feasible_fraction": 0.6644863409003463
+    },
+    {
+      "lattice": "D2Q1089",
+      "directions_2d": 1089,
+      "speed_spacing": 0.125,
+      "max_speed": 2.0,
+      "sample_feasible_fraction": 0.9741978387364921,
+      "ritter_fan_feasible_fraction": 0.8376298576375529
+    }
+  ],
+  "strip_final": {
+    "D2Q9": {
+      "step": 24,
+      "rmse": 0.1921399176897035,
+      "mass_error": 0.0,
+      "min_depth": 0.0,
+      "min_population": 0.0,
+      "infeasible_cells": 384,
+      "valid": true
+    },
+    "D2Q25": {
+      "step": 24,
+      "rmse": 0.08331848436779375,
+      "mass_error": -2.842170943040401e-14,
+      "min_depth": 0.0,
+      "min_population": 0.0,
+      "infeasible_cells": 200,
+      "valid": true
+    },
+    "D2Q81": {
+      "step": 24,
+      "rmse": 0.285132902917079,
+      "mass_error": 0.0,
+      "min_depth": 0.0,
+      "min_population": 0.0,
+      "infeasible_cells": 184,
+      "valid": true
+    },
+    "D2Q289": {
+      "step": 24,
+      "rmse": 0.4036671134773684,
+      "mass_error": 0.0,
+      "min_depth": 0.0,
+      "min_population": 0.0,
+      "infeasible_cells": 448,
+      "valid": true
+    },
+    "D2Q1089": {
+      "step": 24,
+      "rmse": 0.8339016830902181,
+      "mass_error": 0.0,
+      "min_depth": 0.0,
+      "min_population": 0.0,
+      "infeasible_cells": 488,
+      "valid": true
+    },
+    "signed D2Q9 marginal": {
+      "step": 24,
+      "rmse": 0.2015011157390781,
+      "mass_error": -2.842170943040401e-14,
+      "min_depth": 0.0,
+      "min_population": -0.023922183829389057,
+      "infeasible_cells": 368,
+      "valid": true
+    }
+  },
+  "product_equilibrium": {
+    "tested_feasible_states": 4070,
+    "max_moment_error": 6.661338147750939e-16,
+    "moment_errors_h_qx_qy_pxx_pyy_pxy": [
+      4.440892098500626e-16,
+      4.440892098500626e-16,
+      4.440892098500626e-16,
+      5.828670879282072e-16,
+      6.661338147750939e-16,
+      4.440892098500626e-16
+    ]
+  },
+  "oracle": {
+    "qubits": 24,
+    "logical_pattern_controlled_x": 458,
+    "input_patterns": 256,
+    "mass_momentum_feasible_patterns": 120,
+    "invalid_flagged": 136,
+    "max_stress_error_index_ticks": 3.0625,
+    "smaller_statevector_qubits": 17,
+    "smaller_statevector_gates": 80,
+    "coherent_error": 0.0,
+    "inverse_error": 0.0
+  },
+  "transport": {
+    "directions": 25,
+    "grid": [
+      4,
+      4
+    ],
+    "padded_qubits": 9,
+    "pattern_controlled_x_gates": 858,
+    "mass_error_ticks": 0,
+    "obstacle_population_ticks": 0,
+    "max_statevector_error": 0.0
+  },
+  "backend": "floating kinetic candidate screening separately; actual pattern-controlled X basis and small statevector simulation for oracle and transport only; no integrated quantum fluid solver"
+}

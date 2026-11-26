@@ -1,0 +1,186 @@
+{
+  "model": "D2Q25 projected product equilibrium, full relaxation omega=1, g=1/8, nonnegative fixed-point words",
+  "backend": "X/CX/CCX bit-sliced computational-basis execution, exact word permutation for transport, fresh basis registers per step; classical references independent; no native Qiskit or hardware",
+  "local": {
+    "tested": 1024,
+    "feasible": 801,
+    "max_mass_error_ticks": 0,
+    "max_momentum_error_index_ticks": 0,
+    "feasible_moment_rmse": 0.003843949160362772,
+    "feasible_cross_moment_rmse": 0.0018789470360478474
+  },
+  "obstacle": {
+    "initial": {
+      "step": 0,
+      "total_depth_ticks": 30720,
+      "integrated_depth_lu": 30.0,
+      "wet_cells": 80,
+      "infeasible_wet_cells": 0,
+      "max_speed": 0.0,
+      "max_abs_transverse_velocity": 0.0,
+      "depth_rmse_vs_float": 0.0,
+      "overflow_rejected_last_step": 0,
+      "obstacle_ticks": 0
+    },
+    "final": {
+      "step": 24,
+      "total_depth_ticks": 30720,
+      "integrated_depth_lu": 30.0,
+      "wet_cells": 240,
+      "infeasible_wet_cells": 91,
+      "max_speed": 1.118033988749895,
+      "max_abs_transverse_velocity": 1.0,
+      "depth_rmse_vs_float": 0.055322139961413386,
+      "overflow_rejected_last_step": 0,
+      "obstacle_ticks": 0
+    },
+    "steps": 24,
+    "verified_inverse_steps": 24,
+    "integer_reference_agreement_steps": 24,
+    "max_mass_error_ticks": 0,
+    "overflow_rejections": 0,
+    "resources": {
+      "local_qubits": 109247,
+      "local_scratch": 108746,
+      "local_x_cx_ccx": 355545,
+      "global_qubits": 236987,
+      "global_x_cx_ccx_equivalent": 85839855,
+      "streaming_word_swaps": 5117
+    }
+  },
+  "strip": [
+    {
+      "scale": 64,
+      "initial": {
+        "step": 0,
+        "total_depth_ticks": 98304,
+        "integrated_depth_lu": 24.0,
+        "wet_cells": 1024,
+        "infeasible_wet_cells": 0,
+        "max_speed": 0.0,
+        "max_abs_transverse_velocity": 0.0,
+        "depth_rmse_vs_float": 0.0,
+        "overflow_rejected_last_step": 0,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.0,
+        "float_ritter_rmse": 0.0
+      },
+      "final": {
+        "step": 24,
+        "total_depth_ticks": 98304,
+        "integrated_depth_lu": 24.0,
+        "wet_cells": 1312,
+        "infeasible_wet_cells": 128,
+        "max_speed": 1.0137937550497031,
+        "max_abs_transverse_velocity": 0.16666666666666666,
+        "depth_rmse_vs_float": 0.02800226948334083,
+        "overflow_rejected_last_step": 0,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.11090103071388387,
+        "float_ritter_rmse": 0.0833184843677937
+      },
+      "steps": 24,
+      "verified_inverse_steps": 24,
+      "integer_reference_agreement_steps": 24,
+      "max_mass_error_ticks": 0,
+      "overflow_rejections": 0,
+      "resources": {
+        "local_qubits": 76665,
+        "local_scratch": 76264,
+        "local_x_cx_ccx": 249843,
+        "global_qubits": 897512,
+        "global_x_cx_ccx_equivalent": 512658624,
+        "streaming_word_swaps": 40840
+      }
+    },
+    {
+      "scale": 256,
+      "initial": {
+        "step": 0,
+        "total_depth_ticks": 393216,
+        "integrated_depth_lu": 24.0,
+        "wet_cells": 1024,
+        "infeasible_wet_cells": 0,
+        "max_speed": 0.0,
+        "max_abs_transverse_velocity": 0.0,
+        "depth_rmse_vs_float": 0.0,
+        "overflow_rejected_last_step": 0,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.0,
+        "float_ritter_rmse": 0.0
+      },
+      "final": {
+        "step": 24,
+        "total_depth_ticks": 393216,
+        "integrated_depth_lu": 24.0,
+        "wet_cells": 1408,
+        "infeasible_wet_cells": 208,
+        "max_speed": 1.0,
+        "max_abs_transverse_velocity": 0.012345679012345678,
+        "depth_rmse_vs_float": 0.007281839535945804,
+        "overflow_rejected_last_step": 0,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.08845925203940955,
+        "float_ritter_rmse": 0.0833184843677937
+      },
+      "steps": 24,
+      "verified_inverse_steps": 24,
+      "integer_reference_agreement_steps": 24,
+      "max_mass_error_ticks": 0,
+      "overflow_rejections": 0,
+      "resources": {
+        "local_qubits": 109247,
+        "local_scratch": 108746,
+        "local_x_cx_ccx": 355545,
+        "global_qubits": 1134794,
+        "global_x_cx_ccx_equivalent": 729381360,
+        "streaming_word_swaps": 40840
+      }
+    },
+    {
+      "scale": 1024,
+      "initial": {
+        "step": 0,
+        "total_depth_ticks": 1572864,
+        "integrated_depth_lu": 24.0,
+        "wet_cells": 1024,
+        "infeasible_wet_cells": 0,
+        "max_speed": 0.0,
+        "max_abs_transverse_velocity": 0.0,
+        "depth_rmse_vs_float": 0.0,
+        "overflow_rejected_last_step": 0,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.0,
+        "float_ritter_rmse": 0.0
+      },
+      "final": {
+        "step": 24,
+        "total_depth_ticks": 1572864,
+        "integrated_depth_lu": 24.0,
+        "wet_cells": 1408,
+        "infeasible_wet_cells": 216,
+        "max_speed": 1.0,
+        "max_abs_transverse_velocity": 0.006666666666666667,
+        "depth_rmse_vs_float": 0.002541941449553766,
+        "overflow_rejected_last_step": 0,
+        "obstacle_ticks": 0,
+        "ritter_rmse": 0.08423069241363955,
+        "float_ritter_rmse": 0.0833184843677937
+      },
+      "steps": 24,
+      "verified_inverse_steps": 24,
+      "integer_reference_agreement_steps": 24,
+      "max_mass_error_ticks": 0,
+      "overflow_rejections": 0,
+      "resources": {
+        "local_qubits": 147557,
+        "local_scratch": 146956,
+        "local_x_cx_ccx": 479775,
+        "global_qubits": 1377804,
+        "global_x_cx_ccx_equivalent": 984049440,
+        "streaming_word_swaps": 40840
+      }
+    }
+  ],
+  "elapsed_seconds": 9.814222273999803
+}

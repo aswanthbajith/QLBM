@@ -1,0 +1,47 @@
+{
+  "grid_zyx": [
+    4,
+    4,
+    4
+  ],
+  "steps": 2,
+  "scale": 65536,
+  "initial_components": 2,
+  "intermediate_measurements": 0,
+  "intermediate_reinitializations": 0,
+  "logical_qubits": 28276,
+  "forward_X_CX_CCX_gates": 20624658,
+  "copy_qubits": 1235,
+  "compute_copy_reverse_gates": 41250551,
+  "max_integer_reference_error_ticks": 0,
+  "max_mass_error_ticks": 0,
+  "velocities_ticks": [
+    [
+      0,
+      17,
+      33
+    ],
+    [
+      -10000,
+      -10007,
+      -10013
+    ]
+  ],
+  "velocity_amplitude_nd": [
+    [
+      0.0,
+      0.0002593994140625,
+      0.0005035400390625
+    ],
+    [
+      -0.152587890625,
+      -0.1526947021484375,
+      -0.1527862548828125
+    ]
+  ],
+  "arithmetic_workspace_cleanup": true,
+  "history_cleanup_with_original_input_retained": true,
+  "relative_phase_ratio_imaginary": 1.0,
+  "inverse_bit_error": 0,
+  "simulator": "exact sparse complex support, bit-sliced permutation gates; supplied initial amplitudes"
+}

@@ -1,0 +1,6 @@
+# Scientific source audit
+
+- Cuccaro, Draper, Kutin and Moulton (2004), *A new quantum ripple-carry addition circuit*, https://arxiv.org/abs/quant-ph/0410184. Implemented the MAJ/UMA modular adder structure; carry and copied input workspace are restored. Subtraction uses the reversed gate sequence. Verified all 4-bit input/accumulator pairs and the 16–40 bit physical data.
+- Häner, Roetteler and Svore (2018), *Optimizing Quantum Circuits for Arithmetic*, https://arxiv.org/abs/1805.12445. Motivates reversible computational-basis arithmetic and clean ancilla management; the affine interpolation here is our own controlled constant shift/add construction, not a reproduction of their full compiler.
+- Existing M27 solver (`milestone27/solver.py`, `milestone23/solver.py`, `milestone22/solver.py`, `milestone21/solver.py`) supplies physical equations and transport. `milestone8/collision.py` and `milestone16/phase_field.py` supply the gate executor and bit-packing. M28 changes only local moments and affine material interpolation in a separate backend.
+- Current source baseline: M27 full archive; local source commit 05b504b392647364d97702f29c45d609039de88d. No remote code pulled or pushed this milestone. No dedicated external research skills invoked.
